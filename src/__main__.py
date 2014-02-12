@@ -22,28 +22,60 @@ b_curve = [i / 255 for i in range(256)]
 
 
 def curves(r, g, b):
+    '''
+    Generate a tuple of curve–parameter pairs
+    
+    @param   r  The red parameter
+    @param   g  The green parameter
+    @param   b  The blue parameter
+    @return     ((r_curve, r), (g_curve, g), (b_curve, b))
+    '''
     return ((r_curve, r), (g_curve, g), (b_curve, b))
 
 
 def contrast(r, g, b):
+    '''
+    Apply contrast correction on the colour curves
+    
+    @param  r:float  The contrast parameter for the red curve
+    @param  g:float  The contrast parameter for the green curve
+    @param  b:float  The contrast parameter for the blue curve
+    '''
     for (curve, level) in curves(r, g, b):
         if not level == 1.0:
             for i in range(256):
                 curve[i] = (curve[i] - 0.5) * level + 0.5
 
 def brightness(r, g, b):
+    '''
+    Apply brightness correction on the colour curves
+    
+    @param  r:float  The brightness parameter for the red curve
+    @param  g:float  The brightness parameter for the green curve
+    @param  b:float  The brightness parameter for the blue curve
+    '''
     for (curve, level) in curves(r, g, b):
         if not level == 1.0:
             for i in range(256):
                 curve[i] *= level
 
 def gamma(r, g, b):
+    '''
+    Apply gamma correction on the colour curves
+    
+    @param  r:float  The gamma parameter for the red curve
+    @param  g:float  The gamma parameter for the green curve
+    @param  b:float  The gamma parameter for the blue curve
+    '''
     for (curve, level) in curves(r, g, b):
         if not level == 1.0:
             for i in range(256):
                 curve[i] **= level
 
 def clip():
+    '''
+    Clip all values belowed the actual minimum and above actual maximums
+    '''
     for curve in (r_curve, g_curve, b_curve):
         for i in range(256):
             curve[i] = min(max(0.0, curve[i]), 1.0)
@@ -52,7 +84,6 @@ def clip():
 contrast(1.0, 1.0, 1.0)
 brightness(1.0, 1.0, 1.0)
 gamma(1.0, 1.0, 1.0)
-temperature(1.0, 1.0, 1.0)
 clip()
 
 
