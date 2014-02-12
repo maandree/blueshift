@@ -14,6 +14,7 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import math
 
 
 r_curve = [i / 255 for i in range(256)]
@@ -31,6 +32,23 @@ def curves(r, g, b):
     @return     ((r_curve, r), (g_curve, g), (b_curve, b))
     '''
     return ((r_curve, r), (g_curve, g), (b_curve, b))
+
+
+def sigmoid(r, g, b):
+    '''
+    Apply S-curve correction on the colour curves
+    
+    @param  r:float  The sigmoid parameter for the red curve
+    @param  g:float  The sigmoid parameter for the green curve
+    @param  b:float  The sigmoid parameter for the blue curve
+    '''
+    for (curve, level) in curves(r, g, b):
+        if not level == 1.0:
+            for i in range(256):
+                try:
+                    curve[i] = 0.5 - math.log(1 / curve[i] - 1) / level
+                except:
+                    curve[i] = 0;
 
 
 def contrast(r, g, b):
@@ -81,6 +99,8 @@ def clip():
             curve[i] = min(max(0.0, curve[i]), 1.0)
 
 
+sigmoid(1.0, 1.0, 1.0)
+clip()
 contrast(1.0, 1.0, 1.0)
 brightness(1.0, 1.0, 1.0)
 gamma(1.0, 1.0, 1.0)
@@ -93,4 +113,5 @@ for curve in (r_curve, g_curve, b_curve):
 print(r_curve)
 print(g_curve)
 print(b_curve)
+print(Math.e)
 
