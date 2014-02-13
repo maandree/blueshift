@@ -189,7 +189,7 @@ def cie_contrast(level):
     if not level == 1.0:
         for i in range(i_size):
             (x, y, Y) = to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, Y * level)
+            (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, (Y - 0.5) * level + 0.5)
 
 def rgb_brightness(r, g, b):
     '''
