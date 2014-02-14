@@ -25,6 +25,7 @@ def linear_to_standard(*colour):
     '''
     return [12.92 * c if c <= 0.0031308 else (1 + 0.055) * c ** (1 / 2.4) - 0.055 for c in colour]
 
+
 def standard_to_linear(*colour):
     '''
     Convert [0, 1] sRGB to linear [0, 1] RGB
@@ -33,6 +34,7 @@ def standard_to_linear(*colour):
     @return  :[float, float, float]  The red, green and blue components
     '''
     return [c / 12.92 if c <= 0.04045 else ((c + 0.055) / (1 + 0.055)) ** 2.4 for c in colour]
+
 
 def ciexyy_to_ciexyz(x, y, Y):
     '''
@@ -44,6 +46,7 @@ def ciexyy_to_ciexyz(x, y, Y):
     @return  :[float, float, float]  The X, Y and Z parameters
     '''
     return [Y * x / y, Y, Y * (1 - x - y) / y]
+
 
 def ciexyz_to_ciexyy(X, Y, Z):
     '''
@@ -60,6 +63,7 @@ def ciexyz_to_ciexyy(X, Y, Z):
     x = X * y / Y
     return [x, y, Y]
 
+
 def ciexyz_to_linear(X, Y, Z):
     '''
     Convert CIE XYZ to [0, 1] linear RGB
@@ -73,6 +77,7 @@ def ciexyz_to_linear(X, Y, Z):
     g = -0.9689 * X + 1.8758 * Y + 0.0415 * Z
     b = 0.0557 * X - 0.2040 * Y + 1.0570 * Z
     return [r, g, b]
+
 
 def linear_to_ciexyz(r, g, b):
     '''
@@ -88,6 +93,7 @@ def linear_to_ciexyz(r, g, b):
     Z = 0.0193 * r + 0.1192 * g + 1.9502 * b
     return [X, Y, Z]
 
+
 def srgb_to_ciexyy(r, g, b):
     '''
     Convert [0, 1] sRGB to CIE xyY
@@ -100,6 +106,7 @@ def srgb_to_ciexyy(r, g, b):
     (r, g, b) = standard_to_linear(r, g, b)
     (X, Y, Z) = linear_to_ciexyz(r, g, b)
     return ciexyz_to_ciexyy(X, Y, Z)
+
 
 def ciexyy_to_srgb(x, y, Y):
     '''
