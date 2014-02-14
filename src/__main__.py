@@ -31,11 +31,28 @@ from curve import *
 #clip()
 
 
+
+## Load extension and configurations via ponysayrc
+for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
+    file = file.replace('%', 'blueshift')
+    for arg in ('XDG_CONFIG_HOME', 'HOME'):
+        file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
+    file = file.replace('\0', '$')
+    if (file is not None) and os.path.exists(file):
+        with open(file, 'rb') as script:
+            code = script.read().decode('utf8', 'error') + '\n'
+            code = compile(code, file, 'exec')
+            exec(code)
+            break
+
+
+## Translate curve from float to integer
 for curve in (r_curve, g_curve, b_curve):
     for i in range(i_size):
         curve[i] = int(curve[i] * (o_size - 1) + 0.5)
         if clip_result:
             curve[i] = min(max(0, curve[i]), (o_size - 1))
+
 print(r_curve)
 print(g_curve)
 print(b_curve)
