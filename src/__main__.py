@@ -19,18 +19,25 @@ import math
 from colour import *
 
 
+# /usr/share/blueshift
 DATADIR = '.'
 
+# Mapping input and output maximum values + 1
 i_size = 2 ** 8
 o_size = 2 ** 16
+
+# Red, green and blue curves
 r_curve = [i / (i_size - 1) for i in range(i_size)]
 g_curve = [i / (i_size - 1) for i in range(i_size)]
 b_curve = [i / (i_size - 1) for i in range(i_size)]
+
+
+
 clip_result = True
-
-cmf_2deg_cache = None
-cmf_10deg_cache = None
-
+'''
+Set to `False` if you want to allow value overflow rather than clipping,
+doing so can create visual artifacts
+'''
 
 def curves(r, g, b):
     '''
@@ -39,7 +46,7 @@ def curves(r, g, b):
     @param   r  The red parameter
     @param   g  The green parameter
     @param   b  The blue parameter
-    @return     ((r_curve, r), (g_curve, g), (b_curve, b))
+    @return     `((r_curve, r), (g_curve, g), (b_curve, b))`
     '''
     return ((r_curve, r), (g_curve, g), (b_curve, b))
 
@@ -81,6 +88,7 @@ def simple_whitepoint(temperature):
             b = 0.543206789 * math.log(temp - 10) - 1.196254089
     return (r, g, b)
 
+cmf_2deg_cache = None
 def cmf_2deg(temperature):
     '''
     Calculate the colour for a blackbody temperature using raw CIE 1931 2 degree CMF data with interpolation
@@ -106,6 +114,7 @@ def cmf_2deg(temperature):
         y = y1 * temp + y2 * (1 - temp)
     return ciexy_to_srgb(x, y, 1.0)
 
+cmf_10deg_cache = None
 def cmf_10deg(temperature):
     '''
     Calculate the colour for a blackbody temperature using raw CIE 1964 10 degree CMF data with interpolation
