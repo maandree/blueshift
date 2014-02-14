@@ -129,11 +129,11 @@ def cmf_10deg(temperature):
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
     '''
-    if cmf_2deg_cache is None:
+    if cmf_10deg_cache is None:
         with open(DATADIR + '/10deg', 'rb') as file:
-            cmf_2deg_cache = file.read()
-        cmf_2deg_cache.decode('utf-8', 'error').split('\n')
-        cmf_2deg_cache = [[float(x) for x in x_y.split(' ')] for x_y in cmf_2deg_cache]
+            cmf_10deg_cache = file.read()
+        cmf_10deg_cache.decode('utf-8', 'error').split('\n')
+        cmf_10deg_cache = [[float(x) for x in x_y.split(' ')] for x_y in cmf_10deg_cache]
     temperature = min(max(0, temperature), 1000)
     x, y = 0, 0
     if (temp % 100) == 0:
