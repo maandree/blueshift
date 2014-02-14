@@ -34,7 +34,10 @@ manipulate(lambda r : r, lambda g : g, lambda b : b)
 clip()
 
 
+
+## Set globals accessible by rc
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
+
 
 ## Load extension and configurations via ponysayrc
 for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
