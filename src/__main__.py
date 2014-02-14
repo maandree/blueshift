@@ -30,6 +30,7 @@ rgb_brightness(1.0, 1.0, 1.0)
 cie_brightness(1.0)
 gamma(1.0, 1.0, 1.0)
 sigmoid(None, None, None)
+manipulate(lambda r : r, lambda g : g, lambda b : b)
 clip()
 
 
