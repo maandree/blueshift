@@ -32,7 +32,7 @@ def periodically(year, month, day, hour, minute, second, weekday):
     @param   second:int   The second, minimum value is 0, probable maximum value is 60 (**)
     @param   weekday:int  The weekday, 1 = Monday, 7 = Sunday
     
-    (*)  Can be exceeded it the calendar system is changed, like in 1712-(02)Feb-30
+    (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
     temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
