@@ -27,6 +27,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     If you want to control at what to invoke this function next time
     you can set the value of the global variable `wait_period` to the
     number of seconds to wait before invocing this function again.
+    The value does not need to be an integer.
     
     @param   year:int     The year
     @param   month:int    The month, 1 = January, 12 = December
