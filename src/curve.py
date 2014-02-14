@@ -281,6 +281,25 @@ def sigmoid(r, g, b):
                     curve[i] = 0;
 
 
+def manipulate(r, g = None, b = None):
+    '''
+    Manipulate the colour curves using a lambda function
+    
+    @param  r:(float)→float   Lambda function to manipulate the red colour curve
+    @param  g:(float)?→float  Lambda function to manipulate the green colour curve, defaults to `r` if `None`
+    @param  b:(float)?→float  Lambda function to manipulate the blue colour curve, defaults to `r` if `None`
+    
+    The lambda functions thats a colour value and maps it to a new colour value.
+    For example, if the red value 0.5 is already mapped to 0.25, then if the function
+    maps 0.25 to 0.5, the red value 0.5 will revert back to being mapped to 0.5.
+    '''
+    if g is None:  g = r
+    if b is None:  b = r
+    for (curve, f) in curves(r, g, b):
+        for i in range(i_size):
+            curve[i] = f(curve[i])
+
+
 def clip():
     '''
     Clip all values below the actual minimum and above actual maximums
