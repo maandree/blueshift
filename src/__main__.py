@@ -68,11 +68,13 @@ for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/et
     if file is not None:
         file = file.replace('\0', '$')
         if os.path.exists(file):
+            code = None
             with open(file, 'rb') as script:
-                code = script.read().decode('utf8', 'error') + '\n'
-                code = compile(code, file, 'exec')
-                exec(code, globals)
-                break
+                code = script.read()
+            code = code.decode('utf8', 'error') + '\n'
+            code = compile(code, file, 'exec')
+            exec(code, globals)
+            break
 
 
 ## Translate curve from float to integer
