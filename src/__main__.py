@@ -27,7 +27,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     
     If you want to control at what to invoke this function next time
     you can set the value of the global variable `wait_period` to the
-    number of seconds to wait before invocing this function again.
+    number of seconds to wait before invoking this function again.
     The value does not need to be an integer.
     
     @param   year:int     The year
@@ -69,10 +69,23 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
 
 
 
-## Set globals variables
 periodically = None
+'''
+:(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
+'''
+
 wait_period = 60
+'''
+:float  The number of seconds to wait before invoking `periodically` again
+'''
+
 monitor_controller = lambda : randr()
+'''
+:()→void  Function used by Blueshift on exit to apply reset colour curves
+'''
+
+
+## Set globals variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
 global periodically, wait_period, monitor_controller
 
