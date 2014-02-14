@@ -34,7 +34,6 @@ b_curve = [i / (i_size - 1) for i in range(i_size)]
 
 
 
-
 clip_result = True
 '''
 Set to `False` if you want to allow value overflow rather than clipping,
