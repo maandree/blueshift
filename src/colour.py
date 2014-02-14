@@ -20,9 +20,7 @@ def linear_to_standard(*colour):
     '''
     Convert [0, 1] linear RGB to [0, 1] sRGB
     
-    @param   r:float                 The red component
-    @param   g:float                 The green component
-    @param   b:float                 The blue component
+    @param   colour:*float           The red component, the green component, and the blue component
     @return  :[float, float, float]  The red, green and blue components
     '''
     return [12.92 * c if c <= 0.0031308 else (1 + 0.055) * c ** (1 / 2.4) - 0.055 for c in colour]
@@ -31,9 +29,7 @@ def standard_to_linear(*colour):
     '''
     Convert [0, 1] sRGB to linear [0, 1] RGB
     
-    @param   r:float                 The red component
-    @param   g:float                 The green component
-    @param   b:float                 The blue component
+    @param   colour:*float           The red component, the green component, and the blue component
     @return  :[float, float, float]  The red, green and blue components
     '''
     return [c / 12.92 if c <= 0.04045 else ((c + 0.055) / (1 + 0.055)) ** 2.4 for c in colour]
