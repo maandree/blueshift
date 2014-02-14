@@ -24,6 +24,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     Invoked periodically
     
+    If you want to control at what to invoke this function next time
+    you can set the value of the global variable `wait_period` to the
+    number of seconds to wait before invocing this function again.
+    
     @param   year:int     The year
     @param   month:int    The month, 1 = January, 12 = December
     @param   day:int      The day, minimum value is 1, probable maximum value is 31 (*)
@@ -65,7 +69,8 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
 
 ## Set globals accessible by rc
 periodically = None
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, periodically
+wait_period = 60
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, periodically, wait_period
 
 
 ## Load extension and configurations via ponysayrc
