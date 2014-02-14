@@ -33,6 +33,8 @@ sigmoid(None, None, None)
 clip()
 
 
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
+
 ## Load extension and configurations via ponysayrc
 for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
     file = file.replace('%', 'blueshift')
@@ -49,7 +51,7 @@ for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/et
             with open(file, 'rb') as script:
                 code = script.read().decode('utf8', 'error') + '\n'
                 code = compile(code, file, 'exec')
-                exec(code)
+                exec(code, globals)
                 break
 
 
