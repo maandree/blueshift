@@ -20,23 +20,39 @@ from colour import *
 from curve import *
 
 
-temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
-temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
-temperature(6500, cmf_2deg, True)
-temperature(6500, cmf_10deg, True)
-rgb_contrast(1.0, 1.0, 1.0)
-cie_contrast(1.0)
-rgb_brightness(1.0, 1.0, 1.0)
-cie_brightness(1.0)
-gamma(1.0, 1.0, 1.0)
-sigmoid(None, None, None)
-manipulate(lambda r : r, lambda g : g, lambda b : b)
-clip()
+def periodically(year, month, day, hour, minute, second, weekday):
+    '''
+    Invoked periodically
+    
+    @param   year:int     The year
+    @param   month:int    The month, 1 = January, 12 = December
+    @param   day:int      The day, minimum value is 1, probable maximum value is 31 (*)
+    @param   hour:int     The hour, minimum value is 0, maximum value is 23
+    @param   minute:int   The minute, minimum value is 0, maximum value is 59
+    @param   second:int   The second, minimum value is 0, probable maximum value is 60 (**)
+    @param   weekday:int  The weekday, 1 = Monday, 7 = Sunday
+    
+    (*)  Can be exceeded it the calendar system is changed, like in 1712-(02)Feb-30
+    (**) See https://en.wikipedia.org/wiki/Leap_second
+    '''
+    temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
+    temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
+    temperature(6500, cmf_2deg, True)
+    temperature(6500, cmf_10deg, True)
+    rgb_contrast(1.0, 1.0, 1.0)
+    cie_contrast(1.0)
+    rgb_brightness(1.0, 1.0, 1.0)
+    cie_brightness(1.0)
+    gamma(1.0, 1.0, 1.0)
+    sigmoid(None, None, None)
+    manipulate(lambda r : r, lambda g : g, lambda b : b)
+    clip()
 
 
 
 ## Set globals accessible by rc
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
+periodically = None
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, periodically
 
 
 ## Load extension and configurations via ponysayrc
