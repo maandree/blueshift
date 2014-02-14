@@ -18,6 +18,7 @@ import os
 
 from colour import *
 from curve import *
+from monitor import *
 
 
 def periodically(year, month, day, hour, minute, second, weekday, fade):
@@ -68,10 +69,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
 
 
 
-## Set globals accessible by rc
+## Set globals variables
 periodically = None
 wait_period = 60
-monitor_controller = None
+monitor_controller = lambda : randr()
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
 global periodically, wait_period, monitor_controller
 
@@ -96,17 +97,4 @@ for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/et
             code = compile(code, file, 'exec')
             exec(code, globals)
             break
-
-
-## Translate curve from float to integer
-for curve in (r_curve, g_curve, b_curve):
-    for i in range(i_size):
-        curve[i] = int(curve[i] * (o_size - 1) + 0.5)
-        if clip_result:
-            curve[i] = min(max(0, curve[i]), (o_size - 1))
-
-print(r_curve)
-print(g_curve)
-print(b_curve)
-
 
