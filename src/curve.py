@@ -300,6 +300,21 @@ def manipulate(r, g = None, b = None):
             curve[i] = f(curve[i])
 
 
+def start_over():
+    '''
+    Reverts all colours curves to identity mappings.
+    This intended for multi-monitor setups with different curves on each monitor.
+    If you have a multi-monitor setups without different curves then you have not
+    calibrated the monitors or you have awesome monitors that support hardware
+    gamma correction.
+    '''
+    for i in range(i_size):
+        v = i / (i_size - 1)
+        r_curve[i] = v
+        g_curve[i] = v
+        b_curve[i] = v
+
+
 def clip():
     '''
     Clip all values below the actual minimum and above actual maximums
