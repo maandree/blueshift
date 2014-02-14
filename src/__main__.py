@@ -20,7 +20,7 @@ from colour import *
 from curve import *
 
 
-def periodically(year, month, day, hour, minute, second, weekday):
+def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     Invoked periodically
     
@@ -31,22 +31,35 @@ def periodically(year, month, day, hour, minute, second, weekday):
     @param   minute:int   The minute, minimum value is 0, maximum value is 59
     @param   second:int   The second, minimum value is 0, probable maximum value is 60 (**)
     @param   weekday:int  The weekday, 1 = Monday, 7 = Sunday
+    @param   fade:float?  Blueshift can use this function to fade into a state when it start
+                          or exits. `fade` can either be negative, zero or positive or `None`,
+                          but the magnitude of value cannot exceed 1. When Blueshift starts,
+                          the this function will be invoked multiple with the time parameters
+                          of the time it is invoked and each time `fade` will increase towards
+                          1, starting at 0, when the value is 1, the settings should be applied
+                          to 100 %. After this this function will be invoked once again with
+                          `fade` being `None`. When Blueshift exits the same behaviour is used
+                          except, `fade` decrease towards -1 but start slightly below 0, when
+                          -1 is reached all settings should be normal. Then Blueshift will NOT
+                          invoke this function with `fade` being `None`, instead it will by
+                          itself revert all settings and quit.
     
     (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
-    temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
-    temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
-    temperature(6500, cmf_2deg, True)
-    temperature(6500, cmf_10deg, True)
-    rgb_contrast(1.0, 1.0, 1.0)
-    cie_contrast(1.0)
-    rgb_brightness(1.0, 1.0, 1.0)
-    cie_brightness(1.0)
-    gamma(1.0, 1.0, 1.0)
-    sigmoid(None, None, None)
-    manipulate(lambda r : r, lambda g : g, lambda b : b)
-    clip()
+    if fade is None:
+        temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
+        temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
+        temperature(6500, cmf_2deg, True)
+        temperature(6500, cmf_10deg, True)
+        rgb_contrast(1.0, 1.0, 1.0)
+        cie_contrast(1.0)
+        rgb_brightness(1.0, 1.0, 1.0)
+        cie_brightness(1.0)
+        gamma(1.0, 1.0, 1.0)
+        sigmoid(None, None, None)
+        manipulate(lambda r : r, lambda g : g, lambda b : b)
+        clip()
 
 
 
