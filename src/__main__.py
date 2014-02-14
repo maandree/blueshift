@@ -14,34 +14,41 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
 from colour import *
 from curve import *
 
 
-#temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
-#temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
-#rgb_contrast(1.0, 1.0, 1.0)
-#cie_contrast(1.0)
-#rgb_brightness(1.0, 1.0, 1.0)
-#cie_brightness(1.0)
-#gamma(1.0, 1.0, 1.0)
-#sigmoid(None, None, None)
-#clip()
-
+temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
+temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
+rgb_contrast(1.0, 1.0, 1.0)
+cie_contrast(1.0)
+rgb_brightness(1.0, 1.0, 1.0)
+cie_brightness(1.0)
+gamma(1.0, 1.0, 1.0)
+sigmoid(None, None, None)
+clip()
 
 
 ## Load extension and configurations via ponysayrc
 for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
     file = file.replace('%', 'blueshift')
     for arg in ('XDG_CONFIG_HOME', 'HOME'):
-        file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
-    file = file.replace('\0', '$')
-    if (file is not None) and os.path.exists(file):
-        with open(file, 'rb') as script:
-            code = script.read().decode('utf8', 'error') + '\n'
-            code = compile(code, file, 'exec')
-            exec(code)
+        if arg in os.environ:
+            print(arg)
+            file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
+        else:
+            file = None
             break
+    if file is not None:
+        file = file.replace('\0', '$')
+        if os.path.exists(file):
+            with open(file, 'rb') as script:
+                code = script.read().decode('utf8', 'error') + '\n'
+                code = compile(code, file, 'exec')
+                exec(code)
+                break
 
 
 ## Translate curve from float to integer
