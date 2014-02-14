@@ -34,11 +34,13 @@ b_curve = [i / (i_size - 1) for i in range(i_size)]
 
 
 
+
 clip_result = True
 '''
 Set to `False` if you want to allow value overflow rather than clipping,
 doing so can create visual artifacts
 '''
+
 
 def curves(r, g, b):
     '''
@@ -50,6 +52,7 @@ def curves(r, g, b):
     @return     `((r_curve, r), (g_curve, g), (b_curve, b))`
     '''
     return ((r_curve, r), (g_curve, g), (b_curve, b))
+
 
 
 def series_d(temperature):
@@ -67,6 +70,7 @@ def series_d(temperature):
         x += k * 10 ** (d * 3) / temperature ** d
     y = 2.870 * x - 3.000 * x ** 2 - 0.275
     return ciexy_to_srgb(x, y, 1.0)
+
 
 def simple_whitepoint(temperature):
     '''
@@ -88,6 +92,7 @@ def simple_whitepoint(temperature):
         elif temp < 66:
             b = 0.543206789 * math.log(temp - 10) - 1.196254089
     return (r, g, b)
+
 
 cmf_2deg_cache = None
 def cmf_2deg(temperature):
@@ -114,6 +119,7 @@ def cmf_2deg(temperature):
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
     return ciexy_to_srgb(x, y, 1.0)
+
 
 cmf_10deg_cache = None
 def cmf_10deg(temperature):
@@ -142,6 +148,7 @@ def cmf_10deg(temperature):
     return ciexy_to_srgb(x, y, 1.0)
 
 
+
 def temperature(temperature, algorithm, linear_rgb = True):
     '''
     Change colour temperature according to the CIE illuminant series D
@@ -167,6 +174,7 @@ def temperature(temperature, algorithm, linear_rgb = True):
                 (R, G, B) = linear_to_standard(R, G, B)
                 r_curve[i], g_curve[i], b_curve[i] = R, G, B
 
+
 def divide_by_maximum():
     '''
     Divide all colour components by the value of the most prominent colour component for each colour
@@ -176,6 +184,7 @@ def divide_by_maximum():
         if m != 0:
             for curve in (r_curve, g_curve, b_curve):
                 curve[i] /= m
+
 
 def rgb_contrast(r, g, b):
     '''
@@ -190,6 +199,7 @@ def rgb_contrast(r, g, b):
             for i in range(i_size):
                 curve[i] = (curve[i] - 0.5) * level + 0.5
 
+
 def cie_contrast(level):
     '''
     Apply contrast correction on the colour curves using CIE XYZ
@@ -200,6 +210,7 @@ def cie_contrast(level):
         for i in range(i_size):
             (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
             (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, (Y - 0.5) * level + 0.5)
+
 
 def rgb_brightness(r, g, b):
     '''
@@ -214,6 +225,7 @@ def rgb_brightness(r, g, b):
             for i in range(i_size):
                 curve[i] *= level
 
+
 def cie_brightness(level):
     '''
     Apply brightness correction on the colour curves using CIE XYZ
@@ -224,6 +236,7 @@ def cie_brightness(level):
         for i in range(i_size):
             (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
             (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, Y * level)
+
 
 def gamma(r, g, b):
     '''
@@ -237,6 +250,7 @@ def gamma(r, g, b):
         if not level == 1.0:
             for i in range(i_size):
                 curve[i] **= level
+
     
 def sigmoid(r, g, b):
     '''
@@ -253,6 +267,7 @@ def sigmoid(r, g, b):
                     curve[i] = 0.5 - math.log(1 / curve[i] - 1) / level
                 except:
                     curve[i] = 0;
+
 
 def clip():
     '''
