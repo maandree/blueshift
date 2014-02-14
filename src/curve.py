@@ -175,15 +175,27 @@ def temperature(temperature, algorithm, linear_rgb = True):
                 r_curve[i], g_curve[i], b_curve[i] = R, G, B
 
 
-def divide_by_maximum():
+def divide_by_maximum(rgb):
     '''
-    Divide all colour components by the value of the most prominent colour component for each colour
+    Divide all colour components by the value of the most prominent colour component
+    
+    @param   rgb:[float, float, float]  The three colour components
+    @return  :[float, float, float]     The three colour components divided by the maximum
     '''
-    for i in range(i_size):
-        m = max([abs(x) for x in (r_curve[i], g_curve[i], b_curve[i])])
-        if m != 0:
-            for curve in (r_curve, g_curve, b_curve):
-                curve[i] /= m
+    m = max([abs(x) for x in rgb])
+    if m != 0:
+        return [x / m for x in rgb]
+    return rgb
+
+
+def clip_whitepoint(rgb):
+    '''
+    Clip all colour components to fit inside [0, 1]
+    
+    @param   rgb:[float, float, float]  The three colour components
+    @return  :[float, float, float]     The three colour components clipped
+    '''
+    return [min(max(0, x), 1) for x in rgb]
 
 
 def rgb_contrast(r, g, b):

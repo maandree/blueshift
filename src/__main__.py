@@ -18,10 +18,8 @@ from colour import *
 from curve import *
 
 
-#temperature(6500, series_d, True)
-#divide_by_maximum()
-#temperature(6500, simple_whitepoint, True)
-#clip()
+#temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
+#temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
 #rgb_contrast(1.0, 1.0, 1.0)
 #cie_contrast(1.0)
 #rgb_brightness(1.0, 1.0, 1.0)
