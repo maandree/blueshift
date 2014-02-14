@@ -58,7 +58,7 @@ def series_d(temperature):
     for (k, d) in ks:
         x += k * 10 ** (d * 3) / temperature ** d
     y = 2.870 * x - 3.000 * x ** 2 - 0.275
-    return to_srgb(x, y, 1.0)
+    return ciexy_to_srgb(x, y, 1.0)
 
 def simple_whitepoint(temperature):
     '''
@@ -104,7 +104,7 @@ def cmf_2deg(temperature):
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
-    return to_srgb(x, y, 1.0)
+    return ciexy_to_srgb(x, y, 1.0)
 
 def cmf_10deg(temperature):
     '''
@@ -129,7 +129,7 @@ def cmf_10deg(temperature):
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
-    return to_srgb(x, y, 1.0)
+    return ciexy_to_srgb(x, y, 1.0)
 
 
 def temperature(temperature, algorithm, linear_rgb = True):
@@ -188,7 +188,7 @@ def cie_contrast(level):
     '''
     if not level == 1.0:
         for i in range(i_size):
-            (x, y, Y) = to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
             (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, (Y - 0.5) * level + 0.5)
 
 def rgb_brightness(r, g, b):
@@ -212,7 +212,7 @@ def cie_brightness(level):
     '''
     if not level == 1.0:
         for i in range(i_size):
-            (x, y, Y) = to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
             (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, Y * level)
 
 def gamma(r, g, b):
@@ -246,7 +246,7 @@ def sigmoid(r, g, b):
 
 def clip():
     '''
-    Clip all values belowed the actual minimum and above actual maximums
+    Clip all values below the actual minimum and above actual maximums
     '''
     for curve in (r_curve, g_curve, b_curve):
         for i in range(i_size):
