@@ -69,8 +69,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
 
 ## Set globals accessible by rc
 periodically = None
+monitor_controller = None
 wait_period = 60
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, periodically, wait_period
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
+global periodically, wait_period, monitor_controller
 
 
 ## Load extension and configurations via ponysayrc
