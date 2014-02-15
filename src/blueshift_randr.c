@@ -74,10 +74,29 @@ typedef struct blueshift_randr_crtc
 
 
 
+/**
+ * Connection to the X server
+ */
 static xcb_connection_t* connection;
+
+/**
+ * Used to store errors in
+ */
 static xcb_generic_error_t* error;
+
+/**
+ * Screen resources
+ */
 static xcb_randr_get_screen_resources_current_reply_t* res_reply;
+
+/**
+ * The first CRTC
+ */
 static blueshift_randr_crtc_t* crtcs;
+
+/**
+ * The CRTC after the last CRTC
+ */
 static blueshift_randr_crtc_t* crtcs_end;
 
 
