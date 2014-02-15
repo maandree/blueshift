@@ -75,15 +75,8 @@ typedef struct blueshift_randr_crtc
 
 
 static xcb_connection_t* connection;
-static xcb_randr_query_version_cookie_t version_cookie;
-static xcb_randr_query_version_reply_t* randr_version;
 static xcb_generic_error_t* error;
-static const xcb_setup_t* setup;
-static xcb_screen_iterator_t iter;
-static xcb_screen_t* screen;
-static xcb_randr_get_screen_resources_current_cookie_t res_cookie;
 static xcb_randr_get_screen_resources_current_reply_t* res_reply;
-static unsigned int crtc_count;
 static blueshift_randr_crtc_t* crtcs;
 static blueshift_randr_crtc_t* crtcs_end;
 
@@ -97,6 +90,14 @@ static blueshift_randr_crtc_t* crtcs_end;
 int blueshift_randr_open(void)
 {
   blueshift_randr_crtc_t* crtcs_;
+  
+  xcb_randr_query_version_cookie_t version_cookie;
+  xcb_randr_query_version_reply_t* randr_version;
+  const xcb_setup_t* setup;
+  xcb_screen_iterator_t iter;
+  xcb_screen_t* screen;
+  xcb_randr_get_screen_resources_current_cookie_t res_cookie;
+  unsigned int crtc_count;
   xcb_randr_get_crtc_gamma_size_cookie_t gamma_size_cookie;
   xcb_randr_get_crtc_gamma_size_reply_t* gamma_size_reply;
   xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie;
