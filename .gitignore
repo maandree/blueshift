@@ -7,6 +7,7 @@ obj/
 *~
 *.o
 *.so
+*.out
 *.gch
 __pycache__/
 

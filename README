@@ -14,8 +14,9 @@ more flexible and solves some problems with Redshift:
 
     - Limited support for settings such as
       brightness and contrast. Technologies like
-      Blueshift and Redshift needs to remove
-      all settings made by other programs which
+      Blueshift and Redshift needs to remove all
+      settings made by other programs, to be
+      portable and to have get accuracy, which
       means that you cannot any other program
       at the same time. Redshift supports only
       gamman and a limited brightness range.
