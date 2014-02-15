@@ -48,6 +48,8 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
   uint16_t* r_gamma;
   uint16_t* g_gamma;
   uint16_t* b_gamma;
+  unsigned int i;
+  xcb_void_cookie_t gamma_set_cookie;
   
   
   connection = xcb_connect(NULL, NULL /* preferred screen */);
@@ -125,7 +127,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
   b_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
   
   
-  for (unsigned int i = 0; i < curve_size; i++)
+  for (i = 0; i < curve_size; i++)
     {
       *(r_gamma + i) = (1 << 16) - 1 - *(r_gamma + i);
       *(g_gamma + i) = (1 << 16) - 1 - *(g_gamma + i);
@@ -133,8 +135,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
     }
   
   
-  xcb_void_cookie_t gamma_set_cookie =
-    xcb_randr_set_crtc_gamma_checked(connection, *crtcs, curve_size, r_gamma, g_gamma, b_gamma);
+  gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *crtcs, curve_size, r_gamma, g_gamma, b_gamma);
   error = xcb_request_check(connection, gamma_set_cookie);
   
   if (error)
