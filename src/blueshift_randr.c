@@ -40,12 +40,36 @@
  */
 typedef struct blueshift_randr_crtc
 {
+  /**
+   * Size of colour curves on the X-axis
+   */
   unsigned int curve_size;
+  
+  /**
+   * This entity holds the allocation to the colour curves
+   */
   xcb_randr_get_crtc_gamma_reply_t* gamma_get_reply;
-  uint16_t* r_gamma;
-  uint16_t* g_gamma;
-  uint16_t* b_gamma;
+  
+  /**
+   * Red colour curve
+   */
+  uint16_t* r_curve;
+  
+  /**
+   * Green colour curve
+   */
+  uint16_t* g_curve;
+  
+  /**
+   * Blue colour curve
+   */
+  uint16_t* b_curve;
+  
+  /**
+   * CRT controller
+   */
   xcb_randr_crtc_t* crtc;
+  
 } blueshift_randr_crtc_t;
 
 
@@ -65,6 +89,11 @@ static blueshift_randr_crtc_t* crtcs_end;
 
 
 
+/**
+ * Start stage of colour curve control
+ * 
+ * @return  Zero on success
+ */
 int blueshift_randr_open(void)
 {
   blueshift_randr_crtc_t* crtcs_;
@@ -166,9 +195,9 @@ int blueshift_randr_open(void)
 	  return 1;
 	}
       
-      crtcs_->r_gamma = xcb_randr_get_crtc_gamma_red(crtcs_->gamma_get_reply);
-      crtcs_->g_gamma = xcb_randr_get_crtc_gamma_green(crtcs_->gamma_get_reply);
-      crtcs_->b_gamma = xcb_randr_get_crtc_gamma_blue(crtcs_->gamma_get_reply);
+      crtcs_->r_curve = xcb_randr_get_crtc_gamma_red(crtcs_->gamma_get_reply);
+      crtcs_->g_curve = xcb_randr_get_crtc_gamma_green(crtcs_->gamma_get_reply);
+      crtcs_->b_curve = xcb_randr_get_crtc_gamma_blue(crtcs_->gamma_get_reply);
     }
   
   
@@ -176,6 +205,12 @@ int blueshift_randr_open(void)
 }
 
 
+/**
+ * Apply stage of colour curve control
+ * 
+ * @param   use_crtcs  Mask of CRTC:s to use
+ * @return             Zero on success
+ */
 int blueshift_randr_apply(uint64_t use_crtcs)
 {
   blueshift_randr_crtc_t* crtcs_ = crtcs;
@@ -198,16 +233,16 @@ int blueshift_randr_apply(uint64_t use_crtcs)
       
       for (i = 0; i < crtcs_->curve_size; i++)
 	{
-	  *(crtcs_->r_gamma + i) = (1 << 16) - 1 - *(crtcs_->r_gamma + i);
-	  *(crtcs_->g_gamma + i) = (1 << 16) - 1 - *(crtcs_->g_gamma + i);
-	  *(crtcs_->b_gamma + i) = (1 << 16) - 1 - *(crtcs_->b_gamma + i);
+	  *(crtcs_->r_curve + i) = (1 << 16) - 1 - *(crtcs_->r_curve + i);
+	  *(crtcs_->g_curve + i) = (1 << 16) - 1 - *(crtcs_->g_curve + i);
+	  *(crtcs_->b_curve + i) = (1 << 16) - 1 - *(crtcs_->b_curve + i);
 	}
       
       
       /* Apply curves */
       
       gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *(crtcs_->crtc), crtcs_->curve_size,
-							  crtcs_->r_gamma, crtcs_->g_gamma, crtcs_->b_gamma);
+							  crtcs_->r_curve, crtcs_->g_curve, crtcs_->b_curve);
       error = xcb_request_check(connection, gamma_set_cookie);
       
       if (error)
@@ -228,6 +263,9 @@ int blueshift_randr_apply(uint64_t use_crtcs)
 }
 
 
+/**
+ * Resource freeing stage of colour curve control
+ */
 void blueshift_randr_close(void)
 {
   blueshift_randr_crtc_t* crtcs_;
