@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import datetime
 
 from colour import *
 from curve import *
@@ -110,4 +111,8 @@ for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/et
             code = compile(code, file, 'exec')
             exec(code, globals)
             break
+
+## Get the current time
+now = datetime.datetime.now() # .year, .month, .day, .hour, .minute, .second
+weekday = now.isocalendar()[2]
 
