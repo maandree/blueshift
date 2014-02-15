@@ -46,26 +46,6 @@ typedef struct blueshift_randr_crtc
   unsigned int curve_size;
   
   /**
-   * This entity holds the allocation to the colour curves
-   */
-  xcb_randr_get_crtc_gamma_reply_t* gamma_get_reply;
-  
-  /**
-   * Red colour curve
-   */
-  uint16_t* r_curve;
-  
-  /**
-   * Green colour curve
-   */
-  uint16_t* g_curve;
-  
-  /**
-   * Blue colour curve
-   */
-  uint16_t* b_curve;
-  
-  /**
    * CRT controller
    */
   xcb_randr_crtc_t* crtc;
@@ -99,6 +79,21 @@ static blueshift_randr_crtc_t* crtcs;
  */
 static blueshift_randr_crtc_t* crtcs_end;
 
+/**
+ * The red colour curve
+ */
+static uint16_t* r_curve;
+
+/**
+ * The green colour curve
+ */
+static uint16_t* g_curve;
+
+/**
+ * The blue colour curve
+ */
+static uint16_t* b_curve;
+
 
 
 /**
@@ -120,6 +115,8 @@ int blueshift_randr_open(void)
   xcb_randr_get_crtc_gamma_size_cookie_t gamma_size_cookie;
   xcb_randr_get_crtc_gamma_size_reply_t* gamma_size_reply;
   xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie;
+  xcb_randr_get_crtc_gamma_reply_t* gamma_get_reply;
+  
   
   
   /* Get X connection */
@@ -206,7 +203,7 @@ int blueshift_randr_open(void)
       /* Acquire curve control */
       
       gamma_get_cookie = xcb_randr_get_crtc_gamma(connection, *(crtcs_->crtc));
-      crtcs_->gamma_get_reply = xcb_randr_get_crtc_gamma_reply(connection, gamma_get_cookie, &error);
+      gamma_get_reply = xcb_randr_get_crtc_gamma_reply(connection, gamma_get_cookie, &error);
       
       if (error)
 	{
@@ -215,11 +212,15 @@ int blueshift_randr_open(void)
 	  return 1;
 	}
       
-      crtcs_->r_curve = xcb_randr_get_crtc_gamma_red(crtcs_->gamma_get_reply);
-      crtcs_->g_curve = xcb_randr_get_crtc_gamma_green(crtcs_->gamma_get_reply);
-      crtcs_->b_curve = xcb_randr_get_crtc_gamma_blue(crtcs_->gamma_get_reply);
+      free(gamma_get_reply);
     }
   
+  
+  /* Allocate curves */
+  
+  r_curve = malloc(3 * 256 * sizeof(uint16_t));
+  g_curve = r_curve + 256;
+  b_curve = g_curve + 256;
   
   return 0;
 }
@@ -237,8 +238,7 @@ int blueshift_randr_open(void)
 int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 {
   blueshift_randr_crtc_t* crtcs_ = crtcs;
-   
-  unsigned int i;
+  
   xcb_void_cookie_t gamma_set_cookie;
   
   
@@ -252,20 +252,10 @@ int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_cur
 	goto next_crtc;
       
       
-      /* Set curves */
-      
-      for (i = 0; i < crtcs_->curve_size; i++)
-	{
-	  *(crtcs_->r_curve + i) = *(r_curve + i);
-	  *(crtcs_->g_curve + i) = *(g_curve + i);
-	  *(crtcs_->b_curve + i) = *(b_curve + i);
-	}
-      
-      
       /* Apply curves */
       
       gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *(crtcs_->crtc), crtcs_->curve_size,
-							  crtcs_->r_curve, crtcs_->g_curve, crtcs_->b_curve);
+							  r_curve, g_curve, b_curve);
       error = xcb_request_check(connection, gamma_set_cookie);
       
       if (error)
@@ -291,17 +281,9 @@ int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_cur
  */
 void blueshift_randr_close(void)
 {
-  blueshift_randr_crtc_t* crtcs_;
-  
-  
-  /* Free CRTC resources */
-  
-  for (crtcs_ = crtcs; crtcs_ != crtcs_end; crtcs_++)
-    free(crtcs_->gamma_get_reply);
-  
-  
   /* Free remaining resources */
   
+  free(r_curve);
   free(crtcs);
   free(res_reply);
   xcb_disconnect(connection);
@@ -311,31 +293,19 @@ void blueshift_randr_close(void)
 
 int main(int argc, char** argv)
 {
-  uint16_t* r_curve = malloc(3 * 256 * sizeof(uint16_t));
-  uint16_t* g_curve = r_curve + 256;
-  uint16_t* b_curve = g_curve + 256;
   long i;
   
   (void) argc;
   (void) argv;
   
   if (blueshift_randr_open())
-    {
-      free(r_curve);
-      return 1;
-    }
+    return 1;
   
   for (i = 0; i < 256; i++)
     r_curve[i] = g_curve[i] = b_curve[i] = (int)((float)i / 255.f * (float)((1 << 16) - 1) + 0.f);
   
-  if (blueshift_randr_apply(~0, r_curve, g_curve, b_curve))
-    {
-      free(r_curve);
-      return 1;
-    }
-  
+  i = blueshift_randr_apply(~0, r_curve, g_curve, b_curve);
   blueshift_randr_close();
-  free(r_curve);
-  return 0;
+  return i;
 }
 
