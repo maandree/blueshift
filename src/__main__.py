@@ -85,6 +85,16 @@ monitor_controller = lambda : randr()
 :()→void  Function used by Blueshift on exit to apply reset colour curves
 '''
 
+fadein_time = 10
+'''
+:float  The number of seconds used to fade in on start
+'''
+
+fadeout_time = 10
+'''
+:float  The number of seconds used to fade out on exit
+'''
+
 
 ## Set globals variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
