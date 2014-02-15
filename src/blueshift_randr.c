@@ -37,6 +37,8 @@
 
 int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 {
+  uint64_t use_crtcs = ~0;
+  
   xcb_connection_t* connection;
   xcb_generic_error_t* error;
   xcb_randr_query_version_cookie_t version_cookie;
@@ -61,8 +63,12 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
   xcb_void_cookie_t gamma_set_cookie;
   
   
+  /* Get X connection */
+  
   connection = xcb_connect(NULL, NULL /* preferred screen */);
   
+  
+  /* Check RANDR protocol version */
   
   version_cookie = xcb_randr_query_version(connection, RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
   randr_version = xcb_randr_query_version_reply(connection, version_cookie, &error);
@@ -87,6 +93,8 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
   free(randr_version);
   
   
+  /* Get X resources */
+  
   setup = xcb_get_setup(connection);
   iter = xcb_setup_roots_iterator(setup);
   screen = iter.data;
@@ -102,13 +110,25 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
     }
   
   
+  /* Get CRTC:s */
+  
   crtc_count = res_reply->num_crtcs;
   crtcs = xcb_randr_get_screen_resources_current_crtcs(res_reply);
   crtcs_end = crtcs + crtc_count;
   
   
+  /* Use CRTC:s */
+  
   while (crtcs != crtcs_end)
     {
+      /* Check whether we should use the CRTC */
+
+      if ((use_crtcs & 1) == 0)
+	goto next_crtc;
+      
+      
+      /* Get curve X-axis size */
+      
       gamma_size_cookie = xcb_randr_get_crtc_gamma_size(connection, *crtcs);
       gamma_size_reply = xcb_randr_get_crtc_gamma_size_reply(connection, gamma_size_cookie, &error);
       
@@ -122,6 +142,8 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
       curve_size = gamma_size_reply->size;
       free(gamma_size_reply);
       
+      
+      /* Acquire curve control */
       
       gamma_get_cookie = xcb_randr_get_crtc_gamma(connection, *crtcs);
       gamma_get_reply = xcb_randr_get_crtc_gamma_reply(connection, gamma_get_cookie, &error);
@@ -138,6 +160,8 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
       b_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
       
       
+      /* Set curves */
+      
       for (i = 0; i < curve_size; i++)
 	{
 	  *(r_gamma + i) = (1 << 16) - 1 - *(r_gamma + i);
@@ -145,6 +169,8 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	  *(b_gamma + i) = (1 << 16) - 1 - *(b_gamma + i);
 	}
       
+      
+      /* Apply curves */
       
       gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *crtcs, curve_size, r_gamma, g_gamma, b_gamma);
       error = xcb_request_check(connection, gamma_set_cookie);
@@ -155,14 +181,24 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	  return 1;
 	}
       
-      
       free(gamma_get_reply);
+      
+
+      /* Next CRTC */
+      
+    next_crtc:
       crtcs++;
+      use_crtcs >>= 1;
     }
   
   
+  
+  /* Free remaining resources */
+  
   free(res_reply);
   xcb_disconnect(connection);
+  
+  
   return 0;
 }
 
