@@ -263,6 +263,20 @@ def gamma(r, g, b):
                 curve[i] **= level
 
     
+def negative(r, g, b):
+    '''
+    Invert the colour curves (negative image)
+    
+    @param  r:bool  Whether to invert the red curve
+    @param  g:bool  Whether to invert the green curve
+    @param  b:bool  Whether to invert the blue curve
+    '''
+    for (curve, setting) in curves(r, g, b):
+        if setting:
+            for i in range(i_size):
+                curve[i] = 1 - curve[i]
+
+    
 def sigmoid(r, g, b):
     '''
     Apply S-curve correction on the colour curves

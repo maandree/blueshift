@@ -55,6 +55,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
     if fade is None:
+        negative(False, False, False)
         temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
         temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
         temperature(6500, cmf_2deg, True)
