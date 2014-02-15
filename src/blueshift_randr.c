@@ -23,7 +23,14 @@
 
 
 
+/**
+ * The major version of RANDR the program expects
+ */
 #define RANDR_VERSION_MAJOR  1U
+
+/**
+ * The minor version of RANDR the program expects
+ */
 #define RANDR_VERSION_MINOR  3U
 
 
@@ -39,7 +46,9 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
   xcb_screen_t* screen;
   xcb_randr_get_screen_resources_current_cookie_t res_cookie;
   xcb_randr_get_screen_resources_current_reply_t* res_reply;
+  unsigned int crtc_count;
   xcb_randr_crtc_t* crtcs;
+  xcb_randr_crtc_t* crtcs_end;
   xcb_randr_get_crtc_gamma_size_cookie_t gamma_size_cookie;
   xcb_randr_get_crtc_gamma_size_reply_t* gamma_size_reply;
   unsigned int curve_size;
@@ -93,59 +102,66 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
     }
   
   
+  crtc_count = res_reply->num_crtcs;
   crtcs = xcb_randr_get_screen_resources_current_crtcs(res_reply);
+  crtcs_end = crtcs + crtc_count;
   
   
-  gamma_size_cookie = xcb_randr_get_crtc_gamma_size(connection, *crtcs);
-  gamma_size_reply = xcb_randr_get_crtc_gamma_size_reply(connection, gamma_size_cookie, &error);
-  
-  if (error)
+  while (crtcs != crtcs_end)
     {
-      fprintf(stderr, "RANDR CRTC gamma size query returned %i\n", error->error_code);
-      xcb_disconnect(connection);
-      return 1;
+      gamma_size_cookie = xcb_randr_get_crtc_gamma_size(connection, *crtcs);
+      gamma_size_reply = xcb_randr_get_crtc_gamma_size_reply(connection, gamma_size_cookie, &error);
+      
+      if (error)
+	{
+	  fprintf(stderr, "RANDR CRTC gamma size query returned %i\n", error->error_code);
+	  xcb_disconnect(connection);
+	  return 1;
+	}
+      
+      curve_size = gamma_size_reply->size;
+      free(gamma_size_reply);
+      
+      
+      gamma_get_cookie = xcb_randr_get_crtc_gamma(connection, *crtcs);
+      gamma_get_reply = xcb_randr_get_crtc_gamma_reply(connection, gamma_get_cookie, &error);
+      
+      if (error)
+	{
+	  fprintf(stderr, "RANDR CRTC gamma query returned %i\n", error->error_code);
+	  xcb_disconnect(connection);
+	  return 1;
+	}
+      
+      r_gamma = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
+      g_gamma = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
+      b_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
+      
+      
+      for (i = 0; i < curve_size; i++)
+	{
+	  *(r_gamma + i) = (1 << 16) - 1 - *(r_gamma + i);
+	  *(g_gamma + i) = (1 << 16) - 1 - *(g_gamma + i);
+	  *(b_gamma + i) = (1 << 16) - 1 - *(b_gamma + i);
+	}
+      
+      
+      gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *crtcs, curve_size, r_gamma, g_gamma, b_gamma);
+      error = xcb_request_check(connection, gamma_set_cookie);
+      
+      if (error)
+	{
+	  fprintf(stderr, "RANDR CRTC control returned %i\n", error->error_code);
+	  return 1;
+	}
+      
+      
+      free(gamma_get_reply);
+      crtcs++;
     }
   
-  curve_size = gamma_size_reply->size;
-  free(gamma_size_reply);
-  
-  
-  gamma_get_cookie = xcb_randr_get_crtc_gamma(connection, *crtcs);
-  gamma_get_reply = xcb_randr_get_crtc_gamma_reply(connection, gamma_get_cookie, &error);
   
   free(res_reply);
-  
-  if (error)
-    {
-      fprintf(stderr, "RANDR CRTC gamma query returned %i\n", error->error_code);
-      xcb_disconnect(connection);
-      return 1;
-    }
-  
-  r_gamma = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
-  g_gamma = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
-  b_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
-  
-  
-  for (i = 0; i < curve_size; i++)
-    {
-      *(r_gamma + i) = (1 << 16) - 1 - *(r_gamma + i);
-      *(g_gamma + i) = (1 << 16) - 1 - *(g_gamma + i);
-      *(b_gamma + i) = (1 << 16) - 1 - *(b_gamma + i);
-    }
-  
-  
-  gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *crtcs, curve_size, r_gamma, g_gamma, b_gamma);
-  error = xcb_request_check(connection, gamma_set_cookie);
-  
-  if (error)
-    {
-      fprintf(stderr, "RANDR CRTC control returned %i\n", error->error_code);
-      return 1;
-    }
-  
-  
-  free(gamma_get_reply);
   xcb_disconnect(connection);
   return 0;
 }
