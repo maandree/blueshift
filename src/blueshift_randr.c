@@ -229,9 +229,12 @@ int blueshift_randr_open(void)
  * Apply stage of colour curve control
  * 
  * @param   use_crtcs  Mask of CRTC:s to use
+ * @param   r_curve    The red colour curve
+ * @param   g_curve    The green colour curve
+ * @param   b_curve    The blue colour curve
  * @return             Zero on success
  */
-int blueshift_randr_apply(uint64_t use_crtcs)
+int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 {
   blueshift_randr_crtc_t* crtcs_ = crtcs;
    
@@ -253,9 +256,9 @@ int blueshift_randr_apply(uint64_t use_crtcs)
       
       for (i = 0; i < crtcs_->curve_size; i++)
 	{
-	  *(crtcs_->r_curve + i) = (1 << 16) - 1 - *(crtcs_->r_curve + i);
-	  *(crtcs_->g_curve + i) = (1 << 16) - 1 - *(crtcs_->g_curve + i);
-	  *(crtcs_->b_curve + i) = (1 << 16) - 1 - *(crtcs_->b_curve + i);
+	  *(crtcs_->r_curve + i) = *(r_curve + i);
+	  *(crtcs_->g_curve + i) = *(g_curve + i);
+	  *(crtcs_->b_curve + i) = *(b_curve + i);
 	}
       
       
@@ -308,13 +311,31 @@ void blueshift_randr_close(void)
 
 int main(int argc, char** argv)
 {
+  uint16_t* r_curve = malloc(3 * 256 * sizeof(uint16_t));
+  uint16_t* g_curve = r_curve + 256;
+  uint16_t* b_curve = g_curve + 256;
+  long i;
+  
   (void) argc;
   (void) argv;
   
-  if (blueshift_randr_open() || blueshift_randr_apply(~0))
-    return 1;
+  if (blueshift_randr_open())
+    {
+      free(r_curve);
+      return 1;
+    }
+  
+  for (i = 0; i < 256; i++)
+    r_curve[i] = g_curve[i] = b_curve[i] = (int)((float)i / 255.f * (float)((1 << 16) - 1) + 0.f);
+  
+  if (blueshift_randr_apply(~0, r_curve, g_curve, b_curve))
+    {
+      free(r_curve);
+      return 1;
+    }
   
   blueshift_randr_close();
+  free(r_curve);
   return 0;
 }
 
