@@ -22,6 +22,11 @@ from curve import *
 from monitor import *
 
 
+## Set globals variables
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
+global periodically, wait_period, monitor_controller
+
+
 def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     Invoked periodically
@@ -68,6 +73,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         sigmoid(None, None, None)
         manipulate(lambda r : r, lambda g : g, lambda b : b)
         clip()
+        randr(1, 2)
 
 
 
@@ -95,11 +101,6 @@ fadeout_time = 10
 '''
 :float  The number of seconds used to fade out on exit
 '''
-
-
-## Set globals variables
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
-global periodically, wait_period, monitor_controller
 
 
 ## Load extension and configurations via ponysayrc
