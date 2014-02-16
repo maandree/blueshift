@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import sys
 import time
+import signal
 import datetime
 
 from colour import *
@@ -146,6 +148,16 @@ if periodically is not None:
     def p(t, fade = None):
         wd = t.isocalendar()[2]
         periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
+    
+    ## Catch TERM signal
+    def signal_SIGTERM(signum, frame):
+        if not running:
+            running = False
+            start_over()
+            monitor_controller()
+            sys.exit(0)
+        running = False
+    signal.signal(signal.SIGTERM, signal_SIGTERM)
     
     ## Fade in
     early_exit = False
