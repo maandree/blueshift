@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import time
 import datetime
 
 from colour import *
@@ -24,7 +25,7 @@ from monitor import *
 
 ## Set globals variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
-global periodically, wait_period, monitor_controller
+global periodically, wait_period, monitor_controller, running
 
 
 def periodically(year, month, day, hour, minute, second, weekday, fade):
@@ -94,12 +95,27 @@ monitor_controller = lambda : randr()
 
 fadein_time = 10
 '''
-:float  The number of seconds used to fade in on start
+:float?  The number of seconds used to fade in on start, `None` for no fading
 '''
 
 fadeout_time = 10
 '''
-:float  The number of seconds used to fade out on exit
+:float?  The number of seconds used to fade out on exit, `None` for no fading
+'''
+
+fadein_steps = 100
+'''
+:int  The number of steps in the fade in phase, if any
+'''
+
+fadeout_steps = 100
+'''
+:int  The number of steps in the fade out phase, if any
+'''
+
+running = True
+'''
+:bool  `True` while to program has not received a terminate signal
 '''
 
 
@@ -124,7 +140,43 @@ for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/et
             exec(code, globals)
             break
 
-## Get the current time
-now = datetime.datetime.now() # .year, .month, .day, .hour, .minute, .second
-weekday = now.isocalendar()[2]
+
+## Run periodically if configured to
+if periodically is not None:
+    def p(t, fade = None):
+        wd = t.isocalendar()[2]
+        periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
+    
+    ## Fade in
+    early_exit = False
+    ftime = 0
+    if fadein_time is not None:
+        dtime = fadein_time / fadein_steps
+        while running:
+            ftime += dtime
+            if ftime > 1:
+                break
+            p(datetime.datetime.now(), ftime)
+    
+    ## Run periodically
+    if not early_exit:
+        while running:
+            p(datetime.datetime.now(), None)
+            if running:
+                time.sleep(wait_period)
+    
+    ## Fade out
+    if fadeout_time is not None:
+        dtime = fadeout_time / fadeout_steps
+        if early_exit:
+            ftime = 1
+        while True:
+            ftime -= dtime
+            if ftime <= 0:
+                break
+            p(datetime.datetime.now(), -ftime)
+    
+    ## Reset
+    start_over()
+    monitor_controller()
 
