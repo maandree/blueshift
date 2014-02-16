@@ -1,0 +1,16 @@
+High priority:
+	Use C code from Python code
+	Examples
+	Argument parsing
+	Argument for use without configuration file
+
+Medium priority:
+	Info manual
+	Signal USR1 for temporary enable/disable
+	Signal USR2 for configuration reload
+
+Low priority:
+	Tray icon with support for temporary enable/disable and configuration reload
+	Automatic detection of GPS coordinate
+	VidMode support
+
