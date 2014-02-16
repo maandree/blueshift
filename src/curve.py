@@ -205,10 +205,12 @@ def rgb_contrast(r, g, b):
     '''
     Apply contrast correction on the colour curves using sRGB
     
-    @param  r:float  The contrast parameter for the red curve
-    @param  g:float  The contrast parameter for the green curve
-    @param  b:float  The contrast parameter for the blue curve
+    @param  r:float   The contrast parameter for the red curve
+    @param  g:float?  The contrast parameter for the green curve, defaults to `r` if `None`
+    @param  b:float?  The contrast parameter for the blue curve, defaults to `r` if `None`
     '''
+    if g is None:  g = r
+    if b is None:  b = r
     for (curve, level) in curves(r, g, b):
         if not level == 1.0:
             for i in range(i_size):
@@ -227,14 +229,16 @@ def cie_contrast(level):
             (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, (Y - 0.5) * level + 0.5)
 
 
-def rgb_brightness(r, g, b):
+def rgb_brightness(r, g = None, b = None):
     '''
     Apply brightness correction on the colour curves using sRGB
     
-    @param  r:float  The brightness parameter for the red curve
-    @param  g:float  The brightness parameter for the green curve
-    @param  b:float  The brightness parameter for the blue curve
+    @param  r:float   The brightness parameter for the red curve
+    @param  g:float?  The brightness parameter for the green curve, defaults to `r` if `None`
+    @param  b:float?  The brightness parameter for the blue curve, defaults to `r` if `None`
     '''
+    if g is None:  g = r
+    if b is None:  b = r
     for (curve, level) in curves(r, g, b):
         if not level == 1.0:
             for i in range(i_size):
@@ -253,28 +257,32 @@ def cie_brightness(level):
             (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, Y * level)
 
 
-def gamma(r, g, b):
+def gamma(r, g = None, b = None):
     '''
     Apply gamma correction on the colour curves
     
-    @param  r:float  The gamma parameter for the red curve
-    @param  g:float  The gamma parameter for the green curve
-    @param  b:float  The gamma parameter for the blue curve
+    @param  r:float   The gamma parameter for the red curve
+    @param  g:float?  The gamma parameter for the green curve, defaults to `r` if `None`
+    @param  b:float?  The gamma parameter for the blue curve, defaults to `r` if `None`
     '''
+    if g is None:  g = r
+    if b is None:  b = r
     for (curve, level) in curves(r, g, b):
         if not level == 1.0:
             for i in range(i_size):
-                curve[i] **= level
+                curve[i] **= 1 / level
 
     
-def negative(r, g, b):
+def negative(r = True, g = None, b = None):
     '''
     Invert the colour curves (negative image)
     
-    @param  r:bool  Whether to invert the red curve
-    @param  g:bool  Whether to invert the green curve
-    @param  b:bool  Whether to invert the blue curve
+    @param  r:bool   Whether to invert the red curve
+    @param  g:bool?  Whether to invert the green curve, defaults to `r` if `None`
+    @param  b:bool?  Whether to invert the blue curve, defaults to `r` if `None`
     '''
+    if g is None:  g = r
+    if b is None:  b = r
     for (curve, setting) in curves(r, g, b):
         if setting:
             for i in range(i_size):
