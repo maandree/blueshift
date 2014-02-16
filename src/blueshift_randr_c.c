@@ -290,23 +290,3 @@ void blueshift_randr_close(void)
   xcb_disconnect(connection);
 }
 
-
-
-int main(int argc, char** argv)
-{
-  long i;
-  
-  (void) argc;
-  (void) argv;
-  
-  if (blueshift_randr_open(0))
-    return 1;
-  
-  for (i = 0; i < 256; i++)
-    r_curve[i] = g_curve[i] = b_curve[i] = (int)((float)i / 255.f * (float)((1 << 16) - 1) + 0.f);
-  
-  i = blueshift_randr_apply(~0, r_curve, g_curve, b_curve);
-  blueshift_randr_close();
-  return i;
-}
-
