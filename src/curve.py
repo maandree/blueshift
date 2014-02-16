@@ -101,23 +101,25 @@ def cmf_2deg(temperature):
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
     '''
+    global cmf_2deg_cache
     if cmf_2deg_cache is None:
         with open(DATADIR + '/2deg', 'rb') as file:
             cmf_2deg_cache = file.read()
-        cmf_2deg_cache.decode('utf-8', 'error').split('\n')
+        cmf_2deg_cache = cmf_2deg_cache.decode('utf-8', 'error').split('\n')
+        cmf_2deg_cache = filter(lambda x : not x == '', cmf_2deg_cache)
         cmf_2deg_cache = [[float(x) for x in x_y.split(' ')] for x_y in cmf_2deg_cache]
-    temperature = min(max(0, temperature), 1000)
+    temp = min(max(1000, temperature), 40000)
     x, y = 0, 0
     if (temp % 100) == 0:
-        (x, y) = temperature[(temp - 1000) // 100]
+        (x, y) = cmf_2deg_cache[(temp - 1000) // 100]
     else:
         temp -= 1000
-        (x1, y1) = temperature[temp // 100]
-        (x2, y2) = temperature[temp // 100 + 1]
+        (x1, y1) = cmf_2deg_cache[temp // 100]
+        (x2, y2) = cmf_2deg_cache[temp // 100 + 1]
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
-    return ciexy_to_srgb(x, y, 1.0)
+    return ciexyy_to_srgb(x, y, 1.0)
 
 
 cmf_10deg_cache = None
@@ -128,23 +130,25 @@ def cmf_10deg(temperature):
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
     '''
+    global cmf_10deg_cache
     if cmf_10deg_cache is None:
         with open(DATADIR + '/10deg', 'rb') as file:
             cmf_10deg_cache = file.read()
-        cmf_10deg_cache.decode('utf-8', 'error').split('\n')
+        cmf_10deg_cache = cmf_10deg_cache.decode('utf-8', 'error').split('\n')
+        cmf_10deg_cache = filter(lambda x : not x == '', cmf_10deg_cache)
         cmf_10deg_cache = [[float(x) for x in x_y.split(' ')] for x_y in cmf_10deg_cache]
-    temperature = min(max(0, temperature), 1000)
+    temp = min(max(1000, temperature), 40000)
     x, y = 0, 0
     if (temp % 100) == 0:
-        (x, y) = temperature[(temp - 1000) // 100]
+        (x, y) = cmf_10deg_cache[(temp - 1000) // 100]
     else:
         temp -= 1000
-        (x1, y1) = temperature[temp // 100]
-        (x2, y2) = temperature[temp // 100 + 1]
+        (x1, y1) = cmf_10deg_cache[temp // 100]
+        (x2, y2) = cmf_10deg_cache[temp // 100 + 1]
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
-    return ciexy_to_srgb(x, y, 1.0)
+    return ciexyy_to_srgb(x, y, 1.0)
 
 
 

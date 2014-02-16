@@ -17,6 +17,8 @@
 
 import sys
 
+from curve import *
+
 # /usr/lib
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
@@ -43,6 +45,7 @@ def translate_to_integers():
 def close_c_bindings():
     global randr_opened
     if randr_opened:
+        randr_opened = False
         randr_close()
 
 
