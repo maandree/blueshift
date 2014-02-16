@@ -98,6 +98,8 @@ def cmf_2deg(temperature):
     '''
     Calculate the colour for a blackbody temperature using raw CIE 1931 2 degree CMF data with interpolation
     
+    Using `lambda t : divide_by_maximum(cmf_2deg(t))` as the colour algorithm is better than just `cmf_2deg`
+    
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
     '''
@@ -126,6 +128,8 @@ cmf_10deg_cache = None
 def cmf_10deg(temperature):
     '''
     Calculate the colour for a blackbody temperature using raw CIE 1964 10 degree CMF data with interpolation
+    
+    Using `lambda t : divide_by_maximum(cmf_10deg(t))` as the colour algorithm is better than just `cmf_10deg`
     
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
