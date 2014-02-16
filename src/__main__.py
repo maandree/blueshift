@@ -120,7 +120,7 @@ running = True
 '''
 
 
-## Load extension and configurations via ponysayrc
+## Load extension and configurations via blueshiftrc
 for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
     file = file.replace('%', 'blueshift')
     for arg in ('XDG_CONFIG_HOME', 'HOME'):
