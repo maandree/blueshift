@@ -20,9 +20,12 @@ import time
 import signal
 import datetime
 
-from colour import *
 from curve import *
+from colour import *
 from monitor import *
+
+
+config_file = None
 
 
 ## Set globals variables
@@ -31,6 +34,10 @@ global periodically, wait_period, monitor_controller, running
 
 
 def periodically(year, month, day, hour, minute, second, weekday, fade):
+    fadein_time = None
+    fadeout_time = None
+    fadein_steps = 100
+    fadeout_steps = 100
     if fade is None:
         negative(False, False, False)
         temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
@@ -121,25 +128,31 @@ running = True
 
 
 ## Load extension and configurations via blueshiftrc
-for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
-    file = file.replace('%', 'blueshift')
-    for arg in ('XDG_CONFIG_HOME', 'HOME'):
-        if arg in os.environ:
-            print(arg)
-            file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
-        else:
-            file = None
-            break
-    if file is not None:
-        file = file.replace('\0', '$')
-        if os.path.exists(file):
-            code = None
-            with open(file, 'rb') as script:
-                code = script.read()
-            code = code.decode('utf8', 'error') + '\n'
-            code = compile(code, file, 'exec')
-            exec(code, globals)
-            break
+if config_file is None:
+    for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
+        file = file.replace('%', 'blueshift')
+        for arg in ('XDG_CONFIG_HOME', 'HOME'):
+            if arg in os.environ:
+                print(arg)
+                file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
+            else:
+                file = None
+                break
+        if file is not None:
+            file = file.replace('\0', '$')
+            if os.path.exists(file):
+                config_file = file
+if config_file is not None:
+    code = None
+    with open(file, 'rb') as script:
+        code = script.read()
+    code = code.decode('utf8', 'error') + '\n'
+    code = compile(code, file, 'exec')
+    exec(code, globals)
+    break
+else:
+    print('No configuration file found')
+    sys.exit(1)
 
 
 ## Run periodically if configured to
