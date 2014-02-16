@@ -58,6 +58,8 @@ def series_d(temperature):
     '''
     Calculate the colour for a blackbody temperature
     
+    Using `lambda t : divide_by_maximum(series_d(t))` as the algorithm is better than just `series_d`
+    
     @param   temperature:float       The blackbody temperature in kelvins, must be inside [4000, 7000]
     @return  :(float, float, float)  The red, green and blue components of the white point
     '''
@@ -68,7 +70,7 @@ def series_d(temperature):
     for (k, d) in ks:
         x += k * 10 ** (d * 3) / temperature ** d
     y = 2.870 * x - 3.000 * x ** 2 - 0.275
-    return ciexy_to_srgb(x, y, 1.0)
+    return ciexyy_to_srgb(x, y, 1.0)
 
 
 def simple_whitepoint(temperature):
@@ -98,7 +100,7 @@ def cmf_2deg(temperature):
     '''
     Calculate the colour for a blackbody temperature using raw CIE 1931 2 degree CMF data with interpolation
     
-    Using `lambda t : divide_by_maximum(cmf_2deg(t))` as the colour algorithm is better than just `cmf_2deg`
+    Using `lambda t : divide_by_maximum(cmf_2deg(t))` as the algorithm is better than just `cmf_2deg`
     
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
@@ -129,7 +131,7 @@ def cmf_10deg(temperature):
     '''
     Calculate the colour for a blackbody temperature using raw CIE 1964 10 degree CMF data with interpolation
     
-    Using `lambda t : divide_by_maximum(cmf_10deg(t))` as the colour algorithm is better than just `cmf_10deg`
+    Using `lambda t : divide_by_maximum(cmf_10deg(t))` as the algorithm is better than just `cmf_10deg`
     
     @param   temperature:float       The blackbody temperature in kelvins, clipped to [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
@@ -155,6 +157,54 @@ def cmf_10deg(temperature):
     return ciexyy_to_srgb(x, y, 1)
 
 
+redshift_cache, redshift_old_cache = None, None
+def redshift(temperature, old_version = False, linear_interpolation = False):
+    '''
+    Calculate the colour for a blackbody temperature using same data as in the program redshift
+    
+    @param   temperature:float          The blackbody temperature in kelvins, clipped to [1000, 25100] (100 more kelvins than in redshift)
+    @param   old_version:bool           Whether to the method used in redshift<=1.8, in which case
+                                        `temperature` is clipped to [1000, 10000] (1 more kelvin than in redshift)
+    @param   linear_interpolation:bool  Whether to interpolate one linear RGB instead of sRGB
+    @return  :(float, float, float)     The red, green and blue components of the white point
+    '''
+    global redshift_cache, redshift_old_cache
+    cache = None
+    if not old_version:
+        if redshift_cache is None:
+            with open(DATADIR + '/redshift', 'rb') as file:
+                redshift_cache = file.read()
+            redshift_cache = redshift_cache.decode('utf-8', 'error').split('\n')
+            redshift_cache = filter(lambda x : not x == '', redshift_cache)
+            redshift_cache = [[float(x) for x in r_g_b.split(' ')] for r_g_b in redshift_cache]
+        cache = redshift_cache
+    else:
+        if redshift_old_cache is None:
+            with open(DATADIR + '/redshift_old', 'rb') as file:
+                redshift_old_cache = file.read()
+            redshift_old_cache = redshift_old_cache.decode('utf-8', 'error').split('\n')
+            redshift_old_cache = filter(lambda x : not x == '', redshift_old_cache)
+            redshift_old_cache = [[float(x) for x in r_g_b.split(' ')] for r_g_b in redshift_old_cache]
+        cache = redshift_old_cache
+    temp = min(max(1000, temperature), 10000 if old_version else 25100)
+    r, g, b = 1, 1, 1
+    if (temp % 100) == 0:
+        (r, g, b) = cache[(temp - 1000) // 100]
+    else:
+        temp -= 1000
+        (r1, g1, b1) = cache[temp // 100]
+        (r2, g2, b2) = cache[temp // 100 + 1]
+        temp = (temp % 100) / 100
+        if linear_interpolation:
+            (r, g, b) = standard_to_linear(r, g, b)
+        r = r1 * temp + r2 * (1 - temp)
+        g = g1 * temp + g2 * (1 - temp)
+        b = b1 * temp + b2 * (1 - temp)
+        if linear_interpolation:
+            (r, g, b) = linear_to_standard(r, g, b)
+    return (r, g, b)
+
+
 
 def temperature(temperature, algorithm):
     '''
@@ -166,6 +216,7 @@ def temperature(temperature, algorithm):
     if temperature == 6500:
         return
     (r, g, b) = algorithm(temperature)
+    print(r, g, b)
     rgb_brightness(r, g, b)
 
 
