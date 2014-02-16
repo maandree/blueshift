@@ -45,7 +45,7 @@ def ciexyy_to_ciexyz(x, y, Y):
     @param   Y:float                 The Y parameter
     @return  :[float, float, float]  The X, Y and Z parameters
     '''
-    return [Y * x / y, Y, Y * (1 - x - y) / y]
+    return [Y if y == 0 else Y * x / y, Y, Y if y == 0 else Y * (1 - x - y) / y]
 
 
 def ciexyz_to_ciexyy(X, Y, Z):
@@ -57,10 +57,10 @@ def ciexyz_to_ciexyy(X, Y, Z):
     @param   Z:float                 The Z parameter
     @return  :[float, float, float]  The x, y and Y parameters
     '''
-    p = -Y / X
-    q = 1 + Y / X
-    y = 1 / (p / 2 + (p ** 2 / 4 - q) ** 0.5)
-    x = X * y / Y
+    if X + Y + Z == 0:
+        return [0, 0, 0]
+    y = Y / (X + Y + Z)
+    x = X / (X + Y + Z)
     return [x, y, Y]
 
 
@@ -73,9 +73,9 @@ def ciexyz_to_linear(X, Y, Z):
     @param   Z:float                 The Z parameter
     @return  :[float, float, float]  The red, green and blue components
     '''
-    r = 3.2406 * X - 1.5372 * Y - 0.4986 * Z
-    g = -0.9689 * X + 1.8758 * Y + 0.0415 * Z
-    b = 0.0557 * X - 0.2040 * Y + 1.0570 * Z
+    r =  3.24156 * X - 1.53767 * Y - 0.49870 * Z
+    g = -0.96920 * X + 1.87589 * Y + 0.04155 * Z
+    b =  0.05562 * X - 0.20396 * Y + 1.05686 * Z
     return [r, g, b]
 
 
@@ -88,9 +88,9 @@ def linear_to_ciexyz(r, g, b):
     @param   b:float                 The blue component
     @return  :[float, float, float]  The X, Y and Z parameters
     '''
-    X = 0.4124 * r + 0.3576 * g + 0.1805 * b
-    Y = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    Z = 0.0193 * r + 0.1192 * g + 1.9502 * b
+    X = 0.4123160 * r + 0.3576020 * g + 0.1805010 * b
+    Y = 0.2126000 * r + 0.7151990 * g + 0.0722016 * b
+    Z = 0.0193297 * r + 0.1192040 * g + 0.9506340 * b
     return [X, Y, Z]
 
 
@@ -103,9 +103,12 @@ def srgb_to_ciexyy(r, g, b):
     @param   b:float                 The blue component
     @return  :[float, float, float]  The x, y and Y parameters
     '''
+    if r == g == b == 0:
+        return (0.312857, 0.328993, 0)
     (r, g, b) = standard_to_linear(r, g, b)
     (X, Y, Z) = linear_to_ciexyz(r, g, b)
-    return ciexyz_to_ciexyy(X, Y, Z)
+    (x, y, Y) = ciexyz_to_ciexyy(X, Y, Z)
+    return (x, y, Y)
 
 
 def ciexyy_to_srgb(x, y, Y):
@@ -119,5 +122,6 @@ def ciexyy_to_srgb(x, y, Y):
     '''
     (X, Y, Z) = ciexyy_to_ciexyz(x, y, Y)
     (r, g, b) = ciexyz_to_linear(X, Y, Z)
-    return linear_to_standard(r, g, b)
+    (r, g, b) = linear_to_standard(r, g, b)
+    return (r, g, b)
 

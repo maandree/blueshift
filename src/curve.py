@@ -148,34 +148,21 @@ def cmf_10deg(temperature):
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
-    return ciexyy_to_srgb(x, y, 1.0)
+    return ciexyy_to_srgb(x, y, 1)
 
 
 
-def temperature(temperature, algorithm, linear_rgb = True):
+def temperature(temperature, algorithm):
     '''
     Change colour temperature according to the CIE illuminant series D
     
     @param  temperature:float                        The blackbody temperature in kelvins
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `series_d` or `simple_whitepoint`
-    @param  linear_rgb:[bool]                        Whether to use linear RGB, otherwise sRG is used
     '''
     if temperature == 6500:
         return
     (r, g, b) = algorithm(temperature)
-    if linear_rgb:
-        for curve in (r_curve, g_curve, b_curve):
-            for i in range(i_size):
-                R, G, B = r_curve[i], g_curve[i], b_curve[i]
-                (R, G, B) = standard_to_linear(R, G, B)
-                r_curve[i], g_curve[i], b_curve[i] = R, G, B
     rgb_brightness(r, g, b)
-    if linear_rgb:
-        for curve in (r_curve, g_curve, b_curve):
-            for i in range(i_size):
-                R, G, B = r_curve[i], g_curve[i], b_curve[i]
-                (R, G, B) = linear_to_standard(R, G, B)
-                r_curve[i], g_curve[i], b_curve[i] = R, G, B
 
 
 def divide_by_maximum(rgb):
@@ -201,7 +188,7 @@ def clip_whitepoint(rgb):
     return [min(max(0, x), 1) for x in rgb]
 
 
-def rgb_contrast(r, g, b):
+def rgb_contrast(r, g = None, b = None):
     '''
     Apply contrast correction on the colour curves using sRGB
     
@@ -219,14 +206,14 @@ def rgb_contrast(r, g, b):
 
 def cie_contrast(level):
     '''
-    Apply contrast correction on the colour curves using CIE XYZ
+    Apply contrast correction on the colour curves using CIE xyY
     
     @param  level:float  The brightness parameter
     '''
     if not level == 1.0:
         for i in range(i_size):
             (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, (Y - 0.5) * level + 0.5)
+            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, (Y - 0.5) * level + 0.5)
 
 
 def rgb_brightness(r, g = None, b = None):
@@ -247,14 +234,34 @@ def rgb_brightness(r, g = None, b = None):
 
 def cie_brightness(level):
     '''
-    Apply brightness correction on the colour curves using CIE XYZ
+    Apply brightness correction on the colour curves using CIE xyY
     
     @param  level:float  The brightness parameter
     '''
     if not level == 1.0:
         for i in range(i_size):
             (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            (r_curve[i], g_curve[i], b_curve[i]) = to_rgb(x, y, Y * level)
+            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y * level)
+
+
+def linearise():
+    '''
+    Convert the curves from formatted in standard RGB to linear RGB
+    '''
+    for i in range(i_size):
+        r, g, b = r_curve[i], g_curve[i], b_curve[i]
+        (r, g, b) = standard_to_linear(r, g, b)
+        r_curve[i], g_curve[i], b_curve[i] = r, g, b
+
+
+def standardise():
+    '''
+    Convert the curves from formatted in linear RGB to standard RGB
+    '''
+    for i in range(i_size):
+        r, g, b = r_curve[i], g_curve[i], b_curve[i]
+        (r, g, b) = linear_to_standard(r, g, b)
+        r_curve[i], g_curve[i], b_curve[i] = r, g, b
 
 
 def gamma(r, g = None, b = None):

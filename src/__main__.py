@@ -42,10 +42,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     fadeout_steps = 100
     if fade is None:
         negative(False, False, False)
-        temperature(6500, lambda T : divide_by_maximum(series_d(T)), True)
-        temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)), True)
-        temperature(6500, cmf_2deg, True)
-        temperature(6500, cmf_10deg, True)
+        temperature(6500, lambda T : divide_by_maximum(series_d(T)))
+        temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)))
+        temperature(6500, cmf_2deg)
+        temperature(6500, cmf_10deg)
         rgb_contrast(1.0, 1.0, 1.0)
         cie_contrast(1.0)
         rgb_brightness(1.0, 1.0, 1.0)
