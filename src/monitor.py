@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
+# /usr/lib
+LIBDIR = 'bin'
+sys.path.append(LIBDIR)
+
+from blueshift_randr import *
+randr_opened = False
+
 
 def translate_to_integers():
     '''
@@ -31,17 +40,31 @@ def translate_to_integers():
     return (R_curve, G_curve, B_curve)    
 
 
+def close_c_bindings():
+    global randr_opened
+    if randr_opened:
+        randr_close()
+
+
 def randr(*crtcs):
     '''
     Applies colour curves using the X11 extension randr
     
     @param  *crtcs  The CRT controllers to use, all are used if none are specified
     '''
+    global randr_opened
     crtcs = sum([1 << i for i in list(crtcs)])
     if crtcs == 0:
         crtcs = -1;
     
     (R_curve, G_curve, B_curve) = translate_to_integers()
+    if not randr_opened:
+        if randr_open(0) == 0: ## TODO support specifying screen
+            randr_opened = True
+        else:
+            sys.exit(1)
+    if not randr_apply(crtcs, R_curve, G_curve, B_curve) == 0:
+        sys.exit(1)
 
 
 def print_curves(*crtcs):

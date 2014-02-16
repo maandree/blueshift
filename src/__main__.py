@@ -150,7 +150,6 @@ if config_file is not None:
     code = code.decode('utf8', 'error') + '\n'
     code = compile(code, file, 'exec')
     exec(code, globals)
-    break
 else:
     print('No configuration file found')
     sys.exit(1)
@@ -168,6 +167,7 @@ if periodically is not None:
             running = False
             start_over()
             monitor_controller()
+            close_c_bindings()
             sys.exit(0)
         running = False
     signal.signal(signal.SIGTERM, signal_SIGTERM)
@@ -204,4 +204,6 @@ if periodically is not None:
     ## Reset
     start_over()
     monitor_controller()
+
+close_c_bindings()
 

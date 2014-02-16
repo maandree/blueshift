@@ -10,5 +10,5 @@ obj/
 *.out
 *.gch
 __pycache__/
-/src/_blueshift_randr.c
+/src/blueshift_randr.c
 
