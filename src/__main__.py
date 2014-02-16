@@ -20,6 +20,7 @@ import time
 import signal
 import datetime
 
+from solar import *
 from curve import *
 from colour import *
 from monitor import *
