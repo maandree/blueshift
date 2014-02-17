@@ -26,6 +26,7 @@ STD = c99
 FLAGS = $$($(PKGCONFIG) --cflags --libs $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC
 
 DATAFILES = 2deg 10deg redshift redshift_old
+PYFILES = colour.py curve.py monitor.py solar.py
 
 
 
@@ -36,14 +37,19 @@ all: command
 command: bin/blueshift_randr.so bin/blueshift
 
 
-bin/blueshift.zip: src/*.py
-	@mkdir -p bin
-	cd src && zip ../$@ *.py
-
-bin/blueshift: bin/blueshift.zip
+bin/blueshift: obj/blueshift.zip
 	echo '#!/usr/bin/python3' > $@
 	cat $< >> $@
 	chmod a+x $@
+
+obj/blueshift.zip: $(foreach F,$(PYFILES),obj/$(F))
+	@mkdir -p bin
+	cd obj && zip ../$@ $(foreach F,$(PYFILES),$(F))
+
+obj/%.py: src/%.py
+	cp $< $@
+	sed -i '/^DATADIR *= /s#^.*$$#DATADIR = '\''$(DATADIR)/$(PKGNAME)'\''#' $@
+	sed -i '/^LIBDIR *= /s#^.*$$#LIBDIR = '\''$(LIBDIR)'\''#' $@
 
 
 bin/blueshift_randr.so: obj/blueshift_randr.o obj/blueshift_randr_c.o
