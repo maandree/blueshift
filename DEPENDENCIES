@@ -1,0 +1,17 @@
+RUNTIME DEPENDENCIES:
+
+	python3
+	libxcb
+
+
+MAKE DEPENDENCIES:
+
+	cython
+	c99
+	python3
+	libxcb
+	make
+	coreutils
+	sed
+	zip
+
