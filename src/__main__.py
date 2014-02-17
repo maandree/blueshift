@@ -22,7 +22,7 @@ import datetime
 
 
 ## Set global variables
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
 global monitor_controller, running, continuous_run, panic
 global signal_SIGTERM
@@ -102,6 +102,11 @@ fadeout_steps = 40
 :int  The number of steps in the fade out phase, if any
 '''
 
+panicgate = False
+'''
+:bool  `True` if translition into initial state should be skipped
+'''
+
 running = True
 '''
 :bool  `True` while to program has not received a terminate signal
@@ -157,7 +162,7 @@ def continuous_run():
     ## Fade in
     early_exit = False
     ftime = 0
-    if fadein_time is not None:
+    if (fadein_time is not None) and not panicgate:
         dtime = fadein_time / fadein_steps
         df = 1 / fadein_steps
         while running:
