@@ -223,12 +223,23 @@ parser =  ArgParser('Colour temputare controller',
                     'this helps you focus on your work.',
                     None, True, ArgParser.standard_abbreviations())
 
+dn = '\nUse twice or daytime and nighttime respectively'
+parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
+parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
+parser.add_argumented(['-g', '--gamma'], 0, 'RGB|R:G:B', 'Set gamma correction' + dn)
+parser.add_argumented(['-b', '--brightness'], 0, 'RGB|R:G:B', 'Set brightness using sRGB' + dn)
+parser.add_argumented(['+b', '++brightness'], 0, 'Y', 'Set brightness using CIE xyY' + dn)
+parser.add_argumented(['-t', '--temperature'], 0, 'TEMP', 'Set colour temperature' + dn)
+parser.add_argumented(['-l', '--location'], 0, 'LAT:LON', 'Select your GPS location\n'
+                                                          'Measured in degrees, negative for south or west')
+parser.add_argumentless(['-r', '--reset'], 0, 'Reset to default settings')
+parser.add_argumented(['-o', '--output', '--crtc'], 0, 'CRTCS',
+                      'Select CRTC to apply changes to\nComma separated or multiple options\n'
+                      'It is best to start one instance per monitor with colour calibration')
 parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
 parser.add_argumentless(['-C', '--copying', '--copyright'], 0, 'Print copyright information')
 parser.add_argumentless(['-W', '--warranty'], 0, 'Print warranty information')
 parser.add_argumentless(['-v', '--version'], 0, 'Print program name and version')
-parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
-parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
 
 parser.parse()
 parser.support_alternatives()
@@ -252,6 +263,15 @@ elif parser.opts['--version'] is not None:
 a = lambda opt : opt[0] if opt is not None else None
 config_file = a(parser.opts['--configurations'])
 panicgate = parser.opts['--panicgate'] is not None
+reset = parser.opts['--reset'] is not None
+location = a(parser.opts['--location'])
+gammas = parser.opts['--gamma']
+rgb_brightnesses = parser.opts['--brightness']
+cie_brightnesses = parser.opts['++brightness']
+temperatures = parser.opts['--temperature']
+output = parser.opts['--output']
+if output is None:
+    output = []
 
 
 ## Load extension and configurations via blueshiftrc
