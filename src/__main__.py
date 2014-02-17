@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
+copyright = '''
+Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
 
-# Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
 import os
 import sys
 import time
 import signal
 import datetime
+
+from argparser import *
+
+
+PROGRAM_NAME = 'blueshift'
+PROGRAM_VERSION = '1.0'
 
 
 ## Set global variables
@@ -117,6 +124,13 @@ panic = False
 :bool  `True` if the program has received two terminate signals
 '''
 
+conf_opts = None
+'''
+:list<str>  This list will never be `None` and it will always have at least
+            one element. This list is filled with options passed to the
+            configurations, with the first element being the configuration file
+'''
+
 def reset():
     '''
     Invoked to reset the displays
@@ -198,6 +212,48 @@ def continuous_run():
     reset()
 
 
+## Read command line arguments
+parser =  ArgParser('Colour temputare controller',
+                    sys.argv[0] + ' [options] [-- configuration-options]',
+                    'Blueshift adjusts the colour temperature of your\n'
+                    'monitor according to brightness outside to reduce\n'
+                    'eye strain and make it easier to fall asleep when\n'
+                    'going to bed. IT can also be used to increase the\n'
+                    'colour temperature and make the monitor bluer,\n'
+                    'this helps you focus on your work.',
+                    None, True, ArgParser.standard_abbreviations())
+
+parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
+parser.add_argumentless(['-C', '--copying', '--copyright'], 0, 'Print copyright information')
+parser.add_argumentless(['-W', '--warranty'], 0, 'Print warranty information')
+parser.add_argumentless(['-v', '--version'], 0, 'Print program name and version')
+parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
+parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
+
+parser.parse()
+parser.support_alternatives()
+
+if parser.opts['--help'] is not None:
+    parser.help()
+    sys.exit(0)
+elif parser.opts['--copyright'] is not None:
+    print(copyright[1 : -1])
+    sys.exit(0)
+elif parser.opts['--warranty'] is not None:
+    print('This program is distributed in the hope that it will be useful,')
+    print('but WITHOUT ANY WARRANTY; without even the implied warranty of')
+    print('MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the')
+    print('GNU Affero General Public License for more details.')
+    sys.exit(0)
+elif parser.opts['--version'] is not None:
+    print('%s %s' % (PROGRAM_NAME, PROGRAM_VERSION))
+    sys.exit(0)
+
+a = lambda opt : opt[0] if opt is not None else None
+config_file = a(parser.opts['--configurations'])
+panicgate = parser.opts['--panicgate'] is not None
+
+
 ## Load extension and configurations via blueshiftrc
 if config_file is None:
     for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
@@ -214,6 +270,7 @@ if config_file is None:
             if os.path.exists(file):
                 config_file = file
                 break
+conf_opts = [config_file] + parser.files
 if config_file is not None:
     code = None
     with open(file, 'rb') as script:

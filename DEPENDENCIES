@@ -2,6 +2,7 @@ RUNTIME DEPENDENCIES:
 
 	python3
 	libxcb
+	argparser-python
 
 
 MAKE DEPENDENCIES:
