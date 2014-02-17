@@ -61,7 +61,7 @@ def randr(*crtcs):
     global randr_opened
     crtcs = sum([1 << i for i in list(crtcs)])
     if crtcs == 0:
-        crtcs = -1;
+        crtcs = (1 << 64) - 1
     
     (R_curve, G_curve, B_curve) = translate_to_integers()
     if not randr_opened:

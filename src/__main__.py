@@ -22,9 +22,9 @@ import datetime
 
 
 ## Set global variables
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
+global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
-global monitor_controller, running, continuous_run
+global monitor_controller, running, continuous_run, panic
 global signal_SIGTERM
 
 
@@ -79,7 +79,7 @@ wait_period = 60
 
 monitor_controller = lambda : randr()
 '''
-:()→void  Function used by Blueshift on exit to apply reset colour curves
+:()→void  Function used by Blueshift on exit to apply reset colour curves, if using preimplemented `reset`
 '''
 
 fadein_time = 2
@@ -107,6 +107,18 @@ running = True
 :bool  `True` while to program has not received a terminate signal
 '''
 
+panic = False
+'''
+:bool  `True` if the program has received two terminate signals
+'''
+
+def reset():
+    '''
+    Invoked to reset the displays
+    '''
+    start_over()
+    monitor_controller()
+
 
 
 def signal_SIGTERM(signum, frame):
@@ -116,13 +128,9 @@ def signal_SIGTERM(signum, frame):
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
-    global running
+    global running, panic
     if not running:
-        running = False
-        start_over()
-        monitor_controller()
-        close_c_bindings()
-        sys.exit(0)
+        panic = True
     running = False
 
 
@@ -132,8 +140,11 @@ def continuous_run():
     '''
     global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
     def p(t, fade = None):
-        wd = t.isocalendar()[2]
-        periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
+        try:
+            wd = t.isocalendar()[2]
+            periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
+        except:
+            signal_SIGTERM(0, None)
     def sleep(seconds):
         try:
             time.sleep(seconds)
@@ -155,6 +166,8 @@ def continuous_run():
                 break
             p(datetime.datetime.now(), ftime)
             sleep(dtime)
+        if ftime <= 1:
+            early_exit = True
     
     ## Run periodically
     if not early_exit:
@@ -167,9 +180,9 @@ def continuous_run():
     if fadeout_time is not None:
         dtime = fadeout_time / fadeout_steps
         df = 1 / fadeout_steps
-        if early_exit:
+        if not early_exit:
             ftime = 1
-        while True:
+        while not panic:
             ftime -= df
             if ftime <= 0:
                 break
@@ -177,8 +190,7 @@ def continuous_run():
             sleep(dtime)
     
     ## Reset
-    start_over()
-    monitor_controller()
+    reset()
 
 
 ## Load extension and configurations via blueshiftrc
