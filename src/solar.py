@@ -18,6 +18,31 @@ import math
 import time
 
 
+def sun(latitude, longitude, t = None, low = -6.0, high = 3.0):
+    '''
+    Get the visibility of the Sun
+    
+    @param   latitude:float   The latitude component of your GPS coordinate
+    @param   longitude:float  The longitude component of your GPS coordinate
+    @param   t:float?         The time in Julian Centuries, `None` for current time
+    @param   low:float        The 100 % night limit elevation of the Sun (highest when not visible)
+    @param   high:float       The 100 % day limit elevation of the Sun (lowest while fully visible)
+    @return  :float           The visibilty of the sun, 0 during the night, 1 during the day,
+                              between 0 and 1 during twilight. Other values will not occur.
+    '''
+    t = julian_centuries() if t is None else t
+    e = solar_elevation(latitude, longitude, t)
+    e = (e - low) / (high - low)
+    return min(max(0, e), 1)
+
+
+
+# The following functions are used to calculate the result for `sun`
+# (most of them) but could be used for anything else. There name is
+# should tell you enough, `t` (and `noon`) is in Julian centuries
+# except for in the convertion methods
+
+
 def julian_day_to_epoch(t):
     return (jd - 2440587.5) * 86400.0
 
@@ -37,12 +62,21 @@ def julian_centuries_to_epoch(t):
     return julian_day_to_epoch(julian_centuries_to_julian_day(t))
 
 def epoch():
+    '''
+    Get current POSIX time
+    '''
     return time.time()
 
 def julian_day():
+    '''
+    Get current Julian Day time
+    '''
     return epoch_to_julian_day(epoch())
 
 def julian_centuries():
+    '''
+    Get current Julian Centuries time
+    '''
     return epoch_to_julian_centuries(epoch())
 
 def radians(deg):
@@ -150,10 +184,4 @@ def solar_elevation(latitude, longitude, t = None):
     rc = julian_centuries() if t is None else t
     rc = solar_elevation_from_time(rc, latitude, longitude)
     return degrees(rc)
-
-def sun(latitude, longitude, t = None, low = -6.0, high = 3.0):
-    t = julian_centuries() if t is None else t
-    e = solar_elevation(latitude, longitude, t)
-    e = (e - low) / (high - low)
-    return min(max(0, e), 1)
 
