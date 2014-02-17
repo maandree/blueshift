@@ -66,8 +66,11 @@ def randr(*crtcs):
             randr_opened = True
         else:
             sys.exit(1)
-    if not randr_apply(crtcs, R_curve, G_curve, B_curve) == 0:
-        sys.exit(1)
+    try:
+        if not randr_apply(crtcs, R_curve, G_curve, B_curve) == 0:
+            sys.exit(1)
+    except OverflowError:
+        pass # Happens on exit by TERM signal
 
 
 def print_curves(*crtcs):

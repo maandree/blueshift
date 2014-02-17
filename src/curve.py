@@ -115,11 +115,11 @@ def cmf_2deg(temperature):
     temp = min(max(1000, temperature), 40000)
     x, y = 0, 0
     if (temp % 100) == 0:
-        (x, y) = cmf_2deg_cache[(temp - 1000) // 100]
+        (x, y) = cmf_2deg_cache[int((temp - 1000) // 100)]
     else:
         temp -= 1000
-        (x1, y1) = cmf_2deg_cache[temp // 100]
-        (x2, y2) = cmf_2deg_cache[temp // 100 + 1]
+        (x1, y1) = cmf_2deg_cache[int(temp // 100)]
+        (x2, y2) = cmf_2deg_cache[int(temp // 100 + 1)]
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
@@ -146,11 +146,11 @@ def cmf_10deg(temperature):
     temp = min(max(1000, temperature), 40000)
     x, y = 0, 0
     if (temp % 100) == 0:
-        (x, y) = cmf_10deg_cache[(temp - 1000) // 100]
+        (x, y) = cmf_10deg_cache[int((temp - 1000) // 100)]
     else:
         temp -= 1000
-        (x1, y1) = cmf_10deg_cache[temp // 100]
-        (x2, y2) = cmf_10deg_cache[temp // 100 + 1]
+        (x1, y1) = cmf_10deg_cache[int(temp // 100)]
+        (x2, y2) = cmf_10deg_cache[int(temp // 100 + 1)]
         temp = (temp % 100) / 100
         x = x1 * temp + x2 * (1 - temp)
         y = y1 * temp + y2 * (1 - temp)
@@ -189,11 +189,11 @@ def redshift(temperature, old_version = False, linear_interpolation = False):
     temp = min(max(1000, temperature), 10000 if old_version else 25100)
     r, g, b = 1, 1, 1
     if (temp % 100) == 0:
-        (r, g, b) = cache[(temp - 1000) // 100]
+        (r, g, b) = cache[int((temp - 1000) // 100)]
     else:
         temp -= 1000
-        (r1, g1, b1) = cache[temp // 100]
-        (r2, g2, b2) = cache[temp // 100 + 1]
+        (r1, g1, b1) = cache[int(temp // 100)]
+        (r2, g2, b2) = cache[int(temp // 100 + 1)]
         temp = (temp % 100) / 100
         if linear_interpolation:
             (r, g, b) = standard_to_linear(r, g, b)
@@ -216,7 +216,6 @@ def temperature(temperature, algorithm):
     if temperature == 6500:
         return
     (r, g, b) = algorithm(temperature)
-    print(r, g, b)
     rgb_brightness(r, g, b)
 
 

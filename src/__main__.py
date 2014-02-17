@@ -23,7 +23,9 @@ import datetime
 
 ## Set global variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result
-global periodically, wait_period, monitor_controller, running
+global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
+global monitor_controller, running, continuous_run
+global signal_SIGTERM
 
 
 from solar import *
@@ -40,6 +42,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     fadeout_time = None
     fadein_steps = 100
     fadeout_steps = 100
+    start_over()
     if fade is None:
         negative(False, False, False)
         temperature(6500, lambda T : divide_by_maximum(series_d(T)))
@@ -103,22 +106,22 @@ monitor_controller = lambda : randr()
 :()→void  Function used by Blueshift on exit to apply reset colour curves
 '''
 
-fadein_time = 10
+fadein_time = 2
 '''
 :float?  The number of seconds used to fade in on start, `None` for no fading
 '''
 
-fadeout_time = 10
+fadeout_time = 2
 '''
 :float?  The number of seconds used to fade out on exit, `None` for no fading
 '''
 
-fadein_steps = 100
+fadein_steps = 10
 '''
 :int  The number of steps in the fade in phase, if any
 '''
 
-fadeout_steps = 100
+fadeout_steps = 10
 '''
 :int  The number of steps in the fade out phase, if any
 '''
@@ -127,6 +130,73 @@ running = True
 '''
 :bool  `True` while to program has not received a terminate signal
 '''
+
+
+
+def signal_SIGTERM(signum, frame):
+    global running
+    if not running:
+        running = False
+        start_over()
+        monitor_controller()
+        close_c_bindings()
+        sys.exit(0)
+    running = False
+
+
+def continuous_run():
+    '''
+    Invoked to run continuously if `periodically` is not `None`
+    '''
+    global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
+    def p(t, fade = None):
+        wd = t.isocalendar()[2]
+        periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
+    def sleep(seconds):
+        try:
+            time.sleep(seconds)
+        except KeyboardInterrupt:
+            signal_SIGTERM(0, None)
+    
+    ## Catch signals
+    signal.signal(signal.SIGTERM, signal_SIGTERM)
+    
+    ## Fade in
+    early_exit = False
+    ftime = 0
+    if fadein_time is not None:
+        dtime = fadein_time / fadein_steps
+        df = 1 / fadein_steps
+        while running:
+            ftime += df
+            if ftime > 1:
+                break
+            p(datetime.datetime.now(), ftime)
+            sleep(dtime)
+    
+    ## Run periodically
+    if not early_exit:
+        while running:
+            p(datetime.datetime.now(), None)
+            if running:
+                sleep(wait_period)
+    
+    ## Fade out
+    if fadeout_time is not None:
+        dtime = fadeout_time / fadeout_steps
+        df = 1 / fadeout_steps
+        if early_exit:
+            ftime = 1
+        while True:
+            ftime -= df
+            if ftime <= 0:
+                break
+            p(datetime.datetime.now(), -ftime)
+            sleep(dtime)
+    
+    ## Reset
+    start_over()
+    monitor_controller()
 
 
 ## Load extension and configurations via blueshiftrc
@@ -162,53 +232,7 @@ else:
 
 ## Run periodically if configured to
 if periodically is not None:
-    def p(t, fade = None):
-        wd = t.isocalendar()[2]
-        periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
-    
-    ## Catch TERM signal
-    def signal_SIGTERM(signum, frame):
-        if not running:
-            running = False
-            start_over()
-            monitor_controller()
-            close_c_bindings()
-            sys.exit(0)
-        running = False
-    signal.signal(signal.SIGTERM, signal_SIGTERM)
-    
-    ## Fade in
-    early_exit = False
-    ftime = 0
-    if fadein_time is not None:
-        dtime = fadein_time / fadein_steps
-        while running:
-            ftime += dtime
-            if ftime > 1:
-                break
-            p(datetime.datetime.now(), ftime)
-    
-    ## Run periodically
-    if not early_exit:
-        while running:
-            p(datetime.datetime.now(), None)
-            if running:
-                time.sleep(wait_period)
-    
-    ## Fade out
-    if fadeout_time is not None:
-        dtime = fadeout_time / fadeout_steps
-        if early_exit:
-            ftime = 1
-        while True:
-            ftime -= dtime
-            if ftime <= 0:
-                break
-            p(datetime.datetime.now(), -ftime)
-    
-    ## Reset
-    start_over()
-    monitor_controller()
+    continuous_run()
 
 close_c_bindings()
 
