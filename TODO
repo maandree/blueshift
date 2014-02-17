@@ -5,8 +5,7 @@ High priority:
 
 Medium priority:
 	Info manual
-	Signal USR1 for temporary enable/disable
-	Signal USR2 for configuration reload
+	Signal USR1 for configuration reload
 
 Low priority:
 	Tray icon with support for temporary enable/disable and configuration reload
