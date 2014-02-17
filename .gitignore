@@ -9,6 +9,7 @@ obj/
 *.so
 *.out
 *.gch
+*.zip
 __pycache__/
 /src/blueshift_randr.c
 
