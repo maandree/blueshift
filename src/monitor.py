@@ -43,6 +43,9 @@ def translate_to_integers():
 
 
 def close_c_bindings():
+    '''
+    Close all C bindings and let them free resources and close connections
+    '''
     global randr_opened
     if randr_opened:
         randr_opened = False

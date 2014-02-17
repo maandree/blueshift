@@ -37,30 +37,6 @@ from monitor import *
 config_file = None
 
 
-def periodically(year, month, day, hour, minute, second, weekday, fade):
-    fadein_time = None
-    fadeout_time = None
-    fadein_steps = 100
-    fadeout_steps = 100
-    start_over()
-    if fade is None:
-        negative(False, False, False)
-        temperature(6500, lambda T : divide_by_maximum(series_d(T)))
-        temperature(6500, lambda T : clip_whitepoint(simple_whitepoint(T)))
-        temperature(6500, cmf_2deg)
-        temperature(6500, cmf_10deg)
-        rgb_contrast(1.0, 1.0, 1.0)
-        cie_contrast(1.0)
-        rgb_brightness(1.0, 1.0, 1.0)
-        cie_brightness(1.0)
-        gamma(1.0, 1.0, 1.0)
-        sigmoid(None, None, None)
-        manipulate(lambda r : r, lambda g : g, lambda b : b)
-        clip()
-        randr(1, 2)
-
-
-
 periodically = None
 '''
 :(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
@@ -134,6 +110,12 @@ running = True
 
 
 def signal_SIGTERM(signum, frame):
+    '''
+    Signal handler for SIGTERM
+    
+    @param  signum  The signal number, 0 if called from the program itself
+    @param  frame   Ignore, it will probably be `None`
+    '''
     global running
     if not running:
         running = False
