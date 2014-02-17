@@ -105,10 +105,10 @@ def srgb_to_ciexyy(r, g, b):
     '''
     if r == g == b == 0:
         return (0.312857, 0.328993, 0)
-    (r, g, b) = standard_to_linear(r, g, b)
-    (X, Y, Z) = linear_to_ciexyz(r, g, b)
-    (x, y, Y) = ciexyz_to_ciexyy(X, Y, Z)
-    return (x, y, Y)
+    rc = standard_to_linear(r, g, b)
+    rc = linear_to_ciexyz(*rc)
+    rc = ciexyz_to_ciexyy(*rc)
+    return rc
 
 
 def ciexyy_to_srgb(x, y, Y):
@@ -120,8 +120,8 @@ def ciexyy_to_srgb(x, y, Y):
     @param   Y:float                 The Y parameter
     @return  :[float, float, float]  The red, green and blue components
     '''
-    (X, Y, Z) = ciexyy_to_ciexyz(x, y, Y)
-    (r, g, b) = ciexyz_to_linear(X, Y, Z)
-    (r, g, b) = linear_to_standard(r, g, b)
-    return (r, g, b)
+    rc = ciexyy_to_ciexyz(x, y, Y)
+    rc = ciexyz_to_linear(*rc)
+    rc = linear_to_standard(*rc)
+    return rc
 
