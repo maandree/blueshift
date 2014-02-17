@@ -10,6 +10,5 @@ Medium priority:
 
 Low priority:
 	Tray icon with support for temporary enable/disable and configuration reload
-	Automatic detection of GPS coordinate
 	VidMode support
 
