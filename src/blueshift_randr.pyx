@@ -57,7 +57,7 @@ def randr_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
         raise MemoryError()
     for i in range(256):
         r[i] = r_curve[i] & 0xFFFF
-        g[i] = g_curve[i] & 0xFFFF 
+        g[i] = g_curve[i] & 0xFFFF
         b[i] = b_curve[i] & 0xFFFF
     rc = blueshift_randr_apply(use_crtcs, r, g, b)
     free(r)
