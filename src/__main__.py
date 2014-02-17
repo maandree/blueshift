@@ -92,12 +92,12 @@ fadeout_time = 2
 :float?  The number of seconds used to fade out on exit, `None` for no fading
 '''
 
-fadein_steps = 10
+fadein_steps = 40
 '''
 :int  The number of steps in the fade in phase, if any
 '''
 
-fadeout_steps = 10
+fadeout_steps = 40
 '''
 :int  The number of steps in the fade out phase, if any
 '''
