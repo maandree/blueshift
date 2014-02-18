@@ -11,6 +11,7 @@ DATA ?= /share
 BINDIR ?= $(PREFIX)$(BIN)
 LIBDIR ?= $(PREFIX)$(LIB)
 DATADIR ?= $(PREFIX)$(DATA)
+DOCDIR ?= $(DATADIR)/doc
 LICENSEDIR ?= $(DATADIR)/licenses
 
 SHEBANG ?= /usr/bin/python3
@@ -27,6 +28,7 @@ FLAGS = $$($(PKGCONFIG) --cflags --libs $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE)
 
 DATAFILES = 2deg 10deg redshift redshift_old
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py
+EXAMPLES = comperhensive
 
 
 
@@ -71,7 +73,7 @@ obj/blueshift_randr.c: src/blueshift_randr.pyx
 
 
 .PHONY: install
-install: install-command install-license
+install: install-command install-examples install-license
 
 .PHONY: install-command
 install-command: bin/blueshift_randr.so bin/blueshift
@@ -81,6 +83,11 @@ install-command: bin/blueshift_randr.so bin/blueshift
 	install -m755 bin/blueshift_randr.so -- "$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 	install -m644 -- $(DATAFILES) "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
+
+.PHONY: install-examples
+install-examples:
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
+	install -m644 $(foreach E,$(EXAMPLES),examples/$(E)) -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
 
 .PHONY: install-license
 install-license:
@@ -92,6 +99,8 @@ install-license:
 uninstall:
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
+	-rm -- $(foreach E,$(EXAMPLES),"$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples/$(E)")
+	-rmdir -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 	-rm -- $(foreach F,$(DATAFILES),"$(DESTDIR)$(DATADIR)/$(PKGNAME)/$(F)")
 	-rmdir -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
