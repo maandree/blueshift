@@ -162,7 +162,7 @@ def continuous_run():
         try:
             wd = t.isocalendar()[2]
             periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
-        except:
+        except KeyboardInterrupt:
             signal_SIGTERM(0, None)
     def sleep(seconds):
         try:
@@ -176,6 +176,8 @@ def continuous_run():
     ## Fade in
     early_exit = False
     ftime = 0
+    if fadein_steps <= 0:
+        fadein_time = None
     if (fadein_time is not None) and not panicgate:
         dtime = fadein_time / fadein_steps
         df = 1 / fadein_steps
@@ -196,6 +198,8 @@ def continuous_run():
                 sleep(wait_period)
     
     ## Fade out
+    if fadeout_steps <= 0:
+        fadeout_time = None
     if fadeout_time is not None:
         dtime = fadeout_time / fadeout_steps
         df = 1 / fadeout_steps
@@ -288,7 +292,8 @@ if (config_file is None) and any([doreset, location] + settings):
     elif len(temperatures) == 1:
         temperatures *= 2
     settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures, [location]]
-    settings = [None if c is None else [[float(y) for y in x.split(':')] for x in c] for c in settings]
+    s = lambda f, v : f(v) if v is not None else None
+    settings = [s(lambda c : [s(lambda x : [float(y) for y in x.split(':')], x) for x in c], c) for c in settings]
     [gammas, rgb_brightnesses, cie_brightnesses, temperatures, location] = settings
     location = None if location is None else location[0]
     alpha = lambda : 1
