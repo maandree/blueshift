@@ -279,57 +279,106 @@ if output is None:
 #     transition from those settings
 # otherwise
 #   transition from pure settings to specified settings
-# if gamma, rgb_brightness, cie_brightness or temperature is used twice
-#   if `reset`
-#     calculate settings by time or solar position
-#   otherwise
-#     run in daemon mode
-# otherwise
-#   do one shoot configuration
-# if location is used
-#   use solar position
-# otherwise
-#   use time 22:00 is night 08:00 is day
-# default gamma is 1:1:1
-# default rgb_brightness is 1
-# default cie_brightness is 1
-# default temperature is 3700 during night
-# default temperature is 6500 during day
-# ignore above if `config_file`
+# if `continuous` and `reset`
+#   calculate settings by time or solar position
 # ignore transitions if `panicgate`
-# order of settings: gamma({cie,rgb}_brightness(temperature(id)))
 
 
-## Load extension and configurations via blueshiftrc
-if config_file is None:
-    for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
-        file = file.replace('%', 'blueshift')
-        for arg in ('XDG_CONFIG_HOME', 'HOME'):
-            if '$' + arg in file:
-                if arg in os.environ:
-                    file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
-                else:
-                    file = None
+settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures]
+if (config_file is None) and any([reset, location] + settings):
+    ## Use one time configurations
+    d = lambda a, default : [default, default] if a is None else (a * 2 if len(a) == 1 else a)
+    continuous = any(map(lambda a : (a is not None) and (len(a) == 2), settings))
+    continuous = continuous or (location is not None)
+    gammas = d(gammas, "1:1:1")
+    rgb_brightnesses = d(rgb_brightnesses, "1")
+    cie_brightnesses = d(cie_brightnesses, "1")
+    if temperatures is None:
+        temperatures = ['3700', '6500']
+    elif len(temperatures) == 1:
+        temperatures *= 2
+    settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures, location]
+    settings = [[[int(y) for y in x.split(':')] for x in c] if c is not None else None for c in settings]
+    [gammas, rgb_brightnesses, cie_brightnesses, temperatures, location] = settings
+    location = None if location is None else location[0]
+    alpha = lambda : 1
+    if continuous:
+        if location is not None:
+            alpha = lambda : sun(*location)
+        else:
+            def alpha_():
+                now = datetime.datetime.now()
+                hh, mm = now.hour, now.minute + now.second / 60
+                if 8 <= hh <= 22:
+                    return 1 - (hh - 8) / (22 - 8) - mm / 60
+                if hh <= 8:
+                    hh += 22 - 8
+                return (hh - 22) / 10 + m / 60
+            alpha = alpha_
+    def reduce(f, items):
+        if len(items) < 2:
+            return items
+        rc = items[0]
+        for i in range(1, len(items)):
+            rc = f(rc, items[i])
+        return rc
+    output = reduce(lambda x, y : x + y, [a.split(',') for a in output])
+    monitor_controller = lambda : randr(*output)
+    def apply(dayness, pureness):
+        start_over()
+        interpol_ = lambda d, p, a, r : d * r + (p[0] * a + p[1] * (1 - a)) * (1 - r)
+        interpol = lambda d, p : [interpol_(d, [p[0][i], p[1][i]], dayness, pureness) for i in range(len(p[0]))]
+        temperature(*interpol(6500, temperatures), algorithm = lambda t : divide_by_maximum(cmf_10deg(t)))
+        rgb_brightness(*interpol(1, rgb_brightnesses))
+        cie_brightness(*interpol(1, cie_brightnesses))
+        clip()
+        gamma(*interpol(1, gammas))
+        clip()
+        monitor_controller()
+    if continuous and not reset:
+        pass
+    else:
+        if not panicgate:
+            signal.signal(signal.SIGTERM, signal_SIGTERM)
+            trans = 0
+            while running:
+                apply(alpha(), trans if reset else 1 - trans)
+                trans += 0.05
+                time.sleep(0.1)
+                if trans >= 1:
                     break
-        if file is not None:
-            file = file.replace('\0', '$')
-            if os.path.exists(file):
-                config_file = file
-                break
-conf_opts = [config_file] + parser.files
-if config_file is not None:
-    code = None
-    with open(file, 'rb') as script:
-        code = script.read()
-    code = code.decode('utf8', 'error') + '\n'
-    code = compile(code, file, 'exec')
-    g, l = globals(), dict(locals())
-    for key in l:
-        g[key] = l[key]
-    exec(code, g)
+        apply(alpha(), 1 if reset else 0)
 else:
-    print('No configuration file found')
-    sys.exit(1)
+    ## Load extension and configurations via blueshiftrc
+    if config_file is None:
+        for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
+            file = file.replace('%', 'blueshift')
+            for arg in ('XDG_CONFIG_HOME', 'HOME'):
+                if '$' + arg in file:
+                    if arg in os.environ:
+                        file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
+                    else:
+                        file = None
+                        break
+            if file is not None:
+                file = file.replace('\0', '$')
+                if os.path.exists(file):
+                    config_file = file
+                    break
+    conf_opts = [config_file] + parser.files
+    if config_file is not None:
+        code = None
+        with open(file, 'rb') as script:
+            code = script.read()
+        code = code.decode('utf8', 'error') + '\n'
+        code = compile(code, file, 'exec')
+        g, l = globals(), dict(locals())
+        for key in l:
+            g[key] = l[key]
+        exec(code, g)
+    else:
+        print('No configuration file found')
+        sys.exit(1)
 
 
 ## Run periodically if configured to
