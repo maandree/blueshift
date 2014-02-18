@@ -1,8 +1,10 @@
 High priority:
-	Examples
 	Info manual
 
 Medium priority:
+	Small examples
+	-r support in the comperhensive example
+	store settings so that we can transition from them instead of from clean
 	Signal USR1 for configuration reload
 
 Low priority:
