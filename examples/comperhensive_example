@@ -5,8 +5,6 @@
 # colour temperature, not use of termporarly linear RGB curves,
 # negative image, sigmoid correction, or free function modifier.
 
-import datetime
-
 
 # Geographical coodinates.
 # (KTH computer laboratories in this example.)
