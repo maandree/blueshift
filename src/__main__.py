@@ -263,7 +263,7 @@ elif parser.opts['--version'] is not None:
 a = lambda opt : opt[0] if opt is not None else None
 config_file = a(parser.opts['--configurations'])
 panicgate = parser.opts['--panicgate'] is not None
-reset = parser.opts['--reset'] is not None
+doreset = parser.opts['--reset'] is not None
 location = a(parser.opts['--location'])
 gammas = parser.opts['--gamma']
 rgb_brightnesses = parser.opts['--brightness']
@@ -273,19 +273,9 @@ output = parser.opts['--output']
 if output is None:
     output = []
 
-# if `reset`
-#   simply reset curves
-#   if settings are used
-#     transition from those settings
-# otherwise
-#   transition from pure settings to specified settings
-# if `continuous` and `reset`
-#   calculate settings by time or solar position
-# ignore transitions if `panicgate`
-
 
 settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures]
-if (config_file is None) and any([reset, location] + settings):
+if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
     d = lambda a, default : [default, default] if a is None else (a * 2 if len(a) == 1 else a)
     continuous = any(map(lambda a : (a is not None) and (len(a) == 2), settings))
@@ -297,8 +287,8 @@ if (config_file is None) and any([reset, location] + settings):
         temperatures = ['3700', '6500']
     elif len(temperatures) == 1:
         temperatures *= 2
-    settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures, location]
-    settings = [[[int(y) for y in x.split(':')] for x in c] if c is not None else None for c in settings]
+    settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures, [location]]
+    settings = [None if c is None else [[float(y) for y in x.split(':')] for x in c] for c in settings]
     [gammas, rgb_brightnesses, cie_brightnesses, temperatures, location] = settings
     location = None if location is None else location[0]
     alpha = lambda : 1
@@ -309,11 +299,11 @@ if (config_file is None) and any([reset, location] + settings):
             def alpha_():
                 now = datetime.datetime.now()
                 hh, mm = now.hour, now.minute + now.second / 60
-                if 8 <= hh <= 22:
-                    return 1 - (hh - 8) / (22 - 8) - mm / 60
-                if hh <= 8:
-                    hh += 22 - 8
-                return (hh - 22) / 10 + m / 60
+                if 12 <= hh <= 22:
+                    return 1 - (hh - 12) / (22 - 12) - mm / 60
+                if hh <= 12:
+                    hh += 22 - 12
+                return (hh - 22) / 14 + m / 60
             alpha = alpha_
     def reduce(f, items):
         if len(items) < 2:
@@ -335,19 +325,20 @@ if (config_file is None) and any([reset, location] + settings):
         gamma(*interpol(1, gammas))
         clip()
         monitor_controller()
-    if continuous and not reset:
-        pass
+    if continuous and not doreset:
+        def periodically(year, month, day, hour, minute, second, weekday, fade):
+            apply(alpha(), 0 if fade is None else 1 - abs(fade))
     else:
         if not panicgate:
             signal.signal(signal.SIGTERM, signal_SIGTERM)
             trans = 0
             while running:
-                apply(alpha(), trans if reset else 1 - trans)
+                apply(alpha(), trans if doreset else 1 - trans)
                 trans += 0.05
                 time.sleep(0.1)
                 if trans >= 1:
                     break
-        apply(alpha(), 1 if reset else 0)
+        apply(alpha(), 1 if doreset else 0)
 else:
     ## Load extension and configurations via blueshiftrc
     if config_file is None:
