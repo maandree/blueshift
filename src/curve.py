@@ -21,7 +21,7 @@ from colour import *
 
 
 # /usr/share/blueshift
-DATADIR = '.'
+DATADIR = 'res'
 
 # Mapping input and output maximum values + 1
 i_size = 2 ** 8
