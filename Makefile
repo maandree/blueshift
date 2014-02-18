@@ -76,18 +76,18 @@ obj/blueshift_randr.c: src/blueshift_randr.pyx
 install: install-command install-examples install-license
 
 .PHONY: install-command
-install-command: bin/blueshift_randr.so bin/blueshift
+install-command: bin/blueshift_randr.so bin/blueshift $(foreach D,$(DATAFILES),res/$(D))
 	install -dm755 -- "$(DESTDIR)$(BINDIR)"
 	install -m755 bin/blueshift -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
 	install -dm755 -- "$(DESTDIR)$(LIBDIR)"
 	install -m755 bin/blueshift_randr.so -- "$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
-	install -m644 -- $(DATAFILES) "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
+	install -m644 -- $(foreach D,$(DATAFILES),res/$(D)) "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 
 .PHONY: install-examples
-install-examples:
+install-examples: $(foreach E,$(EXAMPLES),examples/$(E))
 	install -dm755 -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
-	install -m644 $(foreach E,$(EXAMPLES),examples/$(E)) -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
+	install -m644 $^ -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
 
 .PHONY: install-license
 install-license:
