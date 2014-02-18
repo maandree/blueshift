@@ -273,6 +273,32 @@ output = parser.opts['--output']
 if output is None:
     output = []
 
+# if `reset`
+#   simply reset curves
+#   if settings are used
+#     transition from those settings
+# otherwise
+#   transition from pure settings to specified settings
+# if gamma, rgb_brightness, cie_brightness or temperature is used twice
+#   if `reset`
+#     calculate settings by time or solar position
+#   otherwise
+#     run in daemon mode
+# otherwise
+#   do one shoot configuration
+# if location is used
+#   use solar position
+# otherwise
+#   use time 22:00 is night 08:00 is day
+# default gamma is 1:1:1
+# default rgb_brightness is 1
+# default cie_brightness is 1
+# default temperature is 3700 during night
+# default temperature is 6500 during day
+# ignore above if `config_file`
+# ignore transitions if `panicgate`
+# order of settings: gamma({cie,rgb}_brightness(temperature(id)))
+
 
 ## Load extension and configurations via blueshiftrc
 if config_file is None:
