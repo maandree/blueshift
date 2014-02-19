@@ -13,6 +13,7 @@ LIBDIR ?= $(PREFIX)$(LIB)
 DATADIR ?= $(PREFIX)$(DATA)
 DOCDIR ?= $(DATADIR)/doc
 LICENSEDIR ?= $(DATADIR)/licenses
+INFODIR ?= $(INFODIR)/info
 
 SHEBANG ?= /usr/bin/python3
 COMMAND ?= blueshift
@@ -31,9 +32,17 @@ PYFILES = __main__.py colour.py curve.py monitor.py solar.py
 EXAMPLES = comprehensive
 
 
+.PHONY: default
+default: command info
 
 .PHONY: all
-all: command
+all: command doc
+
+.PHONY: doc
+doc: info
+
+.PHONY: info
+info: blueshift.info
 
 .PHONY: command
 command: bin/blueshift_randr.so bin/blueshift
@@ -72,8 +81,18 @@ obj/blueshift_randr.c: src/blueshift_randr.pyx
 	mv src/blueshift_randr.c $@
 
 
+%.info: info/%.texinfo
+	makeinfo "$<"
+
+
 .PHONY: install
-install: install-command install-examples install-license
+install: install-base install-info install-examples
+
+.PHONY: install
+install: install-base install-doc
+
+.PHONY: install-base
+install-base: install-command install-license
 
 .PHONY: install-command
 install-command: bin/blueshift_randr.so bin/blueshift $(foreach D,$(DATAFILES),res/$(D))
@@ -84,28 +103,37 @@ install-command: bin/blueshift_randr.so bin/blueshift $(foreach D,$(DATAFILES),r
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 	install -m644 -- $(foreach D,$(DATAFILES),res/$(D)) "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 
-.PHONY: install-examples
-install-examples: $(foreach E,$(EXAMPLES),examples/$(E))
-	install -dm755 -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
-	install -m644 $^ -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
-
 .PHONY: install-license
 install-license:
 	install -dm755 -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 	install -m644 COPYING LICENSE -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 
+.PHONY: install-doc
+install-doc: install-info install-examples
+
+.PHONY: install-examples
+install-examples: $(foreach E,$(EXAMPLES),examples/$(E))
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
+	install -m644 $^ -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
+
+.PHONY: install-info
+install-info: blueshift.info
+	install -dm755 -- "$(DESTDIR)$(INFODIR)"
+	install -m644 $< -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
+
 
 .PHONY: uninstall
 uninstall:
+	-rm --"$(DESTDIR)$(BINDIR)/$(COMMAND)"
+	-rm --"$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
-	-rm -- $(foreach E,$(EXAMPLES),"$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples/$(E)")
-	-rmdir -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 	-rm -- $(foreach F,$(DATAFILES),"$(DESTDIR)$(DATADIR)/$(PKGNAME)/$(F)")
 	-rmdir -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
-	-rm --"$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
-	-rm --"$(DESTDIR)$(BINDIR)/$(COMMAND)"
+	-rm -- $(foreach E,$(EXAMPLES),"$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples/$(E)")
+	-rmdir -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
+	-rm -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
 
 
 .PHONY: all
