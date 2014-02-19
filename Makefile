@@ -28,7 +28,7 @@ FLAGS = $$($(PKGCONFIG) --cflags --libs $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE)
 
 DATAFILES = 2deg 10deg redshift redshift_old
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py
-EXAMPLES = comperhensive
+EXAMPLES = comprehensive
 
 
 

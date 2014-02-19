@@ -2,7 +2,7 @@
 
 # This example is complete with exceptions for less normal colour
 # curve modifiers: nothing else than CIE 1964 10 degree CMF for
-# colour temperature, not use of termporarly linear RGB curves,
+# colour temperature, not use of temporarly linear RGB curves,
 # negative image, sigmoid correction, or free function modifier.
 
 
