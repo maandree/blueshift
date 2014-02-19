@@ -155,8 +155,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
-    global last_dayness
+    global last_dayness, wait_period
+    
     dayness = get_dayness()
+    # Do not do unnecessary work
     if fade is None:
         if dayness == last_dayness:
             return
@@ -223,6 +225,9 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
             randr()
         else:
             randr(m)
+    
+    # Lets wait only 5 seconds, instead of a minute before running again
+    wait_period = 10
 
 
 def reset():
