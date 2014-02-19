@@ -39,10 +39,19 @@ default: command info
 all: command doc
 
 .PHONY: doc
-doc: info
+doc: info pdf dvi ps
 
 .PHONY: info
 info: blueshift.info
+
+.PHONY: pdf
+pdf: blueshift.pdf
+
+.PHONY: dvi
+dvi: blueshift.dvi
+
+.PHONY: ps
+ps: blueshift.ps
 
 .PHONY: command
 command: bin/blueshift_randr.so bin/blueshift
@@ -83,6 +92,22 @@ obj/blueshift_randr.c: src/blueshift_randr.pyx
 
 %.info: info/%.texinfo
 	makeinfo "$<"
+
+%.pdf: info/%.texinfo
+	@mkdir -p obj
+	cd obj ; yes X | texi2pdf ../$<
+	mv obj/$@ $@
+
+%.dvi: info/%.texinfo
+	@mkdir -p obj
+	cd obj ; yes X | $(TEXI2DVI) ../$<
+	mv obj/$@ $@
+
+%.ps: info/%.texinfo
+	@mkdir -p obj
+	cd obj ; yes X | texi2pdf --ps ../$<
+	mv obj/$@ $@
+
 
 
 .PHONY: install

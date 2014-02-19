@@ -138,12 +138,12 @@ Prints help information.
 @itemx --copyright
 Prints copyright information.
 
-@itemx -W
+@item -W
 @itemx --warranty
 Prints non-warranty information,
 included in the copyright information.
 
-@itemx -v
+@item -v
 @itemx --version
 Prints the name of the program and the
 installed version of the program
