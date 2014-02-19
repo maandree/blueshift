@@ -25,7 +25,7 @@ from argparser import *
 
 
 PROGRAM_NAME = 'blueshift'
-PROGRAM_VERSION = '1.0'
+PROGRAM_VERSION = '1.1'
 
 
 ## Set global variables
@@ -242,7 +242,7 @@ parser.add_argumented(['-o', '--output', '--crtc'], 0, 'CRTCS',
                       'It is best to start one instance per monitor with colour calibration')
 parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
 parser.add_argumentless(['-C', '--copying', '--copyright'], 0, 'Print copyright information')
-parser.add_argumentless(['-W', '--warranty'], 0, 'Print warranty information')
+parser.add_argumentless(['-W', '--warranty'], 0, 'Print non-warranty information')
 parser.add_argumentless(['-v', '--version'], 0, 'Print program name and version')
 
 parser.parse()

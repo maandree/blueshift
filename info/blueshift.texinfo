@@ -89,11 +89,96 @@ calls to any system dependent functions.
 If Blueshift does not work for you for any of these
 reasons, you should take a look at Redshift.
 
-Blueshift is fully extensible and highly configurable.
 
 
 @node Invoking
 @chapter Invoking
+
+Blueshift uses argparser to read options from the
+commnad line. It inherits a few properaties from this:
+abbreviations are supported, you only need to type the
+beginning of the long options so that the rest can
+be filled in unambiguously by the program; @option{--}
+can be used, as usual, to make all following options
+being parsed as just arguments; and @option{++} works
+like @option{--}, except it only allied to the next
+option. Any argument that is not parsed as an option
+for Blueshift is passed onto the configuration script.
+
+Blueshift recognises the following options:
+
+@table @option
+@item -c
+@itemx --configurations FILE
+Select configuration script. This defaults to the
+first file of the following the exists:
+@file{$XDG_CONFIG_HOME/blueshift/blueshiftrc},
+@file{$HOME/.config/blueshift/blueshiftrc},
+@file{$HOME/.blueshiftrc}, @file{/etc/blueshiftrc}.
+Blueshift does not check the user home, rather it
+checks @env{HOME} which should be the user home, unless
+you change it yourself.
+
+@item -p @c the long name of option is inspired from openntpd
+@itemx --panic-gate
+@itemx --panicgate
+Applies the settings directly instead of transitioning
+into the initial settings. There is not option for doing
+this when the program exists. But you press @kbd{Control+c}
+twice, or send SIGTERM twice, to skip transition into
+default settings.
+
+@item -h
+@itemx -?
+@itemx --help
+Prints help information.
+
+@item -C
+@itemx --copying
+@itemx --copyright
+Prints copyright information.
+
+@itemx -W
+@itemx --warranty
+Prints non-warranty information,
+included in the copyright information.
+
+@itemx -v
+@itemx --version
+Prints the name of the program and the
+installed version of the program
+@end table
+
+Blueshift also supports a few options
+for ad-hoc settings. These are ignored
+(unlessed fetched by the configuration file)
+if @option{-c} (@option{--configurations})
+is used.
+
+@table @option
+@item -g
+@itemx --gamma RGB|R:G:B
+
+@item -b
+@itemx --brightness RGB|R:G:B
+
+@item +b
+@itemx ++brightness Y
+
+@item -t
+@itemx --temperature TEMP
+
+@item -l
+@itemx --location LAT:LON
+
+@item -r
+@itemx --reset
+
+@item -o
+@itemx --output
+@itemx --crtc CRTC
+@end table
+
 
 
 @node GNU Free Documentation License
