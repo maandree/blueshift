@@ -12,4 +12,12 @@ obj/
 *.zip
 __pycache__/
 /src/blueshift_randr.c
+*.info
+*.pdf
+*.dvi
+*.ps
+*.tar
+*.gz
+*.bz2
+*.xz
 
