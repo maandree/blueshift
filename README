@@ -39,7 +39,7 @@ Blueshift is not user friendly and it is not
 meant too be. Blueshift does offer limited
 use of command line options to apply settings,
 but it is really meant for you to have configuration
-files (written in Python) when all the policies
+files (written in Python 3) where all the policies
 are implemented, Blueshift is only meant to provide
 the mechanism for modifying the colour curves.
 Blueshift neither provides any means of automatically

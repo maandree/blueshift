@@ -60,6 +60,37 @@ Texts. A copy of the license is included in the section entitled
 @node Overview
 @chapter Overview
 
+Inspired by Redshift, Blueshift adjusts the colour
+temperature of your monitor according to brightness
+outside to reduce eye strain and make it easier to
+fall asleep when going to bed. It can also be used
+to increase the colour temperature and make the
+monitor bluer, this helps you focus on your work.
+
+Blueshift is not user friendly and it is not
+meant too be. Blueshift does offer limited
+use of command line options to apply settings,
+but it is really meant for you to have configuration
+files (written in Python 3) where all the policies
+are implemented, Blueshift is only meant to provide
+the mechanism for modifying the colour curves.
+Blueshift neither provides any means of automatically
+getting your geographical position; the intention is
+that you should implement that in the policy yourself
+using library which can do that. Additionally
+Blueshift provides not safe guards from making your
+screen unreadable or otherwise miscoloured; and
+Blueshift will never, officially, add support
+specifically for any proprietary operating system.
+Blueshift is fully extensible so it is possible to
+make extensions that make it usable under unsupported
+systems, the base code is written in Python 3 without
+calls to any system dependent functions.
+If Blueshift does not work for you for any of these
+reasons, you should take a look at Redshift.
+
+Blueshift is fully extensible and highly configurable.
+
 
 @node Invoking
 @chapter Invoking
