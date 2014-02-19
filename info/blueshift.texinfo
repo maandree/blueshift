@@ -157,27 +157,86 @@ is used.
 
 @table @option
 @item -g
-@itemx --gamma RGB|R:G:B
+@itemx --gamma RGB
+Apply gamma correction to the colour curves.
+All values in the three colour curves are raised
+to the power of 1 divided by @var{RGB}. Assuming
+no values in the curves are larger than 1 (100 %)
+the curves are bent upwards if @var{RGB} is larger
+than 1.
+
+@item -g
+@itemx --gamma R:G:B
+This works as @option{--gamma RGB}, except the
+gamma is applied separately for the three colour
+curves. If we want to apply the 0,9 gamma to the
+red colour component, and 1,1 and 1,2 for the
+green and blue colour components, respectively use
+@option{-g 0.9:1.1:1.2} or @option{-gamma 0.9:1.1:1.2}.
 
 @item -b
-@itemx --brightness RGB|R:G:B
+@itemx --brightness RGB
+This multiplies all values in the colour curves
+with @env{RGB}, effectively making the display
+@env{RGB} times as bright. Values larger than 1,
+will be clipped to 1. This is indented to be used
+to make the screen slightly darker during the night.
+
+@item -b
+@itemx --brightness R:G:B
+This option is to @option{--brightness RGB} as
+@option{--gamma R:G:B} is to @option{--gamma RGB}.
 
 @item +b
 @itemx ++brightness Y
+This option works as @option{--brightness RGB},
+except the CIE xyY colour spaces is used instead
+of sRGB and will probably make the colour curves
+look better.
 
 @item -t
 @itemx --temperature TEMP
+Changes the colour tempurature to @var{TEMP}
+kelvin. The standard colour tempurature is
+6500 K@footnote{Or actually 6054 K using revised
+constants in Plank's law}. If not specified,
+the colour temperature will be 3700 K during
+high night and 6500 K during the high day.
 
 @item -l
 @itemx --location LAT:LON
+Specify your geographical coordinates. This
+is used to determine how dark it is outside.
+@env{LAT} is the latitude, floating point
+measured in degrees from the equator to the
+north. It is negative if you are on the
+southern hemisphere. @env{LON} is the
+longitude, floating point measured in degrees
+from Greenwich to the east. Negative if you
+are on the west side of the Earth.
 
 @item -r
 @itemx --reset
+Transition from the specified settings to
+normal, clean, settings.
 
 @item -o
 @itemx --output
 @itemx --crtc CRTC
+Select CRTC to apply changes to. This is
+comma separated list, and multiple options
+may be used. It is best to start one
+instance per monitor with colour calibration.
 @end table
+
+@option{-g}, @option{-b}, @option{+b}, and
+@option{-t} can be use twice, each, to use
+different settings during the night and during
+the day. While this is possible for gamma,
+it is not recommended. The purpose of gamma
+is to adjust the same error that are present
+in minors and make all colours look correct
+in relation to each other.
 
 
 
