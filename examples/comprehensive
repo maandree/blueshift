@@ -18,6 +18,7 @@ def by_time():
     '''
     Dayness calculation using time
     '''
+    global time_alpha
     if isinstance(time_alpha[0][0], str):
         for i in range(len(time_alpha)):
             hh = [float(x) for x in time_alpha[i][0].split(':')]
