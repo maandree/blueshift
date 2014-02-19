@@ -2,13 +2,13 @@ RUNTIME DEPENDENCIES:
 
 	python3
 	libxcb
-	argparser-python
+	argparser-python (https://github.com/maandree/argparser)
 
 
 MAKE DEPENDENCIES:
 
 	cython
-	c99
+	c99 (a C 99 compliant compiler; provided by gcc)
 	python3
 	libxcb
 	make
