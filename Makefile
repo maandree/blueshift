@@ -114,7 +114,7 @@ obj/blueshift_randr.c: src/blueshift_randr.pyx
 install: install-base install-info install-examples
 
 .PHONY: install
-install: install-base install-doc
+install-all: install-base install-doc
 
 .PHONY: install-base
 install-base: install-command install-license
@@ -134,7 +134,7 @@ install-license:
 	install -m644 COPYING LICENSE -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 
 .PHONY: install-doc
-install-doc: install-info install-examples
+install-doc: install-info install-pdf install-ps install-dvi install-examples
 
 .PHONY: install-examples
 install-examples: $(foreach E,$(EXAMPLES),examples/$(E))
@@ -145,6 +145,21 @@ install-examples: $(foreach E,$(EXAMPLES),examples/$(E))
 install-info: blueshift.info
 	install -dm755 -- "$(DESTDIR)$(INFODIR)"
 	install -m644 $< -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
+
+.PHONY: install-pdf
+install-pdf: blueshift.pdf
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
+	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
+
+.PHONY: install-ps
+install-ps: blueshift.ps
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
+	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
+
+.PHONY: install-dvi
+install-dvi: blueshift.dvi
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
+	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
 
 
 .PHONY: uninstall
@@ -159,6 +174,9 @@ uninstall:
 	-rm -- $(foreach E,$(EXAMPLES),"$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples/$(E)")
 	-rmdir -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
 	-rm -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
+	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
+	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
+	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
 
 
 .PHONY: all
