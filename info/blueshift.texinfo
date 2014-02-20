@@ -631,9 +631,9 @@ the before it starts becoming less visible (twilight.)
 
 To convert a time to Julian Centuries, you can use
 the function @code{epoch_to_julian_centuries}. It takes
-one argument, the local POSIX time, that is, the number of
+one argument, the POSIX time, that is, the number of
 seconds that have elapsed since 1970-(01)Jan-01 00:00:00
-local time, not counting leap seconds.
+UTC, not counting leap seconds.
 
 A set of functions that are used to calculate the Sun's
 are provided:
