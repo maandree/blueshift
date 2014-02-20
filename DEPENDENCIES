@@ -16,4 +16,5 @@ MAKE DEPENDENCIES:
 	sed
 	zip
 	texinfo (opt-out)
+	auto-auto-complete (opt-out)
 

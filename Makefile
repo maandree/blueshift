@@ -33,10 +33,10 @@ EXAMPLES = comprehensive sleepmode
 
 
 .PHONY: default
-default: command info
+default: command info shell
 
 .PHONY: all
-all: command doc
+all: command doc shell
 
 .PHONY: doc
 doc: info pdf dvi ps
@@ -55,6 +55,18 @@ ps: blueshift.ps
 
 .PHONY: command
 command: bin/blueshift_randr.so bin/blueshift
+
+.PHONY: shell
+shell: bash zsh fish
+
+.PHONY: bash
+bash: blueshift.bash
+
+.PHONY: zsh
+zsh: blueshift.zsh
+
+.PHONY: fish
+fish: blueshift.fish
 
 
 bin/blueshift: obj/blueshift.zip
@@ -109,12 +121,22 @@ obj/blueshift_randr.c: src/blueshift_randr.pyx
 	mv obj/$@ $@
 
 
+blueshift.bash: completion
+	auto-auto-complete bash --output $@ --source $<
+
+blueshift.zsh: completion
+	auto-auto-complete zsh --output $@ --source $<
+
+blueshift.fish: completion
+	auto-auto-complete fish --output $@ --source $<
+
+
 
 .PHONY: install
-install: install-base install-info install-examples
+install: install-base install-info install-examples install-shell
 
 .PHONY: install
-install-all: install-base install-doc
+install-all: install-base install-doc install-shell
 
 .PHONY: install-base
 install-base: install-command install-license
@@ -161,11 +183,29 @@ install-dvi: blueshift.dvi
 	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
 	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
 
+.PHONY: install-shell
+install-shell: install-bash install-zsh install-fish
+
+.PHONY: install-bash
+install-bash: blueshift.bash
+	install -dm755 -- "$(DESTDIR)$(DATADIR)/bash-completion/completions"
+	install -m644 $< -- "$(DESTDIR)$(DATADIR)/bash-completion/completions/$(COMMAND)"
+
+.PHONY: install-zsh
+install-zsh: blueshift.zsh
+	install -dm755 -- "$(DESTDIR)$(DATADIR)/zsh/site-functions"
+	install -m644 $< -- "$(DESTDIR)$(DATADIR)/zsh/site-functions/_$(COMMAND)"
+
+.PHONY: install-fish
+install-fish: blueshift.fish
+	install -dm755 -- "$(DESTDIR)$(DATADIR)/fish/completions"
+	install -m644 $< -- "$(DESTDIR)$(DATADIR)/fish/completions/$(COMMAND).fish"
+
 
 .PHONY: uninstall
 uninstall:
-	-rm --"$(DESTDIR)$(BINDIR)/$(COMMAND)"
-	-rm --"$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
+	-rm -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
+	-rm -- "$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
@@ -173,13 +213,23 @@ uninstall:
 	-rmdir -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 	-rm -- $(foreach E,$(EXAMPLES),"$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples/$(E)")
 	-rmdir -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)/examples"
+	-rmdir -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME)"
 	-rm -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
 	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
 	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
 	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
+	-rm -- "$(DESTDIR)$(DATADIR)/fish/completions/$(COMMAND).fish"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/fish/completions"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/fish"
+	-rm -- "$(DESTDIR)$(DATADIR)/zsh/site-functions/_$(COMMAND)"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/zsh/site-functions"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/zsh"
+	-rm -- "$(DESTDIR)$(DATADIR)/bash-completion/completions/$(COMMAND)"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/bash-completion/completions"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/bash-completion"
 
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_randr.c
+	-rm -r bin obj src/blueshift_randr.c blueshift.{ba,z,fi}sh
 

@@ -1,0 +1,20 @@
+(blueshift
+  (multiple unargumented
+    ((options -p --panic-gate --panicgate)  (complete --panicgate)  (desc 'Applies the settings directly instead of transitioning into the initial settings'))
+    ((options -h -? --help)                 (complete --help)       (desc 'Prints help information'))
+    ((options -C --copying --copyright)     (complete --copyright)  (desc 'Prints copyright information'))
+    ((options -W --warranty)                (complete --warranty)   (desc 'Prints non-warranty information'))
+    ((options -v --version)                 (complete --version)    (desc 'Prints the name version of the program'))
+    ((options -r --reset)                   (complete --reset)      (desc 'Transition from the specified settings to clean settings'))
+  )
+  (multiple argumented
+    ((options -c --configurations)  (complete --configurations)  (arg SCRIPT)     (files -f)  (desc 'Select configuration script'))
+    ((options -g --gamma)           (complete --gamma)           (arg RGB|R:G:B)  (files -0)  (desc 'Apply gamma correction to the colour curves'))
+    ((options -b --brightness)      (complete --brightness)      (arg RGB|R:G:B)  (files -0)  (desc 'Change brightness using sRGB'))
+    ((options +b ++brightness)      (complete ++brightness)      (arg Y)          (files -0)  (desc 'Change brightness using CIE xyY'))
+    ((options -t --temperature)     (complete --temperature)     (arg KELVIN)     (files -0)  (desc 'Change colour temperature'))
+    ((options -l --location)        (complete --location)        (arg LAT:LON)    (files -0)  (desc 'Specify your geographical location'))
+    ((options -o --output --crtc)   (complete --output)          (arg CRTC)       (files -0)  (desc 'Select CRTC to apply changes to'))
+  )
+)
+
