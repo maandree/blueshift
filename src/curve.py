@@ -75,7 +75,7 @@ def series_d(temperature):
 
 def simple_whitepoint(temperature):
     '''
-    Calculate the colour for a blackbody temperature using a simple, but inaccurate, algorithm
+    Calculate the colour for a blackbody temperature using a simple algorithm
     
     @param   temperature:float       The blackbody temperature in kelvins, not guaranteed for values outside [1000, 40000]
     @return  :(float, float, float)  The red, green and blue components of the white point
