@@ -31,7 +31,8 @@ def translate_to_integers():
     '''
     Translate the curves from float to integer
     
-    @param  :(int, int, int)  The red curve, the green curve and the blue curve, mapped to integers
+    @param  :(list<int>, list<int>, list<int>)  The red curve, the green curve and,
+                                                the blue curve mapped to integers
     '''
     R_curve, G_curve, B_curve = [0] * i_size, [0] * i_size, [0] * i_size
     for i_curve, o_curve in ((r_curve, R_curve), (g_curve, G_curve), (b_curve, B_curve)):

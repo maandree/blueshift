@@ -450,6 +450,24 @@ All these functions return lists with
 the three colour components, not tuples.
 Input and output is one colour instance.
 
+To apply a colour curve to the display
+server, invoke the @code{randr} function;
+@code{print_curves} can be used to print
+the curves to stdout instead (for debugging).
+These functions apply the curves to all
+monitors, put you can also use select monitors
+by specifying each monitor in as separate
+arguments. The monitors are indexed from zero.
+
+If you want to write your own curve flushing
+fucntion @code{translate_to_integers} can be
+used, it returned the colour curves converted
+from floating point lists to integer lists in
+a tuple of three (red, green and blue.) Replace
+the parameterless function @code{close_c_bindings}
+to make it free all used resource, this is
+invoked when Blueshift exits.
+
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
