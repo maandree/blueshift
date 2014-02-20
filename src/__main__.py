@@ -31,7 +31,7 @@ PROGRAM_VERSION = '1.1'
 ## Set global variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
-global monitor_controller, running, continuous_run, panic
+global monitor_controller, running, continuous_run, panic, _globals_
 global signal_SIGTERM
 
 
@@ -153,6 +153,26 @@ def signal_SIGTERM(signum, frame):
     running = False
 
 
+
+_globals_, _locals_ = globals(), dict(locals())
+for key in _locals_:
+    _globals_[key] = _locals_[key]
+def signal_SIGUSR1(signum, frame):
+    '''
+    Signal handler for SIGUSR1
+    
+    @param  signum  The signal number, 0 if called from the program itself
+    @param  frame   Ignore, it will probably be `None`
+    '''
+    code = None
+    with open(config_file, 'rb') as script:
+        code = script.read()
+    code = code.decode('utf8', 'error') + '\n'
+    code = compile(code, config_file, 'exec')
+    exec(code, _globals_)
+
+
+
 def continuous_run():
     '''
     Invoked to run continuously if `periodically` is not `None`
@@ -172,6 +192,7 @@ def continuous_run():
     
     ## Catch signals
     signal.signal(signal.SIGTERM, signal_SIGTERM)
+    signal.signal(signal.SIGUSR1, signal_SIGUSR1)
     
     ## Fade in
     early_exit = False

@@ -123,6 +123,9 @@ Blueshift does not check the user home, rather it
 checks @env{HOME} which should be the user home, unless
 you change it yourself.
 
+You update the configuration file you can send a
+SIGUSR1 signal to reload it.
+
 @item -p @c the long name of option is inspired from openntpd
 @itemx --panic-gate
 @itemx --panicgate
@@ -530,6 +533,8 @@ may replace if you want to do something very special,
 is invoked to run the continuous mode, it the program
 shall run in continuous mode. Which is determined by
 whether the function @code{periodically} is defined.
+Updates to @code{continuous_run} are ignored when
+SIGUSR1 signals are received.
 
 You can also replace the function @code{signal_SIGTERM}.
 @code{continuous_run} sets up the program to run it
