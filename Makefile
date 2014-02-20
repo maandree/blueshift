@@ -13,7 +13,7 @@ LIBDIR ?= $(PREFIX)$(LIB)
 DATADIR ?= $(PREFIX)$(DATA)
 DOCDIR ?= $(DATADIR)/doc
 LICENSEDIR ?= $(DATADIR)/licenses
-INFODIR ?= $(INFODIR)/info
+INFODIR ?= $(DATADIR)/info
 
 SHEBANG ?= /usr/bin/python3
 COMMAND ?= blueshift
