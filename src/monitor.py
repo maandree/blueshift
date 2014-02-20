@@ -23,7 +23,6 @@ from curve import *
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
 
-from blueshift_randr import *
 randr_opened = False
 
 
@@ -49,6 +48,7 @@ def close_c_bindings():
     '''
     global randr_opened
     if randr_opened:
+        from blueshift_randr import randr_close
         randr_opened = False
         randr_close()
 
@@ -59,6 +59,7 @@ def randr(*crtcs):
     
     @param  *crtcs  The CRT controllers to use, all are used if none are specified
     '''
+    from blueshift_randr import randr_open, randr_apply
     global randr_opened
     crtcs = sum([1 << i for i in list(crtcs)])
     if crtcs == 0:
