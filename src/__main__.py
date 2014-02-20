@@ -65,7 +65,7 @@ The value does not need to be an integer.
 @param   fade:float?  Blueshift can use this function to fade into a state when it start
                       or exits. `fade` can either be negative, zero or positive or `None`,
                       but the magnitude of value cannot exceed 1. When Blueshift starts,
-                      the this function will be invoked multiple with the time parameters
+                      this function will be invoked multiple with the time parameters
                       of the time it is invoked and each time `fade` will increase towards
                       1, starting at 0, when the value is 1, the settings should be applied
                       to 100 %. After this this function will be invoked once again with
