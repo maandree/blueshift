@@ -408,7 +408,7 @@ yeild the same result as in the reverse
 order, the latter is the correct way to
 apply gamma correction.
 
-Before performing adjusts you most (not required
+Before performing adjusts you must (not required
 the very first time) reset the curves by invoking
 @code{start_over} (no parameters.) Otherwise the
 adjustments will accumulate.
@@ -540,6 +540,69 @@ the second can be ignored as it is normally @code{None};
 the first parameter is the signal that is received
 (an integer), and zero if @kbd{Control+c} has been
 pressed.
+
+To run in continuous mode, you must implement the
+function @code{periodically}. It takes 8 positional
+arguments:
+
+@table @code
+@item year
+The year.
+@item month
+The month, 1 = January, 12 = December.
+@item day
+The day, minimum value is 1, probable maximum value is 31.
+Theoretically, but most probably not, a change in the
+calender system could happen and the month's could length
+could be increased. This has happend once, giving us
+1712-(02)Feb-30.
+@item hour
+The hour, minimum value is 0, maximum value is 23.
+@item minute
+The minute, minimum value is 0, maximum value is 59
+@item second
+The second, minimum value is 0, probable maximum value is 60.
+We can get 60, or even higher (but that has never happend yet)
+due to leapseconds. A minutes length could also be shortend,
+but that has never happend yet either.
+@item weekday
+The weekday, 1 = Monday, 7 = Sunday
+@item fade
+Normally, @code{periodically} is invoked with @code{fade}
+set to @code{None}. This is note the case when the program
+starts or exits. When @code{fade} is not @code{None},
+@code{wait_period} is not honoured.
+
+Blueshift can use @code{periodically} to fade into a state
+when it start or exits. @code{fade} can either be negative,
+zero or positive or @code{None}, but the magnitude of value
+cannot exceed 1. When Blueshift starts, the function will
+be invoked multiple with the time parameters of the time it
+is invoked and each time @code{fade} will increase towards
+1, starting at 0, when the value is 1, the settings should
+be applied to 100 %. After this this function will be invoked
+once again with @code{fade} being @code{None}. When Blueshift
+exits the same behaviour is used except, @code{fade} decrease
+towards @math{-1} but start slightly below 0, when @math{-1}
+is reached all settings should be normal. Then Blueshift will
+@emph{not} invoke this function with @code{fade} being
+@code{None}, instead it will by itself revert all settings,
+by calling @code{reset} and quit.
+@end table
+
+Python does not specify that the exceptions can
+happen, but do not could on them not. Python's
+documentation could be work, or the API could
+change.
+
+If you want higher time precision --- the time
+parameters are integers --- you are welcome to
+use Python's time API. @code{periodically} will
+never be invoked with fake time. Just do not mix
+as you could theoretically get on two different
+seconds, minutes, hours, or even days, months or
+years, the delay between Blueshifts time measure
+and yours could overlap an increase in the second.
 
 
 @node GNU Free Documentation License
