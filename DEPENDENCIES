@@ -15,4 +15,5 @@ MAKE DEPENDENCIES:
 	coreutils
 	sed
 	zip
+	texinfo (opt-out)
 
