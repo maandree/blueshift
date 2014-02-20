@@ -10,7 +10,7 @@
 @c %**end of header
 
 
-@dircategory Economy
+@dircategory Ergonomy
 @direntry
 * blueshift: (blueshift).            Automatically adjust the colour temperature
 @end direntry
