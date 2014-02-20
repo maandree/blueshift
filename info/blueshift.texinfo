@@ -559,14 +559,14 @@ could be increased. This has happend once, giving us
 @item hour
 The hour, minimum value is 0, maximum value is 23.
 @item minute
-The minute, minimum value is 0, maximum value is 59
+The minute, minimum value is 0, maximum value is 59.
 @item second
 The second, minimum value is 0, probable maximum value is 60.
 We can get 60, or even higher (but that has never happend yet)
 due to leapseconds. A minutes length could also be shortend,
 but that has never happend yet either.
 @item weekday
-The weekday, 1 = Monday, 7 = Sunday
+The weekday, 1 = Monday, 7 = Sunday.
 @item fade
 Normally, @code{periodically} is invoked with @code{fade}
 set to @code{None}. This is note the case when the program
