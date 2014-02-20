@@ -468,6 +468,79 @@ the parameterless function @code{close_c_bindings}
 to make it free all used resource, this is
 invoked when Blueshift exits.
 
+When Blueshift exists, it invoked the
+parameterless function @code{reset} which
+you should replace. By default it resets
+the colour curves and flushes it to all
+monitors. To restrict which monitors it
+applies the changes to replace
+@code{monitor_controller} with a parameterless
+function that sends the colour curves to
+the desired monitors to the display server.
+This is only done if Blueshift runs in
+continuous mode.
+
+In continuous mode, there are some interesting
+variables you can adjust at any time:
+
+@table
+@item wait_period
+The number of seconds to wait before updating
+the colour curves again. This is a floating
+point variable.
+
+@item fadein_time
+he number of seconds used to fade in on start,
+@code{None} for no fading. This is a floating
+point variable.
+
+@item fadeout_time
+The number of seconds used to fade out on exit,
+@code{None} for no fading. This is a floating
+point variable.
+
+@item fadein_steps
+The number of steps in the fade in phase, if any.
+
+@item fadeout_steps
+The number of steps in the fade out phase, if any.
+
+@item running
+Set to @code{False} to exit the program. This is
+normally done when @kbd{Control+c} is pressed or
+a SIGTERM signal has been received.
+
+@item panic
+This variable only have effect if @code{running}
+is @code{False}. If this variable is set to
+@code{True}, the program will immediately
+run @code{reset} and exit. This is normally done
+the second time @kbd{Control+c} is pressed or
+the second time a SIGTERM signal has been received.
+(Or if both has happend.)
+@end table
+
+Additionally if the variable @code{panicgate}
+is @code{True}, there is no fading when the program
+starts. And @code{conf_opts} is a list of command line
+arguments passed onto the configuration script.
+
+The parameterless function @code{continuous_run},
+may replace if you want to do something very special,
+is invoked to run the continuous mode, it the program
+shall run in continuous mode. Which is determined by
+whether the function @code{periodically} is defined.
+
+You can also replace the function @code{signal_SIGTERM}.
+@code{continuous_run} sets up the program to run it
+when the program receive a SIGTERM signal.
+@code{continuous_run} also invokes it when @kbd{Control+c}
+is pressed. @code{signal_SIGTERM} has two parameters,
+the second can be ignored as it is normally @code{None};
+the first parameter is the signal that is received
+(an integer), and zero if @kbd{Control+c} has been
+pressed.
+
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
