@@ -198,7 +198,7 @@ look better.
 @itemx --temperature TEMP
 Changes the colour tempurature to @var{TEMP}
 kelvin. The standard colour tempurature is
-6500 K@footnote{Or actually 6054 K using revised
+6500 K@footnote{Or actually 6504 K using revised
 constants in Plank's law}. If not specified,
 the colour temperature will be 3700 K during
 high night and 6500 K during the high day.
