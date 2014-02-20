@@ -364,10 +364,10 @@ else:
     conf_opts = [config_file] + parser.files
     if config_file is not None:
         code = None
-        with open(file, 'rb') as script:
+        with open(config_file, 'rb') as script:
             code = script.read()
         code = code.decode('utf8', 'error') + '\n'
-        code = compile(code, file, 'exec')
+        code = compile(code, config_file, 'exec')
         g, l = globals(), dict(locals())
         for key in l:
             g[key] = l[key]
