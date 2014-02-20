@@ -601,8 +601,98 @@ use Python's time API. @code{periodically} will
 never be invoked with fake time. Just do not mix
 as you could theoretically get on two different
 seconds, minutes, hours, or even days, months or
-years, the delay between Blueshifts time measure
+years, the delay between Blueshift's timestamp
 and yours could overlap an increase in the second.
+
+Blueshift includes a simple way to get the Sun's
+position. The function @code{sun(latitude, longitude)}
+returns the visibility of the Sun as an [0, 1] floating
+point. It has three optional parameters:
+
+@table @code
+@item t = None
+The time in Julian Centuries.
+
+@item low = -6.0
+The suns elevation at the limit to high night, that
+is, the highest possible position (measured in degrees)
+of the sun before it becomes visible.
+
+@item high = 3.0
+The suns elevation at the limit to high day, that is,
+the lowest possible position (measured in degrees) of
+the before it starts becoming less visible (twilight.)
+@end table
+
+To convert a time to Julian Centuries, you can use
+the function @code{epoch_to_julian_centuries}. It takes
+one argument, the local POSIX time, that is, the number of
+seconds that have elapsed since 1970-(01)Jan-01 00:00:00
+local time, not counting leap seconds.
+
+A set of functions that are used to calculate the Sun's
+are provided:
+
+@table @code
+@item julian_day_to_epoch(t)
+Converts a Julian Day timestamp to a POSIX time timestamp.
+
+@item epoch_to_julian_day(t)
+Converts a POSIX time timestamp to a Julian Day timestamp.
+
+@item julian_day_to_julian_centuries(t)
+Converts a Julian Day timestamp to a Julian Centuries timestamp.
+
+@item julian_centuries_to_julian_day(t)
+Converts a Julian Centuries timestamp to a Julian Day timestamp.
+
+@item epoch_to_julian_centuries(t)
+Converts a POSIX time timestamp to a Julian Centuries timestamp.
+
+@item julian_centuries_to_epoch(t)
+Converts a Julian Centuries timestamp to a POSIX time timestamp.
+
+@item epoch()
+Returns the current time in POSIX time.
+
+@item julian_day()
+Returns the current time in Julian Day time.
+
+@item julian_centuries()
+Returns the current time in Julian Centuries time.
+
+@item radians(deg)
+Converts from degrees to radians.
+
+@item degrees(rad)
+Converts from radians to degrees.
+
+@c TODO : these could be documented (in the source code as well)
+@item sun_geometric_mean_longitude(t)
+@item sun_geometric_mean_anomaly(t)
+@item earth_orbit_eccentricity(t)
+@item sun_equation_of_centre(t)
+@item sun_real_longitude(t)
+@item sun_apparent_longitude(t)
+@item mean_ecliptic_obliquity(t)
+@item corrected_mean_ecliptic_obliquity(t)
+@item solar_declination(t)
+@item equation_of_time(t)
+@item hour_angle_from_elevation(latitude, declinaton, elevation)
+@item elevation_from_hour_angle(latitude, declinaton, hour_angle)
+@item time_of_solar_noon(t, longitude)
+@item time_of_solar_elevation(t, noon, latitude, longitude, elevation)
+@item solar_elevation_from_time(t, latitude, longitude)
+@item solar_elevation(latitude, longitude, t = None)
+Does the same thing as @code{solar_elevation_from_time},
+except the time is optional and defaults to the current time.
+@end table
+
+For all functions beneath @code{degrees}, @code{t} is the
+time in Julian Centuries. All parameters are floating point
+and may not be @code{None}, except for in @code{solar_elevation},
+as specified.
+
 
 
 @node GNU Free Documentation License
