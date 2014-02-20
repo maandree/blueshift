@@ -17,7 +17,7 @@ more flexible and solves some problems with Redshift:
       Blueshift and Redshift needs to remove all
       settings made by other programs, to be
       portable and to have get accuracy, which
-      means that you cannot any other program
+      means that you cannot any use other program
       at the same time. Redshift supports only
       gamman and a limited brightness range.
       Blueshift can be extended by the user to
