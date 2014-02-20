@@ -10,7 +10,7 @@
 # (KTH computer laboratories in this example.)
 latitude, longitude = 59.3472, 18.0728
 
-# Custom dayness by time settings
+# Custom dayness by time settings.
 time_alpha = [['02:00', 0], ['08:00', 1], ['22:00', 1]]
 
 
@@ -37,11 +37,11 @@ def by_time():
     return 1 # Error in `time_alpha` (probably)
 
 
-# Keep uncomment to use solar position
+# Keep uncomment to use solar position.
 get_dayness = lambda : sun(latitude, longitude)
-# Uncomment to use time of day
+# Uncomment to use time of day.
 #get_dayness = by_time
-# Uncomment if you do not want continuous mode, high night values are used
+# Uncomment if you do not want continuous mode, high night values are used.
 #get_dayness = None
 
 
@@ -158,13 +158,13 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     global last_dayness, wait_period
     
     dayness = get_dayness()
-    # Do not do unnecessary work
+    # Do not do unnecessary work.
     if fade is None:
         if dayness == last_dayness:
             return
         last_dayness = dayness
     
-    # Help functions for colour interpolation
+    # Help functions for colour interpolation.
     interpol = lambda _day, _night : _day[m % len(_day)] * dayness + _night[m % len(_night)] * (1 - dayness)
     purify = lambda current, pure : current * alpha + pure * (1 - alpha)
     
@@ -226,7 +226,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         else:
             randr(m)
     
-    # Lets wait only 5 seconds, instead of a minute before running again
+    # Lets wait only 5 seconds, instead of a minute before running again.
     wait_period = 10
 
 
@@ -253,12 +253,12 @@ def reset():
 
 
 if get_dayness is not None:
-    # Set transition time, 0 on high day and 5 seconds on high night
+    # Set transition time, 0 on high day and 5 seconds on high night.
     fadein_time = 5 * (1 - get_dayness())
-    # Do 10 changes per second
+    # Do 10 changes per second.
     fadein_steps = fadein_time * 10
     
-    # Transition on exit in the same way, calculated on exit
+    # Transition on exit in the same way, calculated on exit.
     old_signal_SIGTERM = signal_SIGTERM
     def signal_SIGTERM(signum, frame):
         global fadeout_time, fadeout_steps
@@ -266,7 +266,7 @@ if get_dayness is not None:
         fadeout_steps = fadeout_time * 10
         old_signal_SIGTERM(signum, frame)
 else:
-    # Do not use continuous mode
+    # Do not use continuous mode.
     get_dayness = lambda : 0
     def apply(fade):
         t = datetime.datetime.now()
