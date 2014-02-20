@@ -483,7 +483,7 @@ continuous mode.
 In continuous mode, there are some interesting
 variables you can adjust at any time:
 
-@table
+@table @code
 @item wait_period
 The number of seconds to wait before updating
 the colour curves again. This is a floating
