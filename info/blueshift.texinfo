@@ -112,9 +112,12 @@ Blueshift recognises the following options:
 @itemx --configurations FILE
 Select configuration script. This defaults to the
 first file of the following the exists:
-@file{$XDG_CONFIG_HOME/blueshift/blueshiftrc},
-@file{$HOME/.config/blueshift/blueshiftrc},
-@file{$HOME/.blueshiftrc}, @file{/etc/blueshiftrc}.
+@itemize @bullet
+@item @file{$XDG_CONFIG_HOME/blueshift/blueshiftrc}
+@item @file{$HOME/.config/blueshift/blueshiftrc}
+@item @file{$HOME/.blueshiftrc}
+@item @file{/etc/blueshiftrc}
+@end itemize
 Blueshift does not check the user home, rather it
 checks @env{HOME} which should be the user home, unless
 you change it yourself.
