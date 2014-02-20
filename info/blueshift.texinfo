@@ -167,9 +167,9 @@ is used.
 @itemx --gamma RGB
 Apply gamma correction to the colour curves.
 All values in the three colour curves are raised
-to the power of 1 divided by @var{RGB}. Assuming
+to the power of 1 divided by @code{RGB}. Assuming
 no values in the curves are larger than 1 (100 %)
-the curves are bent upwards if @var{RGB} is larger
+the curves are bent upwards if @code{RGB} is larger
 than 1.
 
 @item -g
@@ -203,7 +203,7 @@ look better.
 
 @item -t
 @itemx --temperature TEMP
-Changes the colour tempurature to @var{TEMP}
+Changes the colour tempurature to @code{TEMP}
 Kelvin. The standard colour tempurature is
 6500 K@footnote{Or actually 6504 K using revised
 constants in Plank's law}. If not specified,
