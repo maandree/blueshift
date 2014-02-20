@@ -23,7 +23,7 @@ from curve import *
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
 
-randr_opened = False
+randr_opened = None
 
 
 def translate_to_integers():
@@ -47,28 +47,31 @@ def close_c_bindings():
     Close all C bindings and let them free resources and close connections
     '''
     global randr_opened
-    if randr_opened:
+    if randr_opened is not None:
         from blueshift_randr import randr_close
-        randr_opened = False
+        randr_opened = None
         randr_close()
 
 
-def randr(*crtcs):
+def randr(*crtcs, screen = 0):
     '''
     Applies colour curves using the X11 extension randr
     
     @param  *crtcs  The CRT controllers to use, all are used if none are specified
+    @param  screen  The screen that the monitors belong to
     '''
-    from blueshift_randr import randr_open, randr_apply
+    from blueshift_randr import randr_open, randr_apply, randr_close
     global randr_opened
     crtcs = sum([1 << i for i in list(crtcs)])
     if crtcs == 0:
         crtcs = (1 << 64) - 1
     
     (R_curve, G_curve, B_curve) = translate_to_integers()
-    if not randr_opened:
-        if randr_open(0) == 0: ## TODO support specifying screen
-            randr_opened = True
+    if (randr_opened is None) or not (randr_opened == screen):
+        if randr_opened is not None:
+            randr_close()
+        if randr_open(screen) == 0:
+            randr_opened = screen
         else:
             sys.exit(1)
     try:
@@ -78,9 +81,12 @@ def randr(*crtcs):
         pass # Happens on exit by TERM signal
 
 
-def print_curves(*crtcs):
+def print_curves(*crtcs, screen = 0):
     '''
     Prints the curves to stdout
+    
+    @param  *crtcs  Dummy parameter
+    @param  screen  Dummy parameter
     '''
     (R_curve, G_curve, B_curve) = translate_to_integers()
     print(R_curve)
