@@ -1,5 +1,5 @@
 High priority:
-	Do not lead blueshift_randr until used
+	Do not load blueshift_randr until used
 
 Medium priority:
 	Command line autocompletion
@@ -9,6 +9,7 @@ Medium priority:
 	Signal USR1 for configuration reload
 
 Low priority:
+	ICC profile support
 	Tray icon with support for temporary enable/disable and configuration reload
 	VidMode support
 
