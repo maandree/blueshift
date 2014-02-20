@@ -52,6 +52,7 @@ Texts. A copy of the license is included in the section entitled
 @menu
 * Overview::                        Brief overview of @command{blueshift}.
 * Invoking::                        Invocation of @command{blueshift}.
+* Configuration API::               How to write configuration files.
 * GNU Free Documentation License::  Copying and sharing this manual.
 @end menu
 
@@ -200,7 +201,7 @@ look better.
 @item -t
 @itemx --temperature TEMP
 Changes the colour tempurature to @var{TEMP}
-kelvin. The standard colour tempurature is
+Kelvin. The standard colour tempurature is
 6500 K@footnote{Or actually 6504 K using revised
 constants in Plank's law}. If not specified,
 the colour temperature will be 3700 K during
@@ -240,6 +241,177 @@ it is not recommended. The purpose of gamma
 is to adjust the same error that are present
 in minors and make all colours look correct
 in relation to each other.
+
+
+
+@node Configuration API
+@chapter Configuration API
+
+Blueshift has three colour curves:
+
+@table @code
+@item r_curve
+The curve for the red colour component.
+@item g_curve
+The curve for the green colour component.
+@item b_curve
+The curve for the blue colour component.
+@end table
+
+These are @code{i_size} sized floating point
+lists, where 0 is the darkest colour and 1
+is the brightest colour. Values outside this
+range are clipped unless @code{clip_result}
+is set to @code{False}. By calling @code{clip}
+(has no parameters) this clipping is done
+independently of the value of @code{clip_result}.
+When applied these values are automatically
+translated to appropriate integer values:
+[0, @code{o_size} - 1].
+
+Blueshift provides a set of functions to
+manipulate these curves:
+
+@table @code
+@item rgb_contrast(rgb)
+Adjusts the contrast to @code{rgb}.
+
+@item rgb_contrast(r, g, b)
+Adjusts the contrast to @code{r}, @code{g}
+and @code{b} on the red, green and blue curves,
+respectively.
+
+@item cie_contrast(y)
+Adjusts the contrast to @code{y}.
+The function calculate the values by using
+the CIE xyY colour space instead of the sRGB
+colour space.
+
+@item rgb_brightness(rgb)
+Adjusts the brightness to @code{rgb}.
+
+@item rgb_brightness(r, g, b)
+Adjusts the brightness to @code{r}, @code{g}
+and @code{b} on the red, green and blue curves,
+respectively.
+
+@item cie_brightness(y)
+Adjusts the brightness to @code{y}.
+The function calculate the values by using
+the CIE xyY colour space instead of the sRGB
+colour space.
+
+@item linearise()
+Converts the colour curves from sRGB to
+linear RGB. sRGB is the default colour space.
+
+@item standardise()
+Converts the colour curves from linear RGB to
+sRGB, the default colour space.
+
+@item gamma(rgb)
+Adjusts the gamma to @code{rgb}.
+
+@item gamma(r, g, b)
+Adjusts the gamma to @code{r}, @code{g}
+and @code{b} on the red, green and blue curves,
+respectively.
+
+@item negative(rgb)
+Inverts the all values on the colour curves
+if @code{rgb} is @code{True}.
+
+@item negative(r, g, b)
+Inverts the all values on the red, green and
+blue curves if @code{r}, @code{g} and @code{b}
+are @code{True}, respectively.
+
+@item sigmoid(r, g, b)
+An inverted sigmoid curve function is applied
+to the values of in red, green and blue curves
+if @code{r}, @code{g} and @code{b} are not
+@code{None}, respectively. @code{r}, @code{g}
+and @code{b} are the curve sigmoid curve
+multipliers for the red, green and blue curves,
+respectively.
+
+@item manipulate(rgb)
+Applies the function @code{rgb} : float
+@click{} float to colour curves.
+
+@item manipulate(r, g, b)
+Applies the functions @code{r}, @code{g} and
+@code{b} : float @click{} float to red, green
+and blue colour curves, respectively.
+
+@item temperature(temperature, algorithm)
+Applies the a blackbody colour temperature of
+@code{temperature}@footnote{Actually multiplied
+by 1.000556328, due to revisions of natural
+constants} Kelvin. Where the white point
+for that temperature is calculates by
+the function @code{algorithm} : @code{temperature}
+@click{} (red, green, blue). When the white
+point has been calculates, its components
+are used as parameters in a componentwise
+brightness adjustment.
+
+There are a few algorithm for calculating the
+white point included:
+@table @code
+@item series_d(temperature)
+Can only calculate the white point correctly for
+temperatures inside [4000, 7000]. The CIE illuminant
+series D is used to calculate the white point.
+
+@item simple_whitepoint(temperature)
+Can only calculate the white point accurately for
+temperatures inside [1000, 40000]. A mathematical
+model of the @code{cmf_10deg} function is used.
+
+@item cmf_2deg(temperature)
+Uses a lookup table with linear interpolation to
+calculate temperatures inside [1000, 40000].
+CIE 1931 2 degree CMF is used.
+
+@item cmf_10deg(temperature)
+Uses a lookup table with linear interpolation to
+calculate temperatures inside [1000, 40000].
+CIE 1964 10 degree CMF is used. This is the
+preferred algorithm.
+
+@item redshift(temperature, old_version, linear_interpolation = False)
+Uses the lookup table from Redshift with linear
+interpolation. If @code{old_version} is @code{True}
+the table Redshift<=1.8 is used, which is limited
+to [1000, 10000], and is not that accurate. Otherwise
+(the default) the table from Redshift>1.8 is used,
+which is limited to [1000, 25100], and is accurate.
+
+If @code{linear_interpolation} is @code{False}
+(the default) the sRGB colour space is used for
+interpolation, otherwise linear RGB is used.
+@end table
+
+Some of these algorithms (including @code{cmf_10deg})
+are not very good by themself and should be wrapped
+with @code{divide_by_maximum} or @code{clip_whitepoint}
+((red, green, blue) @click{} (red, green, blue) functions.)
+For example, instead of using @code{cmf_10deg}, you
+can use @code{lambda t : divide_by_maximum(cmf_10deg(t))}.
+@end table
+
+Keep in mind that the order your call the
+function matters. For example, adjusting
+the gamma before the brightness does not
+yeild the same result as in the reverse
+order, the latter is the correct way to
+apply gamma correction.
+
+If you want to write your own functions
+@code{curves(r, g, b)} returns a tuple
+containing the tuples @code{(r_curve, r)},
+@code{(g_curve, g)} and @code{(b_curve, b)}.
 
 
 
