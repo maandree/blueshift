@@ -1,3 +1,6 @@
+High priority:
+	Do not lead blueshift_randr until used
+
 Medium priority:
 	Command line autocompletion
 	Small examples
