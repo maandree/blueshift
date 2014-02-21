@@ -320,6 +320,9 @@ Adjusts the gamma to @code{r}, @code{g}
 and @code{b} on the red, green and blue curves,
 respectively.
 
+@item negative()
+Inverts the all values on the colour curves.
+
 @item negative(rgb)
 Inverts the all values on the colour curves
 if @code{rgb} is @code{True}.
