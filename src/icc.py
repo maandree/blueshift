@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from curve import *
+
 
 def load_icc(pathname):
     '''
@@ -26,8 +28,12 @@ def load_icc(pathname):
     MLUT_TAG = 0x6d4c5554
     VCGT_TAG = 0x76636774
     
-    def make_f(R_curve, G_curve, B_curve):
-        pass ## TODO
+    def fcurve(R_curve, G_curve, B_curve):
+        for curve, icc in curves(R_curve, G_curve, B_curve):
+            for i in range(i_size):
+                y = int(curve[i] * (len(icc) - 1) + 0.5)
+                y = min(max(0, y), len(icc) - 1)
+                curve[i] = icc[y]
     
     int_ = lambda bs : sum([bs[len(bs) - 1 - i] << (8 * i) for i in range(len(bs))])
     def read(n):
@@ -42,6 +48,7 @@ def load_icc(pathname):
     content = list(content)
     read(128)
     
+    R_curve, G_curve, B_curve = [], [], []
     n_tags, ptr = int_(read(4)), 128 + 4
     for i_tag in range(n_tags):
         tag_name   = int_(read(4))
@@ -50,11 +57,10 @@ def load_icc(pathname):
         ptr += 3 * 4
         if tag_name == MLUT_TAG:
             read(tag_offset - ptr)
-            R_curve, G_curve, B_curve = [], [], []
-            for i in range(256):  R_curve.append(int_(read(2)))
-            for i in range(256):  G_curve.append(int_(read(2)))
-            for i in range(256):  B_curve.append(int_(read(2)))
-            return make_f(R_curve, G_curve, B_curve)
+            for i in range(256):  R_curve.append(int_(read(2)) / 65535)
+            for i in range(256):  G_curve.append(int_(read(2)) / 65535)
+            for i in range(256):  B_curve.append(int_(read(2)) / 65535)
+            return lambda : fcurve(R_curve, G_curve, B_curve)
         elif tag_name == VCGT_TAG:
             read(tag_offset - ptr)
             tag_name = int_(read(4))
@@ -70,11 +76,11 @@ def load_icc(pathname):
                     n_channels, n_entries, entry_size = 3, 256, 2
                 if not n_channels == 3: # assuming sRGB
                     break
-                int__ = lambda m : float(int(int_(read(m)) * 8 ** (2 - m)))
+                int__ = lambda m : int_(read(m)) / ((256 ** m) - 1)
                 for i in range(n_entries):  R_curve.append(int__(entry_size))
                 for i in range(n_entries):  G_curve.append(int__(entry_size))
                 for i in range(n_entries):  B_curve.append(int__(entry_size))
-                return make_f(R_curve, G_curve, B_curve)
+                return lambda : fcurve(R_curve, G_curve, B_curve)
             elif gamma_type == 1:
                 r_gamma = int_(read(4)) / 65535
                 r_min   = int_(read(4)) / 65535
