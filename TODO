@@ -7,4 +7,5 @@ Low priority:
 	ICC profile support
 	Tray icon with support for temporary enable/disable and configuration reload
 	VidMode support
+	Is it possible to dynamically replace the rat cursor to apply modifications to it?
 
