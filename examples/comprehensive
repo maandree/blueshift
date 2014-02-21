@@ -115,6 +115,14 @@ gamma_blue_day, gamma_blue_night, gamma_blue_default = [1], [1], [1]
 # the colour temperature is low.
 
 
+# ICC profile for video filtering and monitor calibration, respectively.
+# Replace `None` with the pathname of the profile. It is assume that
+# the calibration profile is already applied and that you want it to
+# still be applied on exit.
+icc_video_filter_profile = ["/dev/shm/_/xcalib-0.8/bluish.icc"]
+icc_calibration_profile = [None]
+
+
 monitor_controller = lambda : randr(*monitors)
 '''
 :()→void  Function used by Blueshift on exit to apply reset colour curves, if using preimplemented `reset`
@@ -200,6 +208,19 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         # Remove settings from last run.
         start_over()
         
+        # Apply ICC profile as a video filter.
+        i = m % len(icc_video_filter_profile)
+        if icc_video_filter_profile[i] is not None:
+            if isinstance(icc_video_filter_profile[i], str):
+                icc_video_filter_profile[i] = load_icc(icc_video_filter_profile[i])
+            icc_video_filter_profile[i]()
+            # Fade in/out filter
+            if fade is not None:
+                alpha = abs(fade)
+                for curve in (r_curve, g_curve, b_curve):
+                    for i in range(i_size):
+                        curve[i] = purify(curve[i], i / (i_size - 1))
+        
         # Apply colour temperature using raw CIE 1964 10 degree CMF data with interpolation.
         temperature(temperature_, lambda t : divide_by_maximum(cmf_10deg(t)))
         
@@ -220,6 +241,13 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         # Apply gamma correction to monitor.
         gamma(gamma_red_, gamma_green_, gamma_blue_)
+        
+        # Apply ICC profile as a monitor calibration.
+        i = m % len(icc_calibration_profile)
+        if icc_calibration_profile[i] is not None:
+            if isinstance(icc_calibration_profile[i], str):
+                icc_calibration_profile[i] = load_icc(icc_calibration_profile[i])
+            icc_calibration_profile[i]()
         
         # Flush settings to monitor.
         if len(monitors) == 0:
@@ -245,6 +273,13 @@ def reset():
         
         # Apply gamma correction to monitor.
         gamma(gamma_red_, gamma_green_, gamma_blue_)
+        
+        # Apply ICC profile as a monitor calibration.
+        i = m % len(icc_calibration_profile)
+        if icc_calibration_profile[i] is not None:
+            if isinstance(icc_calibration_profile[i], str):
+                icc_calibration_profile[i] = load_icc(icc_calibration_profile[i])
+            icc_calibration_profile[i]()
         
         # Flush settings to monitor.
         if len(monitors) == 0:
