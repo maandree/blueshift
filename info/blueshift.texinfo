@@ -277,18 +277,24 @@ manipulate these curves:
 
 @table @code
 @item rgb_contrast(rgb)
-Adjusts the contrast to @code{rgb}.
+Adjusts the contrast to @code{rgb}. This
+function assumes the black is 0, and white
+is 1, so you should apply this before brightness.
 
 @item rgb_contrast(r, g, b)
 Adjusts the contrast to @code{r}, @code{g}
 and @code{b} on the red, green and blue curves,
-respectively.
+respectively. This function assumes the black is
+0, and white is 1, so you should apply this
+before brightness.
 
 @item cie_contrast(y)
 Adjusts the contrast to @code{y}.
 The function calculate the values by using
 the CIE xyY colour space instead of the sRGB
-colour space.
+colour space. This function assumes the black
+is 0, and white is 1, so you should apply
+this before brightness.
 
 @item rgb_brightness(rgb)
 Adjusts the brightness to @code{rgb}.
