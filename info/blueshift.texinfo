@@ -489,6 +489,13 @@ For example, instead of using @code{cmf_10deg}, you
 can use @code{lambda t : divide_by_maximum(cmf_10deg(t))}.
 @end table
 
+If you have an ICC profile for calibration (applied last)
+or want to use one for as a video filter (applied first),
+the function @code{load_icc} can be used to load an ICC
+profile file. @code{load_icc} takes one argument, the
+pathname of the ICC profile file; the function returns
+a fuction that can be invoked to apply the profile.
+
 Keep in mind that the order your call the
 function matters. For example, adjusting
 the gamma before the brightness does not
