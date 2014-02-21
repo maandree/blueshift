@@ -119,7 +119,7 @@ gamma_blue_day, gamma_blue_night, gamma_blue_default = [1], [1], [1]
 # Replace `None` with the pathname of the profile. It is assume that
 # the calibration profile is already applied and that you want it to
 # still be applied on exit.
-icc_video_filter_profile = ["/dev/shm/_/xcalib-0.8/bluish.icc"]
+icc_video_filter_profile = [None]
 icc_calibration_profile = [None]
 
 
