@@ -89,8 +89,8 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         g = min(max(0, purity * 3 - 1), 1)
         b = min(max(0, purity * 3 - 2), 1)
         r = redness  [m % len(redness)]   * (1 - r) + purity
-        r = greenness[m % len(greenness)] * (1 - g) + purity
-        r = blueness [m % len(blueness)]  * (1 - b) + purity
+        g = greenness[m % len(greenness)] * (1 - g) + purity
+        b = blueness [m % len(blueness)]  * (1 - b) + purity
         rgb_brightness(r, g, b)
         
         # Flush settings to monitor.
