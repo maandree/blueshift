@@ -336,7 +336,24 @@ def gamma(r, g = None, b = None):
     
 def negative(r = True, g = None, b = None):
     '''
-    Invert the colour curves (negative image)
+    Revese the colour curves (negative image with gamma preservation)
+    
+    @param  r:bool   Whether to invert the red curve
+    @param  g:bool?  Whether to invert the green curve, defaults to `r` if `None`
+    @param  b:bool?  Whether to invert the blue curve, defaults to `r` if `None`
+    '''
+    if g is None:  g = r
+    if b is None:  b = r
+    for (curve, setting) in curves(r, g, b):
+        if setting:
+            for i in range(i_size // 2):
+                j = i_size - 1 - i
+                curve[i], curve[j] = curve[j], curve[i]
+
+
+def invert(r = True, g = None, b = None):
+    '''
+    Invert the colour curves (negative image with gamma invertion)
     
     @param  r:bool   Whether to invert the red curve
     @param  g:bool?  Whether to invert the green curve, defaults to `r` if `None`

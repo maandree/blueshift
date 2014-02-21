@@ -321,13 +321,27 @@ and @code{b} on the red, green and blue curves,
 respectively.
 
 @item negative()
-Inverts the all values on the colour curves.
+Reverse the colour curves on the encoding axis.
+This creates a negative image with preserved gamma.
 
 @item negative(rgb)
-Inverts the all values on the colour curves
+Reverse the colour curves on the encoding axis
 if @code{rgb} is @code{True}.
 
 @item negative(r, g, b)
+Reverse the red, green and blue curves on the
+encoding axis if @code{r}, @code{g} and @code{b}
+are @code{True}, respectively.
+
+@item invert()
+Inverts the all values on the colour curves.
+This creates a negative image with inverted gamma.
+
+@item invert(rgb)
+Inverts the all values on the colour curves
+if @code{rgb} is @code{True}.
+
+@item invert(r, g, b)
 Inverts the all values on the red, green and
 blue curves if @code{r}, @code{g} and @code{b}
 are @code{True}, respectively.
