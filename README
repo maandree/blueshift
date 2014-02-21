@@ -35,6 +35,8 @@ more flexible and solves some problems with Redshift:
       for LCD monitors which suffers the effects
       of S-curves.
 
+    - No support of ICC profiles.
+
 Blueshift is not user friendly and it is not
 meant too be. Blueshift does offer limited
 use of command line options to apply settings,
