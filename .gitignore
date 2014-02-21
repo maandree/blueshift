@@ -12,6 +12,7 @@ obj/
 *.zip
 __pycache__/
 /src/blueshift_randr.c
+/src/blueshift_vidmode.c
 *.info
 *.pdf
 *.dvi

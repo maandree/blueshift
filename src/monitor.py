@@ -24,6 +24,7 @@ LIBDIR = 'bin'
 sys.path.append(LIBDIR)
 
 randr_opened = None
+vidmode_opened = None
 
 
 def translate_to_integers():
@@ -46,11 +47,15 @@ def close_c_bindings():
     '''
     Close all C bindings and let them free resources and close connections
     '''
-    global randr_opened
+    global randr_opened, vidmode_opened
     if randr_opened is not None:
         from blueshift_randr import randr_close
         randr_opened = None
         randr_close()
+    if vidmode_opened is not None:
+        from blueshift_vidmode import vidmode_close
+        vidmode_opened = None
+        vidmode_close()
 
 
 def randr(*crtcs, screen = 0):
@@ -76,6 +81,34 @@ def randr(*crtcs, screen = 0):
             sys.exit(1)
     try:
         if not randr_apply(crtcs, R_curve, G_curve, B_curve) == 0:
+            sys.exit(1)
+    except OverflowError:
+        pass # Happens on exit by TERM signal
+
+
+def vidmode(*crtcs, screen = 0):
+    '''
+    Applies colour curves using the X11 extension vidmode
+    
+    @param  *crtcs  The CRT controllers to use, all are used if none are specified
+    @param  screen  The screen that the monitors belong to
+    '''
+    from blueshift_vidmode import vidmode_open, vidmode_apply, vidmode_close
+    global vidmode_opened
+    crtcs = sum([1 << i for i in list(crtcs)])
+    if crtcs == 0:
+        crtcs = (1 << 64) - 1
+    
+    (R_curve, G_curve, B_curve) = translate_to_integers()
+    if (vidmode_opened is None) or not (vidmode_opened == screen):
+        if vidmode_opened is not None:
+            vidmode_close()
+        if vidmode_open(screen) == 0:
+            vidmode_opened = screen
+        else:
+            sys.exit(1)
+    try:
+        if not vidmode_apply(crtcs, R_curve, G_curve, B_curve) == 0:
             sys.exit(1)
     except OverflowError:
         pass # Happens on exit by TERM signal

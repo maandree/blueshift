@@ -19,16 +19,21 @@ SHEBANG ?= /usr/bin/python3
 COMMAND ?= blueshift
 PKGNAME ?= blueshift
 
+SERVER_BINDINGS ?= randr vidmode
+
 
 PKGCONFIG ?= pkg-config
 OPTIMISE ?= -Og -g
 WARN = -Wall -Wextra -pedantic
-LIBS = xcb-randr python3
+LIBS_randr = xcb-randr
+LIBS_vidmode = x11 xxf86vm
+LIBS = python3 $(foreach B,$(SERVER_BINDINGS),$(LIBS_$(B)))
 STD = c99
 FLAGS = $$($(PKGCONFIG) --cflags --libs $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC
 
 DATAFILES = 2deg 10deg redshift redshift_old
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py
+CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 EXAMPLES = comprehensive sleepmode
 
 
@@ -54,7 +59,7 @@ dvi: blueshift.dvi
 ps: blueshift.ps
 
 .PHONY: command
-command: bin/blueshift_randr.so bin/blueshift
+command: $(foreach C,$(CBINDINGS),bin/$(C)) bin/blueshift
 
 .PHONY: shell
 shell: bash zsh fish
@@ -84,7 +89,7 @@ obj/%.py: src/%.py
 	sed -i '/^LIBDIR *= /s#^.*$$#LIBDIR = '\''$(LIBDIR)'\''#' $@
 
 
-bin/blueshift_randr.so: obj/blueshift_randr.o obj/blueshift_randr_c.o
+bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) -shared -o $@ $^
 
@@ -96,10 +101,10 @@ obj/%.o: obj/%.c
 	@mkdir -p obj
 	$(CC) $(FLAGS) -c -o $@ $<
 
-obj/blueshift_randr.c: src/blueshift_randr.pyx
+obj/%.c: src/%.pyx
 	@mkdir -p obj
-	if ! cython -3 -v $<; then src/blueshift_randr.c ; false ; fi
-	mv src/blueshift_randr.c $@
+	if ! cython -3 -v $<; then src/$*.c ; false ; fi
+	mv src/$*.c $@
 
 
 %.info: info/%.texinfo
@@ -142,11 +147,11 @@ install-all: install-base install-doc install-shell
 install-base: install-command install-license
 
 .PHONY: install-command
-install-command: bin/blueshift_randr.so bin/blueshift $(foreach D,$(DATAFILES),res/$(D))
+install-command: $(foreach C,$(CBINDINGS),bin/$(C)) bin/blueshift $(foreach D,$(DATAFILES),res/$(D))
 	install -dm755 -- "$(DESTDIR)$(BINDIR)"
 	install -m755 bin/blueshift -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
 	install -dm755 -- "$(DESTDIR)$(LIBDIR)"
-	install -m755 bin/blueshift_randr.so -- "$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
+	install -m755 $(foreach C,$(CBINDINGS),bin/$(C)) -- "$(DESTDIR)$(LIBDIR)"
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 	install -m644 -- $(foreach D,$(DATAFILES),res/$(D)) "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 
@@ -205,7 +210,7 @@ install-fish: blueshift.fish
 .PHONY: uninstall
 uninstall:
 	-rm -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
-	-rm -- "$(DESTDIR)$(LIBDIR)/blueshift_randr.so"
+	-rm -- $(foreach C,$(CBINDINGS),"$(DESTDIR)$(LIBDIR)/$(C)")
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
@@ -231,5 +236,5 @@ uninstall:
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_randr.c blueshift.{ba,z,fi}sh
+	-rm -r bin obj src/blueshift_randr.c src/blueshift_vidmode.c blueshift.{ba,z,fi}sh
 
