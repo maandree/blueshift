@@ -21,5 +21,4 @@ __pycache__/
 *.gz
 *.bz2
 *.xz
-/blueshift.*sh
 

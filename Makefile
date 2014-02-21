@@ -65,13 +65,13 @@ command: $(foreach C,$(CBINDINGS),bin/$(C)) bin/blueshift
 shell: bash zsh fish
 
 .PHONY: bash
-bash: blueshift.bash
+bash: bin/blueshift.bash
 
 .PHONY: zsh
-zsh: blueshift.zsh
+zsh: bin/blueshift.zsh
 
 .PHONY: fish
-fish: blueshift.fish
+fish: bin/blueshift.fish
 
 
 bin/blueshift: obj/blueshift.zip
@@ -126,13 +126,16 @@ obj/%.c: src/%.pyx
 	mv obj/$@ $@
 
 
-blueshift.bash: completion
+bin/blueshift.bash: src/completion
+	@mkdir -p bin
 	auto-auto-complete bash --output $@ --source $<
 
-blueshift.zsh: completion
+bin/blueshift.zsh: src/completion
+	@mkdir -p bin
 	auto-auto-complete zsh --output $@ --source $<
 
-blueshift.fish: completion
+bin/blueshift.fish: src/completion
+	@mkdir -p bin
 	auto-auto-complete fish --output $@ --source $<
 
 
@@ -192,17 +195,17 @@ install-dvi: blueshift.dvi
 install-shell: install-bash install-zsh install-fish
 
 .PHONY: install-bash
-install-bash: blueshift.bash
+install-bash: bin/blueshift.bash
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/bash-completion/completions"
 	install -m644 $< -- "$(DESTDIR)$(DATADIR)/bash-completion/completions/$(COMMAND)"
 
 .PHONY: install-zsh
-install-zsh: blueshift.zsh
+install-zsh: bin/blueshift.zsh
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/zsh/site-functions"
 	install -m644 $< -- "$(DESTDIR)$(DATADIR)/zsh/site-functions/_$(COMMAND)"
 
 .PHONY: install-fish
-install-fish: blueshift.fish
+install-fish: bin/blueshift.fish
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/fish/completions"
 	install -m644 $< -- "$(DESTDIR)$(DATADIR)/fish/completions/$(COMMAND).fish"
 
@@ -236,5 +239,5 @@ uninstall:
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_randr.c src/blueshift_vidmode.c blueshift.{ba,z,fi}sh
+	-rm -r bin obj src/blueshift_randr.c src/blueshift_vidmode.c
 
