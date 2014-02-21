@@ -79,21 +79,6 @@ static blueshift_randr_crtc_t* crtcs;
  */
 static blueshift_randr_crtc_t* crtcs_end;
 
-/**
- * The red colour curve
- */
-static uint16_t* r_curve;
-
-/**
- * The green colour curve
- */
-static uint16_t* g_curve;
-
-/**
- * The blue colour curve
- */
-static uint16_t* b_curve;
-
 
 
 /**
@@ -216,13 +201,6 @@ int blueshift_randr_open(int use_screen)
       free(gamma_get_reply);
     }
   
-  
-  /* Allocate curves */
-  
-  r_curve = malloc(3 * 256 * sizeof(uint16_t));
-  g_curve = r_curve + 256;
-  b_curve = g_curve + 256;
-  
   return 0;
 }
 
@@ -284,7 +262,6 @@ void blueshift_randr_close(void)
 {
   /* Free remaining resources */
   
-  free(r_curve);
   free(crtcs);
   free(res_reply);
   xcb_disconnect(connection);
