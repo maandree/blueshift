@@ -28,7 +28,7 @@ STD = c99
 FLAGS = $$($(PKGCONFIG) --cflags --libs $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC
 
 DATAFILES = 2deg 10deg redshift redshift_old
-PYFILES = __main__.py colour.py curve.py monitor.py solar.py
+PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py
 EXAMPLES = comprehensive sleepmode
 
 
