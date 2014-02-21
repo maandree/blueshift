@@ -351,9 +351,9 @@ def negative(r = True, g = None, b = None):
                 curve[i], curve[j] = curve[j], curve[i]
 
 
-def invert(r = True, g = None, b = None):
+def rgb_invert(r = True, g = None, b = None):
     '''
-    Invert the colour curves (negative image with gamma invertion)
+    Invert the colour curves (negative image with gamma invertion), using sRGB
     
     @param  r:bool   Whether to invert the red curve
     @param  g:bool?  Whether to invert the green curve, defaults to `r` if `None`
@@ -365,6 +365,23 @@ def invert(r = True, g = None, b = None):
         if setting:
             for i in range(i_size):
                 curve[i] = 1 - curve[i]
+
+
+def cie_invert(r = True, g = None, b = None):
+    '''
+    Invert the colour curves (negative image with gamma invertion), using CIE xyY
+    
+    @param  r:bool   Whether to invert the red curve
+    @param  g:bool?  Whether to invert the green curve, defaults to `r` if `None`
+    @param  b:bool?  Whether to invert the blue curve, defaults to `r` if `None`
+    '''
+    if g is None:  g = r
+    if b is None:  b = r
+    for (curve, setting) in curves(r, g, b):
+        if setting:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, 1 - Y)
 
     
 def sigmoid(r, g, b):
@@ -382,6 +399,41 @@ def sigmoid(r, g, b):
                     curve[i] = 0.5 - math.log(1 / curve[i] - 1) / level
                 except:
                     curve[i] = 0;
+
+
+def rgb_limits(r_min, r_max, g_min = None, g_max = None, b_min = None, b_max = None):
+    '''
+    Changes the black point and the white point, using sRGB
+    
+    @param  r_min:float   The red component value of the black point
+    @param  r_max:float   The red component value of the white point
+    @param  g_min:float?  The green component value of the black point, defaults to `r_min`
+    @param  g_max:float?  The green component value of the white point, defaults to `r_max`
+    @param  b_min:float?  The blue component value of the black point, defaults to `r_min`
+    @param  b_max:float?  The blue component value of the white point, defaults to `r_max`
+    '''
+    if g_min is None:  g_min = r_min
+    if g_max is None:  g_max = r_max
+    if b_min is None:  b_min = r_min
+    if b_max is None:  b_max = r_max
+    for (curve, (level_min, level_max)) in curves((r_min, r_max), (g_min, g_max), (b_min, b_max)):
+        if (level_min != 0) or (level_max != 1):
+            for i in range(i_size):
+                curve[i] = curve[i] * (level_max - level_min) + level_min
+
+
+def cie_limits(level_min, level_max):
+    '''
+    Changes the black point and the white point, using CIE xyY
+    
+    @param  level_min:float   The brightness of the black point
+    @param  level_max:float   The brightness of the white point
+    '''
+    if (level_min != 0) or (level_max != 1):
+        for i in range(i_size):
+            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            Y = Y * (level_max - level_min) + level_min
+            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y)
 
 
 def manipulate(r, g = None, b = None):
