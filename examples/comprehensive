@@ -260,6 +260,10 @@ if get_dayness is not None:
     
     # Transition on exit in the same way, calculated on exit.
     old_signal_SIGTERM = signal_SIGTERM
+    if 'SIGTERM' not in conf_storage:
+        conf_storage['SIGTERM'] = old_signal_SIGTERM
+    else:
+        old_signal_SIGTERM = conf_storage['SIGTERM']
     def signal_SIGTERM(signum, frame):
         global fadeout_time, fadeout_steps
         fadeout_time = 5 * (1 - get_dayness())

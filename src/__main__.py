@@ -31,8 +31,8 @@ PROGRAM_VERSION = '1.2'
 ## Set global variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
-global monitor_controller, running, continuous_run, panic, _globals_
-global signal_SIGTERM
+global monitor_controller, running, continuous_run, panic, _globals_, conf_storage
+global signal_SIGTERM, signal_SIGUSR1
 
 
 from solar import *
@@ -130,6 +130,13 @@ conf_opts = None
             one element. This list is filled with options passed to the
             configurations, with the first element being the configuration file
 '''
+
+conf_storage = {}
+'''
+:dict<?, ?>  A place for you to store information that is required to survive
+             a configuration reload
+'''
+
 
 def reset():
     '''

@@ -530,7 +530,10 @@ the second time a SIGTERM signal has been received.
 Additionally if the variable @code{panicgate}
 is @code{True}, there is no fading when the program
 starts. And @code{conf_opts} is a list of command line
-arguments passed onto the configuration script.
+arguments passed onto the configuration script; and
+@code{conf_storage} is a dictionary can be used to
+store information is required to survive a
+configuration reload, such as replaced functions.
 
 The parameterless function @code{continuous_run},
 may replace if you want to do something very special,
