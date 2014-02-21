@@ -11,7 +11,7 @@ depends=(python3 libxcb argparser)
 makedepends=(cython gcc python3 libxcb make coreutils sed zip texinfo auto-auto-complete)
 install=blueshift.install
 source=($url/archive/$pkgver.tar.gz)
-sha256sums=('3bd0dba02dea122d6982653054a87daea1ea3cfef6b08ccf3444e64d09a5fcbc')
+sha256sums=('ae15db975db8e81d29722dbef44962ef85c62998ff2dc88a07130035704d09b6')
 
 
 build() {
