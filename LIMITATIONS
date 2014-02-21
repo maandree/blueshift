@@ -3,14 +3,14 @@ X11 does not apply gamma correction, brightness, etc.
 on the cursor. It does not seem to be possible to
 listen for changes in the visible cursor and edit it.
 
-The colour curves are strictly independent, it is
-for example not possible to swap red and blue, or
-a subpixel depend on another. It is to my knowledge
-not possible to do so in X11.
+The colour curves are strictly independent, it is for
+example not possible to swap red and blue, or a subpixel
+depend on another. It is to my knowledge not possible
+to do so in X11.
 
 VidMode can only modify the primary monitor.
 
-Can only support upto 64 monitors. If you have
-more please send be a photo of your awesome set
-up I will make sure to fix this.
+Blueshift only support upto 64 monitors. If you have
+more please send be a photo of your awesome setup I
+will make sure to fix this.
 
