@@ -417,9 +417,9 @@ if (config_file is None) and any([doreset, location] + settings):
             signal.signal(signal.SIGTERM, signal_SIGTERM)
             trans = 0
             while running:
-                apply(alpha(), trans if doreset else 1 - trans)
-                trans += 0.05
                 try:
+                    apply(alpha(), trans if doreset else 1 - trans)
+                    trans += 0.05
                     time.sleep(0.1)
                 except KeyboardInterrupt:
                     signal_SIGTERM(0, None)
