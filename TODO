@@ -5,9 +5,13 @@ Medium priority:
 
 Low priority:
 	Fix errors causes by SIGUSR2
-	Set _LCC_PROFILE X atom
+	Set _ICC_PROFILE X atom
 	Add support for monitor connection names
 	Add support for checking monitor connection
 	Add support for monitor hotplugging
 	https://github.com/jonls/redshift/issues/32
+	http://www.argyllcms.com/doc/ucmm.html
+	http://www.oyranos.org/wiki/index.php?title=Oyranos/X11_Requirements
+
+
 
