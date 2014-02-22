@@ -9,4 +9,5 @@ Low priority:
 	Add support for monitor connection names
 	Add support for checking monitor connection
 	Add support for monitor hotplugging
+	https://github.com/jonls/redshift/issues/32
 
