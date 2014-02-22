@@ -8,4 +8,5 @@ Low priority:
 	Set _LCC_PROFILE X atom
 	Add support for monitor connection names
 	Add support for checking monitor connection
+	Add support for monitor hotplugging
 
