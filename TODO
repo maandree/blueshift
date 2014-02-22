@@ -3,6 +3,3 @@ Medium priority:
 	-r support in the comperhensive example
 	Store settings so that we can transition from them instead of from clean
 
-Low priority:
-	Tray icon with support for temporary enable/disable and configuration reload
-
