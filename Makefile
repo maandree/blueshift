@@ -15,7 +15,7 @@ DOCDIR ?= $(DATADIR)/doc
 LICENSEDIR ?= $(DATADIR)/licenses
 INFODIR ?= $(DATADIR)/info
 
-SHEBANG ?= /usr/bin/python3
+SHEBANG ?= /usr/bin/env python3
 COMMAND ?= blueshift
 PKGNAME ?= blueshift
 
