@@ -5,4 +5,7 @@ Medium priority:
 
 Low priority:
 	Fix errors causes by SIGUSR2
+	Set _LCC_PROFILE X atom
+	Add support for monitor connection names
+	Add support for checking monitor connection
 
