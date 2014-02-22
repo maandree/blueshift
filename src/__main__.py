@@ -419,7 +419,10 @@ if (config_file is None) and any([doreset, location] + settings):
             while running:
                 apply(alpha(), trans if doreset else 1 - trans)
                 trans += 0.05
-                time.sleep(0.1)
+                try:
+                    time.sleep(0.1)
+                except KeyboardInterrupt:
+                    signal_SIGTERM(0, None)
                 if trans >= 1:
                     break
         apply(alpha(), 1 if doreset else 0)
