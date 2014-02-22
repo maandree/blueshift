@@ -52,6 +52,7 @@ Texts. A copy of the license is included in the section entitled
 @menu
 * Overview::                        Brief overview of @command{blueshift}.
 * Invoking::                        Invocation of @command{blueshift}.
+* Signals::                         Signals handled by @command{blueshift}.
 * Configuration API::               How to write configuration files.
 * GNU Free Documentation License::  Copying and sharing this manual.
 @end menu
@@ -244,6 +245,32 @@ it is not recommended. The purpose of gamma
 is to adjust the same error that are present
 in minors and make all colours look correct
 in relation to each other.
+
+
+
+@node Signals
+@chapter Signals
+
+@command{blueshift}, by default in continuous
+mode, implements special support for three
+signals:
+
+@table @asis
+@item SIGTERM
+Fades out the settings and exits the first
+time SIGTERM is received. If SIGTERM is
+received again, Blueshift immediately
+resets effects and exits.
+
+@kbd{Control+c} is treated as SIGTERM.
+
+@item SIGUSR1
+Reloads the configuration script.
+
+@item SIGUSR2
+Disables or enables Blueshift.
+
+@end table
 
 
 
