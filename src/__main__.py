@@ -25,7 +25,7 @@ from argparser import *
 
 
 PROGRAM_NAME = 'blueshift'
-PROGRAM_VERSION = '1.3'
+PROGRAM_VERSION = '1.4'
 
 
 ## Set global variables
@@ -180,12 +180,61 @@ def signal_SIGUSR1(signum, frame):
     exec(code, _globals_)
 
 
+ftime = 0
+paused = False
+sigusr2 = 0
+def signal_SIGUSR2(signum, frame):
+    '''
+    Signal handler for SIGUSR2
+    
+    @param  signum  The signal number, 0 if called from the program itself
+    @param  frame   Ignore, it will probably be `None`
+    '''
+    global ftime, paused, sigusr2
+    sigusr2 += 1
+    index = sigusr2
+    
+    paused = not paused
+    if paused:
+        # Fade out
+        if fadeout_time is not None:
+            dtime = fadeout_time / fadeout_steps
+            df = 1 / fadeout_steps
+            ftime = -abs(ftime)
+            while not panic:
+                ftime += df
+                if ftime >= 0:
+                    ftime = 0
+                    break
+                if not sigusr2 == index:
+                    return
+                p(datetime.datetime.now(), ftime)
+                sleep(dtime)
+        reset()
+    else:
+        # Fade in
+        if fadein_time is not None:
+            dtime = fadein_time / fadein_steps
+            df = 1 / fadein_steps
+            while running:
+                ftime += df
+                if ftime > 1:
+                    ftime = 1
+                    break
+                if not sigusr2 == index:
+                    return
+                p(datetime.datetime.now(), ftime)
+                sleep(dtime)
+        p(datetime.datetime.now(), None)
+    
+    signal.pause()
+
 
 def continuous_run():
     '''
     Invoked to run continuously if `periodically` is not `None`
     '''
-    global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
+    global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps, ftime, p, sleep
     def p(t, fade = None):
         try:
             wd = t.isocalendar()[2]
@@ -201,10 +250,10 @@ def continuous_run():
     ## Catch signals
     signal.signal(signal.SIGTERM, signal_SIGTERM)
     signal.signal(signal.SIGUSR1, signal_SIGUSR1)
+    signal.signal(signal.SIGUSR2, signal_SIGUSR2)
     
     ## Fade in
     early_exit = False
-    ftime = 0
     if fadein_steps <= 0:
         fadein_time = None
     if (fadein_time is not None) and not panicgate:
@@ -234,11 +283,12 @@ def continuous_run():
         df = 1 / fadeout_steps
         if not early_exit:
             ftime = 1
+        ftime = -ftime
         while not panic:
-            ftime -= df
-            if ftime <= 0:
+            ftime += df
+            if ftime >= 0:
                 break
-            p(datetime.datetime.now(), -ftime)
+            p(datetime.datetime.now(), ftime)
             sleep(dtime)
     
     ## Reset

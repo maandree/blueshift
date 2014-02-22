@@ -648,6 +648,11 @@ the first parameter is the signal that is received
 (an integer), and zero if @kbd{Control+c} has been
 pressed.
 
+Similarly @code{signal_SIGUSR1} and @code{signal_SIGUSR2}
+are invoked when the programs received a SIGUSR1 signal or
+a SIGUSR2 signal, respectively. SIGUSR1 reloads the
+configurations and SIGUSR2 enables or disables Blueshift.
+
 To run in continuous mode, you must implement the
 function @code{periodically}. It takes 8 positional
 arguments:
