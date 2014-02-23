@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -126,8 +127,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	  xcb_randr_get_output_info_cookie_t out_cookie;
 	  xcb_randr_get_output_info_reply_t* out_reply;
 	  char* name;
-	  char* name_;
-	  int i;
+	  unsigned char* name_;
 	  
 	  out_cookie = xcb_randr_get_output_info(connection, outputs[output_i], res_reply->config_timestamp);
 	  out_reply = xcb_randr_get_output_info_reply(connection, out_cookie, &error);
@@ -136,6 +136,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	    {
 	      fprintf(stderr, "RANDR output query returned %i\n", error->error_code);
 	      xcb_disconnect(connection);
+	      free(res_reply);
 	      return 1;
 	    }
 	  
@@ -151,6 +152,10 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	    {
 	    case XCB_RANDR_CONNECTION_CONNECTED:
 	      {
+		xcb_randr_list_output_properties_cookie_t prop_cookie;
+		xcb_randr_list_output_properties_reply_t* prop_reply;
+		xcb_atom_t* atoms;
+		xcb_atom_t* atoms_end;
 		int crtc_i;
 		
 		printf("    Connection: connected\n");
@@ -159,6 +164,90 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 		for (crtc_i = 0; crtc_i < res_reply->num_crtcs; crtc_i++)
 		  if (crtcs[crtc_i] == out_reply->crtc)
 		    printf("    CRTC: %i\n", crtc_i);
+		
+		prop_cookie = xcb_randr_list_output_properties(connection, outputs[output_i]);
+		prop_reply = xcb_randr_list_output_properties_reply(connection, prop_cookie, &error);
+		
+		if (error)
+		  {
+		    fprintf(stderr, "RANDR output property query returned %i\n", error->error_code);
+		    free(out_reply);
+		    free(res_reply);
+		    xcb_disconnect(connection);
+		    return 1;
+		  }
+		
+		atoms = xcb_randr_list_output_properties_atoms(prop_reply);
+		atoms_end = atoms + xcb_randr_list_output_properties_atoms_length(prop_reply);
+		
+		for (; atoms != atoms_end; atoms++)
+		  {
+		    xcb_get_atom_name_cookie_t atom_name_cookie;
+		    xcb_get_atom_name_reply_t* atom_name_reply;
+		    char* atom_name;
+		    char* atom_name_;
+		    int atom_name_len;
+		    
+		    atom_name_cookie = xcb_get_atom_name(connection, *atoms);
+		    atom_name_reply = xcb_get_atom_name_reply(connection, atom_name_cookie, &error);
+		    
+		    if (error)
+		      {
+			fprintf(stderr, "RANDR atom name query returned %i\n", error->error_code);
+			free(prop_reply);
+			free(out_reply);
+			free(res_reply);
+			xcb_disconnect(connection);
+			return 1;
+		      }
+		    
+		    atom_name_ = xcb_get_atom_name_name(atom_name_reply);
+		    atom_name_len = xcb_get_atom_name_name_length(atom_name_reply);
+		    
+		    atom_name = alloca((atom_name_len + 1) * sizeof(char));
+		    memcpy(atom_name, atom_name_, atom_name_len * sizeof(char));
+		    *(atom_name + atom_name_len) = 0;
+		    
+		    /*if (!strcmp(atom_name, "EDID"))*/
+		      {
+			xcb_randr_get_output_property_cookie_t atom_cookie;
+			xcb_randr_get_output_property_reply_t* atom_reply;
+			int length;
+			unsigned char* atom_data_;
+			char* atom_data;
+			
+			atom_cookie = xcb_randr_get_output_property(connection, outputs[output_i], *atoms,
+								    XCB_GET_PROPERTY_TYPE_ANY, 0, 0, 0, 0);
+			
+			atom_reply = xcb_randr_get_output_property_reply(connection, atom_cookie, &error);
+			
+			if (error)
+			  {
+			    fprintf(stderr, "RANDR atom data query returned %i\n", error->error_code);
+			    free(atom_name_reply);
+			    free(prop_reply);
+			    free(out_reply);
+			    free(res_reply);
+			    xcb_disconnect(connection);
+			    return 1;
+			  }
+			
+			atom_data_ = xcb_randr_get_output_property_data(atom_reply);
+			length = xcb_randr_get_output_property_data_length(atom_reply);
+			
+			atom_data = alloca((length + 1) * sizeof(char));
+			memcpy(atom_data, atom_data_, length * sizeof(char));
+			*(atom_data + length) = 0;
+			
+			printf("    %s: %s\n", atom_name, atom_data);
+			
+			free(atom_reply);
+		      }
+		    
+		    free(atom_name_reply);
+		  }
+		
+		free(prop_reply);
 	      }
 	      break;
 	      
@@ -171,6 +260,8 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	      printf("    Connection: unknown\n");
 	      break;
 	    }
+	  
+	  free(out_reply);
 	}
       
       free(res_reply);
