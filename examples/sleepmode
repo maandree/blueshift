@@ -79,7 +79,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
     purity = 0 if fade is None else 1 - abs(fade)
-    for m in max(1, len(monitors)):
+    for m in range(max(1, len(monitors))):
         # Remove settings from last run.
         start_over()
         
@@ -110,7 +110,7 @@ def reset():
     '''
     Invoked to reset the displays
     '''
-    for m in max(1, len(monitors)):
+    for m in range(max(1, len(monitors))):
         # Remove settings from last run.
         start_over()
         
