@@ -58,12 +58,66 @@ def close_c_bindings():
         vidmode_close()
 
 
+def randr_get(crtc = 0, screen = 0):
+    '''
+    Gets the current colour curves using the X11 extension randr
+    
+    @param   crtc:int    The CRTC of the monitor to read from
+    @param   screen:int  The screen that the monitor belong to
+    @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
+    '''
+    from blueshift_randr import randr_open, randr_read, randr_close
+    global randr_opened
+    if (randr_opened is None) or not (randr_opened == screen):
+        if randr_opened is not None:
+            randr_close()
+        if randr_open(screen) == 0:
+            randr_opened = screen
+        else:
+            sys.exit(1)
+    (r, g, b) = randr_read()
+    def fcurve(R_curve, G_curve, B_curve):
+        for curve, cur in curves(R_curve, G_curve, B_curve):
+            for i in range(i_size):
+                y = int(curve[i] * (len(cur) - 1) + 0.5)
+                y = min(max(0, y), len(cur) - 1)
+                curve[i] = cur[y]
+    return lambda : fcurve
+
+
+def vidmode_get(crtc = 0, screen = 0):
+    '''
+    Gets the current colour curves using the X11 extension vidmode
+    
+    @param   crtc:int    The CRTC of the monitor to read from
+    @param   screen:int  The screen that the monitor belong to
+    @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
+    '''
+    from blueshift_vidmode import vidmode_open, vidmode_read, vidmode_close
+    global vidmode_opened
+    if (vidmode_opened is None) or not (vidmode_opened == screen):
+        if vidmode_opened is not None:
+            vidmode_close()
+        if vidmode_open(screen) == 0:
+            vidmode_opened = screen
+        else:
+            sys.exit(1)
+    (r, g, b) = vidmode_read()
+    def fcurve(R_curve, G_curve, B_curve):
+        for curve, cur in curves(R_curve, G_curve, B_curve):
+            for i in range(i_size):
+                y = int(curve[i] * (len(cur) - 1) + 0.5)
+                y = min(max(0, y), len(cur) - 1)
+                curve[i] = cur[y]
+    return lambda : fcurve
+
+
 def randr(*crtcs, screen = 0):
     '''
     Applies colour curves using the X11 extension randr
     
-    @param  *crtcs  The CRT controllers to use, all are used if none are specified
-    @param  screen  The screen that the monitors belong to
+    @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
+    @param  screen:int  The screen that the monitors belong to
     '''
     from blueshift_randr import randr_open, randr_apply, randr_close
     global randr_opened
@@ -90,8 +144,8 @@ def vidmode(*crtcs, screen = 0):
     '''
     Applies colour curves using the X11 extension vidmode
     
-    @param  *crtcs  The CRT controllers to use, all are used if none are specified
-    @param  screen  The screen that the monitors belong to
+    @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
+    @param  screen:int  The screen that the monitors belong to
     '''
     from blueshift_vidmode import vidmode_open, vidmode_apply, vidmode_close
     global vidmode_opened
@@ -118,8 +172,8 @@ def print_curves(*crtcs, screen = 0):
     '''
     Prints the curves to stdout
     
-    @param  *crtcs  Dummy parameter
-    @param  screen  Dummy parameter
+    @param  crtcs:*int  Dummy parameter
+    @param  screen:int  Dummy parameter
     '''
     (R_curve, G_curve, B_curve) = translate_to_integers()
     print(R_curve)
