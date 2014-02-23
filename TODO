@@ -8,7 +8,7 @@ Medium priority:
 	Store settings so that we can transition from them instead of from clean
 
 Low priority:
-	Fix errors causes by SIGUSR2
+	Fix errors caused by SIGUSR2
 	Set _ICC_PROFILE X atom
 	Add support for monitor connection names
 	Add support for checking monitor connection
