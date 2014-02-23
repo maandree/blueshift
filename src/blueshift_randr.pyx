@@ -20,6 +20,7 @@ from libc.stdlib cimport malloc, free
 
 
 cdef extern int blueshift_randr_open(int use_screen)
+cdef extern unsigned short int* blueshift_randr_read(int use_crtc)
 cdef extern int blueshift_randr_apply(unsigned long long int use_crtcs,
                                       unsigned short int* r_curve,
                                       unsigned short int* g_curve,
@@ -35,6 +36,28 @@ def randr_open(int use_screen):
     @return              Zero on success
     '''
     return blueshift_randr_open(use_screen)
+
+
+def randr_read(int use_crtc):
+    '''
+    Gets the current colour curves
+    
+    @param   use_crtc                                  The CRTC to use
+    @return  :(r:list<int>, g:list<int>, b:list<int>)  The current red, green and blue colour curves
+    '''
+    cdef unsigned short int* got
+    got = blueshift_randr_read(use_crtc)
+    if got is NULL:
+        raise Exception()
+    r, g, b, i = [], [], [], 0
+    for c in (r, g, b):
+        s = got[i]
+        i += 1
+        for j in range(s):
+            c.append(s[i + j])
+        i += s
+    free(got)
+    return (r, g, b)
 
 
 def randr_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
