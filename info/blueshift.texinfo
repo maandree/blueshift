@@ -54,6 +54,7 @@ Texts. A copy of the license is included in the section entitled
 * Invoking::                        Invocation of @command{blueshift}.
 * Signals::                         Signals handled by @command{blueshift}.
 * Configuration API::               How to write configuration files.
+* Terminology::                     Related terminology
 * GNU Free Documentation License::  Copying and sharing this manual.
 @end menu
 
@@ -857,6 +858,57 @@ For all functions beneath @code{degrees}, @code{t} is the
 time in Julian Centuries. All parameters are floating point
 and may not be @code{None}, except for in @code{solar_elevation},
 as specified.
+
+
+
+@node Terminology
+@chapter Terminology
+
+Terminology related to Blueshift:
+
+@table @asis
+@item Ad-hoc mode
+@itemx One time mode
+Running Blueshift without a configuration script.
+
+@item Configuration mode
+Running Blueshift with a configuration script.
+
+@item Configuration script
+Blueshift provides a mechanism for adjusting
+colours on the monitors. Configuration scripts,
+invoked by Blueshift, implements the policy
+for doing so.
+
+@item Continuous mode
+Running Blueshift such at it applies adjustments
+but than continues to run and applies now
+(time dependent) adjustments every now and then
+until the user terminates Blueshift.
+
+@item One shot mode
+Running Blueshift such at it applies adjustments
+and than exits.
+
+ @item Panicgate
+Applying adjustments immediately without
+transitioning. This terminology is borrowed
+from OpenNTPD.
+
+@item High day
+@itemx Day
+@itemx Daytime
+The time during the day when the Sun elevated to
+be 100 % visible. The time between sunrise and
+sunset; when it is full daylight.
+
+@item High night
+@itemx Night
+@itemx Nighttime
+The time during the day when the Sun elevated to
+be 0 % visible. The time between dusk and dawn;
+when it is complete darkness.
+@end table
 
 
 
