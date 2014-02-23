@@ -211,7 +211,8 @@ int blueshift_randr_open(int use_screen)
  * @param   use_crtc  The CRTC to use
  * @return            {the size of the red curve, *the red curve,
  *                    the size of the green curve, *the green curve,
- *                    the size of the blue curve, *the blue curve}, needs to be free:d
+ *                    the size of the blue curve, *the blue curve},
+ *                    needs to be free:d. `NULL` on error.
  */
 uint16_t* blueshift_randr_read(int use_crtc)
 {
