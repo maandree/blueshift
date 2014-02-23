@@ -1,3 +1,7 @@
+High priority:
+	Test: randr_get and vidmode_get
+
+
 Medium priority:
 	Small examples
 	-r support in the comperhensive example
@@ -9,7 +13,6 @@ Low priority:
 	Add support for monitor connection names
 	Add support for checking monitor connection
 	Add support for monitor hotplugging
-	https://github.com/jonls/redshift/issues/32
 	http://www.argyllcms.com/doc/ucmm.html
 	http://www.oyranos.org/wiki/index.php?title=Oyranos/X11_Requirements
 
