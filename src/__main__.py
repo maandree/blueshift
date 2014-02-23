@@ -374,6 +374,8 @@ for opt in ('--gamma', '--brightness', '++brightness', '--temperature'):
 settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures]
 if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
+    if len(parser.files) > 0:
+        print('%s: warning: configuration script arguments are not supported in ad-hoc mode' % sys.argv[0])
     d = lambda a, default : [default, default] if a is None else (a * 2 if len(a) == 1 else a)
     continuous = any(map(lambda a : (a is not None) and (len(a) == 2), settings))
     continuous = continuous or (location is not None)
