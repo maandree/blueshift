@@ -6,8 +6,6 @@ Medium priority:
 Low priority:
 	Fix errors caused by SIGUSR2
 	Set _ICC_PROFILE X atom
-	Add support for monitor connection names
-	Add support for checking monitor connection
 	Add support for monitor hotplugging
 	http://www.argyllcms.com/doc/ucmm.html
 	http://www.oyranos.org/wiki/index.php?title=Oyranos/X11_Requirements
