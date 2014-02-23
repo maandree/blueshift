@@ -16,7 +16,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include <inttypes.h>
+#include <string.h>
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -125,6 +125,9 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
         {
 	  xcb_randr_get_output_info_cookie_t out_cookie;
 	  xcb_randr_get_output_info_reply_t* out_reply;
+	  char* name;
+	  char* name_;
+	  int i;
 	  
 	  out_cookie = xcb_randr_get_output_info(connection, outputs[output_i], res_reply->config_timestamp);
 	  out_reply = xcb_randr_get_output_info_reply(connection, out_cookie, &error);
@@ -137,21 +140,32 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 	    }
 	  
 	  printf("  Output: %i\n", output_i);
+	  
+	  name_ = xcb_randr_get_output_info_name(out_reply);
+	  name = alloca((out_reply->name_len + 1) * sizeof(char));
+	  memcpy(name, name_, out_reply->name_len * sizeof(char));
+	  *(name + out_reply->name_len) = 0;
+	  printf("    Name: %s\n", name);
+	  
 	  switch (out_reply->connection)
 	    {
 	    case XCB_RANDR_CONNECTION_CONNECTED:
 	      {
 		int crtc_i;
+		
 		printf("    Connection: connected\n");
 		printf("    Size: %i %i\n", out_reply->mm_width, out_reply->mm_height);
+		
 		for (crtc_i = 0; crtc_i < res_reply->num_crtcs; crtc_i++)
 		  if (crtcs[crtc_i] == out_reply->crtc)
 		    printf("    CRTC: %i\n", crtc_i);
 	      }
 	      break;
+	      
 	    case XCB_RANDR_CONNECTION_DISCONNECTED:
 	      printf("    Connection: disconnected\n");
 	      break;
+	      
 	    case XCB_RANDR_CONNECTION_UNKNOWN:
 	    default:
 	      printf("    Connection: unknown\n");
