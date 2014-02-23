@@ -44,45 +44,99 @@ def sun(latitude, longitude, t = None, low = -6.0, high = 3.0):
 
 
 def julian_day_to_epoch(t):
+    '''
+    Converts a Julian Day timestamp to a POSIX time timestamp
+    
+    @param   t:float  The time in Julian Days
+    @return  :float   The time in POSIX time
+    '''
     return (jd - 2440587.5) * 86400.0
 
 def epoch_to_julian_day(t):
+    '''
+    Converts a POSIX time timestamp to a Julian Day timestamp
+    
+    @param   t:float  The time in POSIX time
+    @return  :float   The time in Julian Days
+    '''
     return t / 86400.0 + 2440587.5
 
 def julian_day_to_julian_centuries(t):
+    '''
+    Converts a Julian Day timestamp to a Julian Centuries timestamp
+    
+    @param   t:float  The time in Julian Days
+    @return  :float   The time in Julian Centuries
+    '''
     return (t - 2451545.0) / 36525.0
 
 def julian_centuries_to_julian_day(t):
+    '''
+    Converts a Julian Centuries timestamp to a Julian Day timestamp
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The time in Julian Days
+    '''
     return t * 36525.0 + 2451545.0
 
 def epoch_to_julian_centuries(t):
+    '''
+    Converts a POSIX time timestamp to a Julian Centuries timestamp
+    
+    @param   t:float  The time in POSIX time
+    @return  :float   The time in Julian Centuries
+    '''
     return julian_day_to_julian_centuries(epoch_to_julian_day(t))
 
 def julian_centuries_to_epoch(t):
+    '''
+    Converts a Julian Centuries timestamp to a POSIX time timestamp
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The time in POSIX time
+    '''
     return julian_day_to_epoch(julian_centuries_to_julian_day(t))
 
 def epoch():
     '''
     Get current POSIX time
+    
+    @return  :float  The current POSIX time
     '''
     return time.time()
 
 def julian_day():
     '''
     Get current Julian Day time
+    
+    @return  :float  The current Julian Day time
     '''
     return epoch_to_julian_day(epoch())
 
 def julian_centuries():
     '''
     Get current Julian Centuries time
+    
+    @return  :float  The current Julian Centuries time
     '''
     return epoch_to_julian_centuries(epoch())
 
 def radians(deg):
+    '''
+    Convert an angle from degrees to radians
+    
+    @param   deg:float  The angle in degrees
+    @return  :float     The angle in radians
+    '''
     return deg * math.pi / 180
 
 def degrees(rad):
+    '''
+    Convert an angle from radians to degrees
+    
+    @param   rad:float  The angle in radians
+    @return  :float     The angle in degrees
+    '''
     return rad * 180 / math.pi
 
 def sun_geometric_mean_longitude(t):
@@ -139,22 +193,45 @@ def equation_of_time(t):
     rc -= 1.25 * e ** 2 * math.sin(2 * m)
     return 4 * degrees(rc)
 
-def hour_angle_from_elevation(latitude, declinaton, elevation):
+def hour_angle_from_elevation(latitude, declination, elevation):
+    '''
+    Calculates the solar hour angle from the Sun's elevation
+    
+    @param   longitude:float    The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   declination:float  The declination, in degrees
+    @param   hour_angle:float   The suns elevation, in degrees
+    @return  :float             The solar hour angle, in degrees
+    '''
     if elevation == 0:
         return 0
     rc = math.cos(abs(elevation))
-    rc -= math.sin(radians(latitude)) * math.sin(declinaton)
-    rc /= math.cos(radians(latitude)) * math.cos(declinaton)
+    rc -= math.sin(radians(latitude)) * math.sin(declination)
+    rc /= math.cos(radians(latitude)) * math.cos(declination)
     rc = math.acos(rc)
     return -rc if (rc < 0) == (elevation < 0) else rc;
 
-def elevation_from_hour_angle(latitude, declinaton, hour_angle):
+def elevation_from_hour_angle(latitude, declination, hour_angle):
+    '''
+    Calculates the Sun's elevation from the solar hour angle
+    
+    @param   longitude:float    The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   declination:float  The declination, in degrees
+    @param   hour_angle:float   The solar hour angle, in degrees
+    @return  :float             The suns elevation, in degrees
+    '''
     rc = math.cos(radians(latitude))
-    rc *= math.cos(hour_angle) * math.cos(declinaton)
-    rc += math.sin(radians(latitude)) * math.sin(declinaton)
+    rc *= math.cos(hour_angle) * math.cos(declination)
+    rc += math.sin(radians(latitude)) * math.sin(declination)
     return math.asin(rc)
 
 def time_of_solar_noon(t, longitude):
+    '''
+    Calculates the time of the closest solar noon
+    
+    @param   t:float          A time close to the seeked time, in Julian Centuries
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @return  :float           The time, in Julian Centuries, of the closest solar noon
+    '''
     t, rc = julian_centuries_to_julian_day(t), longitude
     for (k, m) in ((-360, 0), (1440, -0.5)):
         rc = julian_day_to_julian_centuries(t + m + rc / k)
@@ -162,6 +239,16 @@ def time_of_solar_noon(t, longitude):
     return rc
 
 def time_of_solar_elevation(t, noon, latitude, longitude, elevation):
+    '''
+    Calculates the time the Sun has a specified apparent elevation at a geographical position
+    
+    @param   t:float          A time close to the seeked time, in Julian Centuries
+    @param   noon:float       The time of the closest solar noon
+    @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation:float  The solar elevation, in degrees
+    @return  :float           The time, in Julian Centuries, of the specified elevation
+    '''
     rc = noon
     rc, et = solar_declination(rc), equation_of_time(rc)
     rc = hour_angle_from_elevation(latitude, rc, elevation)
@@ -174,6 +261,15 @@ def time_of_solar_elevation(t, noon, latitude, longitude, elevation):
     return rc
 
 def solar_elevation_from_time(t, latitude, longitude):
+    '''
+    Calculates the Suns elevation as apparent from a geographical position
+    
+    @param   t:float          The time in Julian Centuries
+    @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @return  :float           The suns apparent at the specified time as seen from the specified position,
+                              measured in degrees
+    '''
     rc = julian_centuries_to_julian_day(t)
     rc = (rc - float(int(rc + 0.5)) - 0.5) * 1440
     rc = 720 - rc - equation_of_time(t)
@@ -181,6 +277,15 @@ def solar_elevation_from_time(t, latitude, longitude):
     return elevation_from_hour_angle(latitude, solar_declination(t), rc)
 
 def solar_elevation(latitude, longitude, t = None):
+    '''
+    Calculates the Suns elevation as apparent from a geographical position
+    
+    @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   t:float?         The time in Julian Centuries, `None` for the current time
+    @return  :float           The suns apparent at the specified time as seen from the specified position,
+                              measured in degrees
+    '''
     rc = julian_centuries() if t is None else t
     rc = solar_elevation_from_time(rc, latitude, longitude)
     return degrees(rc)

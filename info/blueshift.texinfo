@@ -216,11 +216,11 @@ high night and 6500 K during the high day.
 Specify your geographical coordinates. This
 is used to determine how dark it is outside.
 @env{LAT} is the latitude, floating point
-measured in degrees from the equator to the
-north. It is negative if you are on the
+measured in degrees celestial northwards from
+the equator. It is negative if you are on the
 southern hemisphere. @env{LON} is the
 longitude, floating point measured in degrees
-from Greenwich to the east. Negative if you
+eastwards from Greenwich. Negative if you
 are on the west side of the Earth.
 
 @item -r
@@ -753,12 +753,12 @@ point. It has three optional parameters:
 The time in Julian Centuries.
 
 @item low = -6.0
-The suns elevation at the limit to high night, that
+The Suns elevation at the limit to high night, that
 is, the highest possible position (measured in degrees)
-of the sun before it becomes visible.
+of the Sun before it becomes visible.
 
 @item high = 3.0
-The suns elevation at the limit to high day, that is,
+The Suns elevation at the limit to high day, that is,
 the lowest possible position (measured in degrees) of
 the before it starts becoming less visible (twilight.)
 @end table
@@ -817,13 +817,27 @@ Converts from radians to degrees.
 @item corrected_mean_ecliptic_obliquity(t)
 @item solar_declination(t)
 @item equation_of_time(t)
-@item hour_angle_from_elevation(latitude, declinaton, elevation)
-@item elevation_from_hour_angle(latitude, declinaton, hour_angle)
+@item hour_angle_from_elevation(latitude, declination, elevation)
+Calculates the solar hour angle from the Sun's elevation.
+
+@item elevation_from_hour_angle(latitude, declination, hour_angle)
+Calculates the Sun's elevation from the solar hour angle.
+
 @item time_of_solar_noon(t, longitude)
+Calculates the time of the closest solar noon.
+
 @item time_of_solar_elevation(t, noon, latitude, longitude, elevation)
+Calculates the time the Sun has the apparent elevation
+@code{elevation}, in degrees, at the geographical position
+(@code{latitude}, @code{longitude}). @code{noon} is the
+time the closest the solar noon.
+
 @item solar_elevation_from_time(t, latitude, longitude)
+Calculates the Suns elevation, in degrees, as apparent from the
+geographical position (@code{latitude}, @code{longitude}).
+
 @item solar_elevation(latitude, longitude, t = None)
-Does the same thing as @code{solar_elevation_from_time},
+Calculates the same thing as @code{solar_elevation_from_time},
 except the time is optional and defaults to the current time.
 @end table
 
