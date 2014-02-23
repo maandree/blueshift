@@ -206,6 +206,68 @@ int blueshift_randr_open(int use_screen)
 
 
 /**
+ * Gets the current colour curves
+ * 
+ * @param   use_crtc  The CRTC to use
+ * @return            {the size of the red curve, *the red curve,
+ *                    the size of the green curve, *the green curve,
+ *                    the size of the blue curve, *the blue curve}, needs to be free:d
+ */
+uint16_t* blueshift_randr_read(int use_crtc)
+{
+  xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie;
+  xcb_randr_get_crtc_gamma_reply_t* gamma_get_reply;
+  uint16_t* r_gamma, * R_gamma;
+  uint16_t* g_gamma, * G_gamma;
+  uint16_t* b_gamma, * B_gamma;
+  int i, R_size, G_size, B_size;
+  
+  /* Read curves */
+  
+  gamma_get_cookie = xcb_randr_get_crtc_gamma(connection, *((crtcs + use_crtc)->crtc));
+  gamma_get_reply = xcb_randr_get_crtc_gamma_reply(connection, gamma_get_cookie, &error);
+  
+  if (error)
+    {
+      fprintf(stderr, "RANDR CRTC gamma query returned %i\n", error->error_code);
+      xcb_disconnect(connection);
+      return NULL;
+    }
+  
+  R_size = xcb_randr_get_crtc_gamma_red_length(gamma_get_reply);
+  G_size = xcb_randr_get_crtc_gamma_green_length(gamma_get_reply);
+  B_size = xcb_randr_get_crtc_gamma_blue_length(gamma_get_reply);
+  
+  R_gamma = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
+  G_gamma = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
+  B_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
+  
+  r_gamma = ((uint16_t*)malloc((3 + R_size + G_size + B_size) * sizeof(uint16_t))) + 1;
+  g_gamma = r_gamma + R_size + 1;
+  b_gamma = g_gamma + G_size + 1;
+  if (r_gamma == NULL)
+    {
+      fprintf(stderr, "Out of memory\n");
+      free(gamma_get_reply);
+      xcb_disconnect(connection);
+      return NULL;
+    }
+  
+  *(r_gamma - 1) = R_size;
+  *(g_gamma - 1) = G_size;
+  *(b_gamma - 1) = B_size;
+  
+  for (i = 0; i < R_size; i++)  *(r_gamma + i) = *(R_gamma + i);
+  for (i = 0; i < G_size; i++)  *(g_gamma + i) = *(G_gamma + i);
+  for (i = 0; i < B_size; i++)  *(b_gamma + i) = *(B_gamma + i);
+  
+  free(gamma_get_reply);
+  
+  return r_gamma;
+}
+
+
+/**
  * Apply stage of colour curve control
  * 
  * @param   use_crtcs  Mask of CRTC:s to use

@@ -115,6 +115,45 @@ int blueshift_vidmode_open(int use_screen)
 
 
 /**
+ * Gets the current colour curves
+ * 
+ * @param   use_crtc  The CRTC to use
+ * @return            {the size of the red curve, *the red curve,
+ *                    the size of the green curve, *the green curve,
+ *                    the size of the blue curve, *the blue curve}, needs to be free:d
+ */
+uint16_t* blueshift_vidmode_read(int use_crtc)
+{
+  (void) use_crtc;
+  
+  /* Read curves */
+  
+  uint16_t* r_gamma = ((uint16_t*)malloc((3 + 3 * curve_size) * sizeof(uint16_t))) + 1;
+  uint16_t* g_gamma = r_gamma + curve_size + 1;
+  uint16_t* b_gamma = g_gamma + curve_size + 1;
+  if (r_gamma == NULL)
+    {
+      fprintf(stderr, "Out of memory\n");
+      XCloseDisplay(display);
+      return NULL;
+    }
+  
+  if (XF86VidModeGetGammaRamp(display, screen, curve_size, r_gamma, g_gamma, b_gamma) == 0)
+    {
+      fprintf(stderr, "VidMode gamma query failed\n");
+      free(r_gamma);
+      XCloseDisplay(display);
+      return NULL;
+    }
+  
+  *(r_gamma - 1) = curve_size;
+  *(g_gamma - 1) = curve_size;
+  *(b_gamma - 1) = curve_size;
+  return r_gamma;
+}
+
+
+/**
  * Apply stage of colour curve control
  * 
  * @param   use_crtcs  Mask of CRTC:s to use
