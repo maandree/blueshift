@@ -32,7 +32,7 @@ PROGRAM_VERSION = '1.5'
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
 global monitor_controller, running, continuous_run, panic, _globals_, conf_storage
-global signal_SIGTERM, signal_SIGUSR1
+global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2
 
 
 from icc import *
