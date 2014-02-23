@@ -523,6 +523,18 @@ profile file. @code{load_icc} takes one argument, the
 pathname of the ICC profile file; the function returns
 a fuction that can be invoked to apply the profile.
 
+If you want to apply your adjustments on top of the
+current colour adjustments, you can use the functions
+@code{randr_get} or @code{vidmode_get}. @code{randr_get}
+and @code{vidmode_get} have optional two parameters,
+@code{crtc} and @code{screen}, which are the CRTC of
+the monitor to read from, and the screen to which the
+monitor belongs, respectively. The functions return
+a parameterless function that applies adjustsments
+that were applied at the time of invokation of
+@code{randr_get} or @code{vidmode_get} to the current
+working curves.
+
 Keep in mind that the order your call the
 function matters. For example, adjusting
 the gamma before the brightness does not
