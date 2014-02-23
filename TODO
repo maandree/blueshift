@@ -1,11 +1,8 @@
-High priority:
-	Test: randr_get and vidmode_get
-	Add to example: randr_get and vidmode_get
-
 Medium priority:
 	Small examples
 	-r support in the comperhensive example
 	Store settings so that we can transition from them instead of from clean
+	Verify command line option correctness
 
 Low priority:
 	Fix errors caused by SIGUSR2

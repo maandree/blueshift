@@ -4,7 +4,9 @@
 # curve modifiers: nothing else than CIE 1964 10 degree CMF for
 # colour temperature, not use of temporarly linear RGB curves,
 # negative image, inverted image, sigmoid correction, or free
-# function modifier.
+# function modifier. Neither does it support multiple screens,
+# this is normally not an issue because Xinerama is normally used
+# to put all monitors on the same screen.
 
 
 # Geographical coodinates.
@@ -123,6 +125,28 @@ icc_video_filter_profile = [None]
 icc_calibration_profile = [None]
 
 
+# Function for getting the current the current monitor calibration.
+# If `None` the the current monitor calibration will be ignored.
+# `if not panicgate:` is included to ignore monitor calibration if
+# -p (--panicgate) is used.
+current_calibration = [None]
+if not panicgate:
+    #calib_get = None
+    calib_get = randr_get
+    #calib_get = vidmode_get
+    current_calibration = [calib_get]
+
+
+# Loads the current monitor calibrations.
+m = 0
+for i in range(len(current_calibration)):
+    f = current_calibration[i]
+    if f is not None:
+        if len(monitors) == 0:
+            m = monitors[i % len(monitors)]
+        current_calibration[i] = f(m)
+
+
 monitor_controller = lambda : randr(*monitors)
 '''
 :()→void  Function used by Blueshift on exit to apply reset colour curves, if using preimplemented `reset`
@@ -177,7 +201,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     interpol = lambda _day, _night : _day[m % len(_day)] * dayness + _night[m % len(_night)] * (1 - dayness)
     purify = lambda current, pure : current * alpha + pure * (1 - alpha)
     
-    for m in [0] if len(monitors) == 0 else monitors:
+    for m in range(max(1, len(monitors))):
         temperature_      = interpol(temperature_day,      temperature_night)
         brightness_       = interpol(brightness_day,       brightness_night)
         brightness_red_   = interpol(brightness_red_day,   brightness_red_night)
@@ -224,6 +248,11 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         # Apply colour temperature using raw CIE 1964 10 degree CMF data with interpolation.
         temperature(temperature_, lambda t : divide_by_maximum(cmf_10deg(t)))
         
+        # Apply calibration used when started.
+        c = current_calibration[m % len(current_calibration)]
+        if c is not None:
+            c()
+        
         # Apply colour brightness using the CIE xyY colour space.
         cie_brightness(brightness_)
         # Apply colour brightness using the sRGB colour space.
@@ -253,7 +282,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         if len(monitors) == 0:
             randr()
         else:
-            randr(m)
+            randr(monitors[m % len(monitors)])
     
     # Lets wait only 5 seconds, instead of a minute before running again.
     wait_period = 10
@@ -263,13 +292,18 @@ def reset():
     '''
     Invoked to reset the displays
     '''
-    for m in [0] if len(monitors) == 0 else monitors:
+    for m in range(max(1, len(monitors))):
         gamma_red_   = gamma_red_default  [m % len(gamma_red_default)]
         gamma_green_ = gamma_green_default[m % len(gamma_green_default)]
         gamma_blue_  = gamma_blue_default [m % len(gamma_blue_default)]
         
         # Remove settings from last run.
         start_over()
+        
+        # Apply calibration used when started.
+        c = current_calibration[m % len(current_calibration)]
+        if c is not None:
+            c()
         
         # Apply gamma correction to monitor.
         gamma(gamma_red_, gamma_green_, gamma_blue_)
@@ -285,7 +319,7 @@ def reset():
         if len(monitors) == 0:
             randr()
         else:
-            randr(m)
+            randr(monitors[m % len(monitors)])
 
 
 if get_dayness is not None:

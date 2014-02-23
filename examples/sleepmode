@@ -79,7 +79,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
     purity = 0 if fade is None else 1 - abs(fade)
-    for m in [0] if len(monitors) == 0 else monitors:
+    for m in max(1, len(monitors)):
         # Remove settings from last run.
         start_over()
         
@@ -103,14 +103,14 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         if len(monitors) == 0:
             randr()
         else:
-            randr(m)
+            randr(monitors[m % len(monitors)])
 
 
 def reset():
     '''
     Invoked to reset the displays
     '''
-    for m in [0] if len(monitors) == 0 else monitors:
+    for m in max(1, len(monitors)):
         # Remove settings from last run.
         start_over()
         
@@ -124,5 +124,5 @@ def reset():
         if len(monitors) == 0:
             randr()
         else:
-            randr(m)
+            randr(monitors[m % len(monitors)])
 

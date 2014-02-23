@@ -129,7 +129,7 @@ uint16_t* blueshift_vidmode_read(int use_crtc)
   
   /* Read curves */
   
-  uint16_t* r_gamma = ((uint16_t*)malloc((3 + 3 * curve_size) * sizeof(uint16_t))) + 1;
+  uint16_t* r_gamma = malloc((3 + 3 * curve_size) * sizeof(uint16_t));
   uint16_t* g_gamma = r_gamma + curve_size + 1;
   uint16_t* b_gamma = g_gamma + curve_size + 1;
   if (r_gamma == NULL)
@@ -139,6 +139,10 @@ uint16_t* blueshift_vidmode_read(int use_crtc)
       return NULL;
     }
   
+  *r_gamma++ = curve_size;
+  *g_gamma++ = curve_size;
+  *b_gamma++ = curve_size;
+  
   if (XF86VidModeGetGammaRamp(display, screen, curve_size, r_gamma, g_gamma, b_gamma) == 0)
     {
       fprintf(stderr, "VidMode gamma query failed\n");
@@ -147,10 +151,7 @@ uint16_t* blueshift_vidmode_read(int use_crtc)
       return NULL;
     }
   
-  *(r_gamma - 1) = curve_size;
-  *(g_gamma - 1) = curve_size;
-  *(b_gamma - 1) = curve_size;
-  return r_gamma;
+  return r_gamma - 1;
 }
 
 

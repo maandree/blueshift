@@ -243,7 +243,7 @@ uint16_t* blueshift_randr_read(int use_crtc)
   G_gamma = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
   B_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
   
-  r_gamma = ((uint16_t*)malloc((3 + R_size + G_size + B_size) * sizeof(uint16_t))) + 1;
+  r_gamma = malloc((3 + R_size + G_size + B_size) * sizeof(uint16_t));
   g_gamma = r_gamma + R_size + 1;
   b_gamma = g_gamma + G_size + 1;
   if (r_gamma == NULL)
@@ -254,17 +254,16 @@ uint16_t* blueshift_randr_read(int use_crtc)
       return NULL;
     }
   
-  *(r_gamma - 1) = R_size;
-  *(g_gamma - 1) = G_size;
-  *(b_gamma - 1) = B_size;
+  *r_gamma++ = R_size;
+  *g_gamma++ = G_size;
+  *b_gamma++ = B_size;
   
   for (i = 0; i < R_size; i++)  *(r_gamma + i) = *(R_gamma + i);
   for (i = 0; i < G_size; i++)  *(g_gamma + i) = *(G_gamma + i);
   for (i = 0; i < B_size; i++)  *(b_gamma + i) = *(B_gamma + i);
   
   free(gamma_get_reply);
-  
-  return r_gamma;
+  return r_gamma - 1;
 }
 
 

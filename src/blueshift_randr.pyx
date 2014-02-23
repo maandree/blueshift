@@ -54,9 +54,8 @@ def randr_read(int use_crtc):
         s = got[i]
         i += 1
         for j in range(s):
-            c.append(s[i + j])
+            c.append(got[i + j])
         i += s
-    free(got)
     return (r, g, b)
 
 
