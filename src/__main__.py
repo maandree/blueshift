@@ -356,6 +356,20 @@ output = parser.opts['--output']
 if output is None:
     output = []
 
+if config_file is not None:
+    if any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, temperatures, output]):
+        print('--configurations can only be combined with --panicgate')
+        sys.exit(1)
+
+a = lambda opt : 0 if parser.opts[opt] is None else len(parser.opts[opt])
+for opt in ('--configurations', '--panicgate', '--reset', '--location'):
+    if a(opt) > 1:
+        print('%s can only be used once' % opt)
+        sys.exit(1)
+for opt in ('--gamma', '--brightness', '++brightness', '--temperature'):
+    if a(opt) > 2:
+        print('%s can only be used up to two times' % opt)
+        sys.exit(1)
 
 settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures]
 if (config_file is None) and any([doreset, location] + settings):
