@@ -463,7 +463,7 @@ and blue colour curves, respectively.
 @item temperature(temperature, algorithm)
 Applies the a blackbody colour temperature of
 @code{temperature}@footnote{Actually multiplied
-by 1.000556328, due to revisions of natural
+by 1,000556328, due to revisions of natural
 constants} Kelvin. Where the white point
 for that temperature is calculates by
 the function @code{algorithm} : @code{temperature}
