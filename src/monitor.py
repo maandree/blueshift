@@ -16,12 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from subprocess import Popen, PIPE
 
 from curve import *
 
 # /usr/lib
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
+
+# /usr/libexec
+LIBEXECDIR = 'bin'
 
 randr_opened = None
 vidmode_opened = None
@@ -185,4 +189,38 @@ def print_curves(*crtcs, screen = 0):
     print(R_curve)
     print(G_curve)
     print(B_curve)
+
+
+
+def list_monitors():
+    process = Popen([LIBEXECDIR + "/blueshift_idcrtc"], stdout = PIPE)
+    lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
+    lines = [line.strip() for line in lines]
+    screens, screen, output = None, None, None
+    for line in lines:
+        if line.startswith('Screen count: '):
+            screens = [None] * int(line[len('Screen count: '):])
+        elif line.startswith('Screen: '):
+            screen_i = int(line[len('Screen: '):])
+            screen = {}
+            screens[screen_i] = screen
+        elif line.startswith('CRTC count: '):
+            screen['crtc'] = int(line[len('CRTC count: '):])
+        elif line.startswith('Output count: '):
+            screen['output'] = [None] * int(line[len('Output count: '):])
+        elif line.startswith('Output: '):
+            output_i = int(line[len('Output: '):])
+            output = {'name' : None, 'connected' : False, 'width' : None, 'height' : None, 'crtc' : None}
+            screen['output'][output_i] = output
+        elif line.startswith('Name: '):
+            output['name'] = line[len('Name: '):]
+        elif line.startswith('Connection: '):
+            output['connected'] = line[len('Connection: '):] == 'connected'
+        elif line.startswith('Size: '):
+            width, height = [int(x) for x in line[len('Size: '):].split(' ')]
+            output['width'] = width
+            output['height'] = height
+        elif line.startswith('CRTC: '):
+            output['crtc'] = int(line[len('CRTC: '):])
+    return screens
 

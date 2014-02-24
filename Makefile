@@ -7,9 +7,11 @@
 PREFIX ?= /usr
 BIN ?= /bin
 LIB ?= /lib
+LIBEXEC ?= /libexec
 DATA ?= /share
 BINDIR ?= $(PREFIX)$(BIN)
 LIBDIR ?= $(PREFIX)$(LIB)
+LIBEXECDIR ?= $(PREFIX)$(LIBEXEC)
 DATADIR ?= $(PREFIX)$(DATA)
 DOCDIR ?= $(DATADIR)/doc
 LICENSEDIR ?= $(DATADIR)/licenses
@@ -30,6 +32,7 @@ LIBS_vidmode = x11 xxf86vm
 LIBS = python3 $(foreach B,$(SERVER_BINDINGS),$(LIBS_$(B)))
 STD = c99
 FLAGS = $$($(PKGCONFIG) --cflags --libs $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC
+# TODO  only link to used libs for each binary
 
 DATAFILES = 2deg 10deg redshift redshift_old
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py
@@ -59,7 +62,8 @@ dvi: blueshift.dvi
 ps: blueshift.ps
 
 .PHONY: command
-command: $(foreach C,$(CBINDINGS),bin/$(C)) bin/blueshift
+command: $(foreach C,$(CBINDINGS),bin/$(C)) bin/blueshift_idcrtc bin/blueshift
+# TODO  make bin/blueshift_idcrtc optional
 
 .PHONY: shell
 shell: bash zsh fish
@@ -87,7 +91,12 @@ obj/%.py: src/%.py
 	cp $< $@
 	sed -i '/^DATADIR *= /s#^.*$$#DATADIR = '\''$(DATADIR)/$(PKGNAME)'\''#' $@
 	sed -i '/^LIBDIR *= /s#^.*$$#LIBDIR = '\''$(LIBDIR)'\''#' $@
+	sed -i '/^LIBEXECDIR *= /s#^.*$$#LIBEXECDIR = '\''$(LIBEXECDIR)'\''#' $@
 
+
+bin/blueshift_idcrtc: obj/blueshift_idcrtc.o
+	@mkdir -p bin
+	$(CC) $(FLAGS) -o $@ $^
 
 bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
@@ -155,6 +164,8 @@ install-command: $(foreach C,$(CBINDINGS),bin/$(C)) bin/blueshift $(foreach D,$(
 	install -m755 bin/blueshift -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
 	install -dm755 -- "$(DESTDIR)$(LIBDIR)"
 	install -m755 $(foreach C,$(CBINDINGS),bin/$(C)) -- "$(DESTDIR)$(LIBDIR)"
+	install -dm755 -- "$(DESTDIR)$(LIBEXECDIR)"
+	install -m755 bin/blueshift_idcrtc -- "$(DESTDIR)$(LIBEXECDIR)/blueshift_idcrtc"
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 	install -m644 -- $(foreach D,$(DATAFILES),res/$(D)) "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
 
@@ -214,6 +225,8 @@ install-fish: bin/blueshift.fish
 uninstall:
 	-rm -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
 	-rm -- $(foreach C,$(CBINDINGS),"$(DESTDIR)$(LIBDIR)/$(C)")
+	-rm -- "$(DESTDIR)$(LIBEXECDIR)/blueshift_idcrtc"
+	-rmdir -- "$(DESTDIR)$(LIBEXECDIR)"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
