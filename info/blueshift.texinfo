@@ -278,6 +278,20 @@ Disables or enables Blueshift.
 @node Configuration API
 @chapter Configuration API
 
+@menu
+* Configuration variables::             Configuration variables
+* Colour curve manipulators::           Configuration functions colour adjustments
+* Custom colour curve manipulators::    Creating custom colour adjustment functions
+* Preexisting adjustments::             Using preexisting adjustment, in use and ICC
+* Applying colour curves::              Appying colour adjustments to the video drivers
+* Continuous mode::                     Creating continuous mode configurations
+* Solar time::                          Solar functions, such as elevation calcuation
+@end menu
+
+
+@node Configuration variables
+@section Configuration variables
+
 Blueshift has three colour curves:
 
 @table @code
@@ -299,6 +313,18 @@ independently of the value of @code{clip_result}.
 When applied these values are automatically
 translated to appropriate integer values:
 [0, @code{o_size} - 1].
+
+Additionally if the variable @code{panicgate}
+is @code{True}, there is no fading when the program
+starts. And @code{conf_opts} is a list of command line
+arguments passed onto the configuration script; and
+@code{conf_storage} is a dictionary can be used to
+store information is required to survive a
+configuration reload, such as replaced functions.
+
+
+@node Colour curve manipulators
+@section Colour curve manipulators
 
 Blueshift provides a set of functions to
 manipulate these curves:
@@ -531,25 +557,6 @@ and @code{gy} for green, and @code{bx} and @code{by}
 for blue.
 @end table
 
-If you have an ICC profile for calibration (applied last)
-or want to use one for as a video filter (applied first),
-the function @code{load_icc} can be used to load an ICC
-profile file. @code{load_icc} takes one argument, the
-pathname of the ICC profile file; the function returns
-a fuction that can be invoked to apply the profile.
-
-If you want to apply your adjustments on top of the
-current colour adjustments, you can use the functions
-@code{randr_get} or @code{vidmode_get}. @code{randr_get}
-and @code{vidmode_get} have optional two parameters,
-@code{crtc} and @code{screen}, which are the CRTC of
-the monitor to read from, and the screen to which the
-monitor belongs, respectively. The functions return
-a parameterless function that applies adjustsments
-that were applied at the time of invokation of
-@code{randr_get} or @code{vidmode_get} to the current
-working curves.
-
 Keep in mind that the order your call the
 function matters. For example, adjusting
 the gamma before the brightness does not
@@ -561,6 +568,10 @@ Before performing adjusts you must (not required
 the very first time) reset the curves by invoking
 @code{start_over} (no parameters.) Otherwise the
 adjustments will accumulate.
+
+
+@node Custom colour curve manipulators
+@section Custom colour curve manipulators
 
 If you want to write your own functions
 @code{curves(r, g, b)} returns a tuple
@@ -598,6 +609,33 @@ Convert CIE xyY to [0, 1] sRGB
 All these functions return lists with
 the three colour components, not tuples.
 Input and output is one colour instance.
+
+
+@node Preexisting adjustments
+@section Preexisting adjustments
+
+If you have an ICC profile for calibration (applied last)
+or want to use one for as a video filter (applied first),
+the function @code{load_icc} can be used to load an ICC
+profile file. @code{load_icc} takes one argument, the
+pathname of the ICC profile file; the function returns
+a fuction that can be invoked to apply the profile.
+
+If you want to apply your adjustments on top of the
+current colour adjustments, you can use the functions
+@code{randr_get} or @code{vidmode_get}. @code{randr_get}
+and @code{vidmode_get} have optional two parameters,
+@code{crtc} and @code{screen}, which are the CRTC of
+the monitor to read from, and the screen to which the
+monitor belongs, respectively. The functions return
+a parameterless function that applies adjustsments
+that were applied at the time of invokation of
+@code{randr_get} or @code{vidmode_get} to the current
+working curves.
+
+
+@node Applying colour curves
+@section Applying colour curves
 
 To apply a colour curve to the display
 server, invoke the @code{randr} function, or
@@ -640,6 +678,10 @@ the desired monitors to the display server.
 This is only done if Blueshift runs in
 continuous mode.
 
+
+@node Continuous mode
+@section Continuous mode
+
 In continuous mode, there are some interesting
 variables you can adjust at any time:
 
@@ -679,14 +721,6 @@ the second time @kbd{Control+c} is pressed or
 the second time a SIGTERM signal has been received.
 (Or if both has happend.)
 @end table
-
-Additionally if the variable @code{panicgate}
-is @code{True}, there is no fading when the program
-starts. And @code{conf_opts} is a list of command line
-arguments passed onto the configuration script; and
-@code{conf_storage} is a dictionary can be used to
-store information is required to survive a
-configuration reload, such as replaced functions.
 
 The parameterless function @code{continuous_run},
 may replace if you want to do something very special,
@@ -774,10 +808,14 @@ seconds, minutes, hours, or even days, months or
 years, the delay between Blueshift's timestamp
 and yours could overlap an increase in the second.
 
+
+@node Solar time
+@section Solar time
+
 Blueshift includes a simple way to get the Sun's
 position. The function @code{sun(latitude, longitude)}
 returns the visibility of the Sun as an [0, 1] floating
-point. It has three optional parameters:
+point. It has three optional, additional, parameters:
 
 @table @code
 @item t = None
