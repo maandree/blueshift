@@ -461,7 +461,7 @@ def manipulate(r, g = None, b = None):
             curve[i] = f(curve[i])
 
 
-# TODO document this elsewhere, and make it possible to have non-round x_colours
+# TODO document this elsewhere
 def lower_resolution(x_colours = None, y_colours = None):
     '''
     Emulates low colour resolution
@@ -471,14 +471,14 @@ def lower_resolution(x_colours = None, y_colours = None):
     '''
     if x_colours is None:  x_colours = i_size
     if y_colours is None:  y_colours = o_size
-    x_r = i_size / x_colours
-    y_r = o_size / y_colours
-    for curve in (r_curve, g_curve, b_curve):
+    x_, y_, i_ = x_colours - 1, y_colours - 1, i_size - 1
+    for i_curve, o_curve in curves([0] * i_size, [0] * i_size, [0] * i_size):
         for i in range(i_size):
-            x = int(x_r * int(i / x_r))
-            y = curve[x] * 2 ** 16
-            y = int(y_r * int(y / y_r))
-            curve[i] = y / 2 ** 16
+            x = int(i * x_colours / i_size)
+            x = int(x * i_ / x_)
+            y = int(i_curve[x] * y_ + 0.5)
+            o_curve[i] = y / y_
+        i_curve[:] = o_curve
 
 
 def start_over():

@@ -600,6 +600,10 @@ arguments. The monitors are indexed from
 zero. The screen by can be selected by
 adding the argument @code{screen = X},
 where @code{X} is the index of the screen.
+@code{print_curves} has a third optional
+parameters: @code{compact}, if it is set
+to @code{True}, the curves will be printed
+with run-length encoding.
 
 If you want to write your own curve flushing
 fucntion @code{translate_to_integers} can be

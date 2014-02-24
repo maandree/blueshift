@@ -178,17 +178,33 @@ def vidmode(*crtcs, screen = 0):
         pass # Happens on exit by TERM signal
 
 
-def print_curves(*crtcs, screen = 0):
+def print_curves(*crtcs, screen = 0, compact = False):
     '''
     Prints the curves to stdout
     
-    @param  crtcs:*int  Dummy parameter
-    @param  screen:int  Dummy parameter
+    @param  crtcs:*int    Dummy parameter
+    @param  screen:int    Dummy parameter
+    @param  compact:bool  Whether to print in compact form
     '''
     (R_curve, G_curve, B_curve) = translate_to_integers()
-    print(R_curve)
-    print(G_curve)
-    print(B_curve)
+    if compact:
+        for curve in (R_curve, G_curve, B_curve):
+            print('[', end = '')
+            last = None
+            count = 0
+            for i in range(i_size):
+                if curve[i] == last:
+                    count += 1
+                else:
+                    if last is not None:
+                        print('%i {%i}, ' % (last, count), end = '')
+                    last = curve[i]
+                    count = 1
+            print('%i {%i}]' % (last, count))
+    else:
+        print(R_curve)
+        print(G_curve)
+        print(B_curve)
 
 
 
