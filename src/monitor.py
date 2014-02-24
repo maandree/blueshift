@@ -64,7 +64,7 @@ def close_c_bindings():
 
 def randr_get(crtc = 0, screen = 0):
     '''
-    Gets the current colour curves using the X11 extension randr
+    Gets the current colour curves using the X11 extension RandR
     
     @param   crtc:int    The CRTC of the monitor to read from
     @param   screen:int  The screen that the monitor belong to
@@ -94,7 +94,7 @@ def randr_get(crtc = 0, screen = 0):
 
 def vidmode_get(crtc = 0, screen = 0):
     '''
-    Gets the current colour curves using the X11 extension vidmode
+    Gets the current colour curves using the X11 extension VidMode
     
     @param   crtc:int    The CRTC of the monitor to read from
     @param   screen:int  The screen that the monitor belong to
@@ -124,7 +124,7 @@ def vidmode_get(crtc = 0, screen = 0):
 
 def randr(*crtcs, screen = 0):
     '''
-    Applies colour curves using the X11 extension randr
+    Applies colour curves using the X11 extension RandR
     
     @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
     @param  screen:int  The screen that the monitors belong to
@@ -152,7 +152,7 @@ def randr(*crtcs, screen = 0):
 
 def vidmode(*crtcs, screen = 0):
     '''
-    Applies colour curves using the X11 extension vidmode
+    Applies colour curves using the X11 extension VidMode
     
     @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
     @param  screen:int  The screen that the monitors belong to

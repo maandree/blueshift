@@ -24,12 +24,12 @@
 
 
 /**
- * The major version of RANDR the program expects
+ * The major version of RandR the program expects
  */
 #define RANDR_VERSION_MAJOR  1U
 
 /**
- * The minor version of RANDR the program expects
+ * The minor version of RandR the program expects
  */
 #define RANDR_VERSION_MINOR  3U
 
@@ -110,21 +110,21 @@ int blueshift_randr_open(int use_screen)
   connection = xcb_connect(NULL, &use_screen);
   
   
-  /* Check RANDR protocol version */
+  /* Check RandR protocol version */
   
   version_cookie = xcb_randr_query_version(connection, RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
   randr_version = xcb_randr_query_version_reply(connection, version_cookie, &error);
   
   if (error || (randr_version == NULL))
     {
-      fprintf(stderr, "RANDR version query returned %i", error ? error->error_code : -1);
+      fprintf(stderr, "RandR version query returned %i", error ? error->error_code : -1);
       xcb_disconnect(connection);
       return 1;
     }
   
   if (randr_version->major_version != RANDR_VERSION_MAJOR || randr_version->minor_version < RANDR_VERSION_MINOR)
     {
-      fprintf(stderr, "Unsupported RANDR version, got %u.%u, expected %u.%u\n",
+      fprintf(stderr, "Unsupported RandR version, got %u.%u, expected %u.%u\n",
 	      randr_version->major_version, randr_version->minor_version,
 	      RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
       free(randr_version);
@@ -146,7 +146,7 @@ int blueshift_randr_open(int use_screen)
   
   if (error)
     {
-      fprintf(stderr, "RANDR screen resource query returned %i\n", error->error_code);
+      fprintf(stderr, "RandR screen resource query returned %i\n", error->error_code);
       xcb_disconnect(connection);
       return 1;
     }
@@ -177,7 +177,7 @@ int blueshift_randr_open(int use_screen)
       
       if (error)
 	{
-	  fprintf(stderr, "RANDR CRTC gamma size query returned %i\n", error->error_code);
+	  fprintf(stderr, "RandR CRTC gamma size query returned %i\n", error->error_code);
 	  xcb_disconnect(connection);
 	  return 1;
 	}
@@ -193,7 +193,7 @@ int blueshift_randr_open(int use_screen)
       
       if (error)
 	{
-	  fprintf(stderr, "RANDR CRTC gamma query returned %i\n", error->error_code);
+	  fprintf(stderr, "RandR CRTC gamma query returned %i\n", error->error_code);
 	  xcb_disconnect(connection);
 	  return 1;
 	}
@@ -230,7 +230,7 @@ uint16_t* blueshift_randr_read(int use_crtc)
   
   if (error)
     {
-      fprintf(stderr, "RANDR CRTC gamma query returned %i\n", error->error_code);
+      fprintf(stderr, "RandR CRTC gamma query returned %i\n", error->error_code);
       xcb_disconnect(connection);
       return NULL;
     }
@@ -301,7 +301,7 @@ int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_cur
       
       if (error)
 	{
-	  fprintf(stderr, "RANDR CRTC control returned %i\n", error->error_code);
+	  fprintf(stderr, "RandR CRTC control returned %i\n", error->error_code);
 	  return 1;
 	}
       
