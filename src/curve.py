@@ -386,7 +386,13 @@ def cie_invert(r = True, g = None, b = None):
     
 def sigmoid(r, g, b):
     '''
-    Apply S-curve correction on the colour curves
+    Apply S-curve correction on the colour curves.
+    This is intended for fine tuning LCD monitors,
+    4.5 is good value start start testing at.
+    You would probably like to use rgb_limits before
+    this to adjust the black point as that is the
+    only why to adjust the black point on many LCD
+    monitors.
     
     @param  r:float?  The sigmoid parameter for the red curve
     @param  g:float?  The sigmoid parameter for the green curve
@@ -398,7 +404,7 @@ def sigmoid(r, g, b):
                 try:
                     curve[i] = 0.5 - math.log(1 / curve[i] - 1) / level
                 except:
-                    curve[i] = 0;
+                    curve[i] = curve[i];
 
 
 def rgb_limits(r_min, r_max, g_min = None, g_max = None, b_min = None, b_max = None):
