@@ -462,13 +462,15 @@ def manipulate(r, g = None, b = None):
 
 
 # TODO document this elsewhere, and make it possible to have non-round x_colours
-def lower_resolution(x_colours, y_colours):
+def lower_resolution(x_colours = None, y_colours = None):
     '''
     Emulates low colour resolution
     
-    @param  x_colours:int  The number of colours to emulate on the encoding axis
-    @param  y_colours:int  The number of colours to emulate on the output axis
+    @param  x_colours:int?  The number of colours to emulate on the encoding axis, `i_size` if `None`
+    @param  y_colours:int?  The number of colours to emulate on the output axis, `o_size` if `None`
     '''
+    if x_colours is None:  x_colours = i_size
+    if y_colours is None:  y_colours = o_size
     x_r = i_size / x_colours
     y_r = o_size / y_colours
     for curve in (r_curve, g_curve, b_curve):
