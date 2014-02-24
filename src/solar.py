@@ -18,6 +18,49 @@ import math
 import time
 
 
+
+SOLAR_ELEVATION_SUNSET_SUNRISE = 0.0
+'''
+:float  The Sun's elevation at sunset and sunrise, measured in degrees
+'''
+
+SOLAR_ELEVATION_CIVIL_DUSK_DAWN = -6.0
+'''
+:float  The Sun's elevation at civil dusk and civil dawn, measured in degrees
+'''
+
+SOLAR_ELEVATION_NAUTICAL_DUSK_DAWN = -12.0
+'''
+:float  The Sun's elevation at nautical dusk and nautical dawn, measured in degrees
+'''
+
+SOLAR_ELEVATION_ASTRONOMICAL_DUSK_DAWN = -18.0
+'''
+:float  The Sun's elevation at astronomical dusk and astronomical dawn, measured in degrees
+'''
+
+SOLAR_ELEVATION_RANGE_TWILIGHT = (-18.0, 0.0)
+'''
+:(float, float)  The Sun's lowest and highest elevation during all periods of twilight, measured in degrees
+'''
+
+SOLAR_ELEVATION_RANGE_CIVIL_TWILIGHT = (-6.0, 0.0)
+'''
+:(float, float)  The Sun's lowest and highest elevation during civil twilight, measured in degrees
+'''
+
+SOLAR_ELEVATION_RANGE_NAUTICAL_TWILIGHT = (-12.0, -6.0)
+'''
+:(float, float)  The Sun's lowest and highest elevation during nautical twilight, measured in degrees
+'''
+
+SOLAR_ELEVATION_RANGE_ASTRONOMICAL_TWILIGHT = (-18.0, -12.0)
+'''
+:(float, float)  The Sun's lowest and highest elevation during astronomical twilight, measured in degrees
+'''
+
+
+
 def sun(latitude, longitude, t = None, low = -6.0, high = 3.0):
     '''
     Get the visibility of the Sun
