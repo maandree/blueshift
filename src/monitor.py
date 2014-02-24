@@ -192,35 +192,221 @@ def print_curves(*crtcs, screen = 0):
 
 
 
-def list_monitors():
+class Screens:
+    '''
+    Information about all screens
+    '''
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.screens = None
+    
+    def find_by_crtc(self, index):
+        '''
+        Find output by CRTC index
+        
+        @param   index:int?     The CRTC index
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for screen in self.screens:
+            rc += screen.find_by_crtc(index)
+        return rc
+    
+    def find_by_name(self, name):
+        '''
+        Find output by name
+        
+        @param   name:str       The name of the output
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for screen in self.screens:
+            rc += screen.find_by_name(name)
+        return rc
+    
+    def find_by_size(self, widthmm, heigthmm):
+        '''
+        Find output by physical size
+        
+        @param   widthmm:int?   The physical width, measured in millimetres, of the monitor
+        @param   heightmm:int?  The physical height, measured in millimetres, of the monitor
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for screen in self.screens:
+            rc += screen.find_by_size(widthmm, heigthmm)
+        return rc
+    
+    def find_by_connected(self, status):
+        '''
+        Find output by connection status
+        
+        @param   status:bool    Whether the output should be connected or not
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for screen in self.screens:
+            rc += screen.find_by_connected(status)
+        return rc
+    
+    def __contains__(self, other):
+        return other in self.screens
+    def __getitem__(self, index):
+        return self.screens[index]
+    def __iter__(self):
+        return iter(self.screens)
+    def __len__(self):
+        return len(self.screens)
+    def __reversed__(self):
+        return reversed(self.screens)
+    def __setitem__(self, index, item):
+        self.screens[index] = item
+    def __repr__(self):
+        return repr(self.screens)
+
+class Screen:
+    '''
+    Screen information
+    
+    @variable  crtc_count:int       The number of CRTC:s
+    @variable  output:list<Output>  List of outputs
+    '''
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.crtc_count = 0
+        self.outputs = []
+    
+    def find_by_crtc(self, index):
+        '''
+        Find output by CRTC index
+        
+        @param   index:int?     The CRTC index
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for i in range(len(self.outputs)):
+            if self.outputs[i].crtc == index:
+                rc.append(self.outputs[i])
+        return rc
+    
+    def find_by_name(self, name):
+        '''
+        Find output by name
+        
+        @param   name:str       The name of the output
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for i in range(len(self.outputs)):
+            if self.outputs[i].name == name:
+                rc.append(self.outputs[i])
+        return rc
+    
+    def find_by_size(self, widthmm, heigthmm):
+        '''
+        Find output by physical size
+        
+        @param   widthmm:int?   The physical width, measured in millimetres, of the monitor
+        @param   heightmm:int?  The physical height, measured in millimetres, of the monitor
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for i in range(len(self.outputs)):
+            if self.outputs[i].widthmm == widthmm:
+                if self.outputs[i].heigthmm == heigthmm:
+                    rc.append(self.outputs[i])
+        return rc
+    
+    def find_by_connected(self, status):
+        '''
+        Find output by connection status
+        
+        @param   status:bool    Whether the output should be connected or not
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for i in range(len(self.outputs)):
+            if self.outputs[i].connected == status:
+                rc.append(self.outputs[i])
+        return rc
+    
+    def __repr__(self):
+        '''
+        Return a string representation of the instance
+        '''
+        return '[CRTC count: %i, Outputs: %s]' % (self.crtc_count, repr(self.outputs))
+
+class Output:
+    '''
+    Output information
+    
+    @variable  name:str        The name of the output
+    @variable  connected:bool  Whether the outout is known to be connected
+    @variable  widthmm:int?    The physical width of the monitor, measured in millimetres, `None` if unknown or not connected
+    @variable  heigthmm:int?   The physical height of the monitor, measured in millimetres, `None` if unknown or not connected
+    @variable  crtc:int?       The CRTC index, `None` if not connected
+    '''
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.name = None
+        self.connected = False
+        self.widthmm = None
+        self.heigthmm = None
+        self.crtc = None
+        self.screen = None
+    
+    def __repr__(self):
+        '''
+        Return a string representation of the instance
+        '''
+        rc = [self.name, self.connected, self.widthmm, self.heigthmm, self.crtc, self.screen]
+        rc = tuple([self.name] + list(map(lambda x : repr(x), rc[1:])))
+        rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s]' % rc
+        return rc
+
+def list_screens():
+    '''
+    Retrieve informantion about all screens, outputs and CRTC:s
+    
+    @return  :Screens  An instance of a datastructure with the relevant information
+    '''
     process = Popen([LIBEXECDIR + "/blueshift_idcrtc"], stdout = PIPE)
     lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
     lines = [line.strip() for line in lines]
-    screens, screen, output = None, None, None
+    screens, screen_i, screen, output = None, None, None, None
     for line in lines:
         if line.startswith('Screen count: '):
             screens = [None] * int(line[len('Screen count: '):])
         elif line.startswith('Screen: '):
             screen_i = int(line[len('Screen: '):])
-            screen = {}
+            screen = Screen()
             screens[screen_i] = screen
         elif line.startswith('CRTC count: '):
-            screen['crtc'] = int(line[len('CRTC count: '):])
+            screen.crtc_count = int(line[len('CRTC count: '):])
         elif line.startswith('Output count: '):
-            screen['output'] = [None] * int(line[len('Output count: '):])
+            screen.outputs = [None] * int(line[len('Output count: '):])
         elif line.startswith('Output: '):
             output_i = int(line[len('Output: '):])
-            output = {'name' : None, 'connected' : False, 'width' : None, 'height' : None, 'crtc' : None}
-            screen['output'][output_i] = output
+            output = Output()
+            output.screen = screen_i
+            screen.outputs[output_i] = output
         elif line.startswith('Name: '):
-            output['name'] = line[len('Name: '):]
+            output.name = line[len('Name: '):]
         elif line.startswith('Connection: '):
-            output['connected'] = line[len('Connection: '):] == 'connected'
+            output.connected = line[len('Connection: '):] == 'connected'
         elif line.startswith('Size: '):
-            width, height = [int(x) for x in line[len('Size: '):].split(' ')]
-            output['width'] = width
-            output['height'] = height
+            output.widthmm, output.heightmm = [int(x) for x in line[len('Size: '):].split(' ')]
+            if (output.widthmm <= 0) or (output.heightmm <= 0):
+                output.widthmm, output.heightmm = None, None
         elif line.startswith('CRTC: '):
-            output['crtc'] = int(line[len('CRTC: '):])
-    return screens
+            output.crtc = int(line[len('CRTC: '):])
+    rc = Screens()
+    rc.screens = screens
+    return rc
 
