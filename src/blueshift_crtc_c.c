@@ -48,7 +48,15 @@ static xcb_connection_t* connection;
 static xcb_generic_error_t* error;
 
 
-int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
+
+/**
+ * Main entry point of the program
+ * 
+ * @param   argc  Length of `argv`
+ * @param   argv  Command line arguments
+ * @return        Zero on success
+ */
+int main(int argc, char** argv)
 {
   xcb_randr_query_version_cookie_t version_cookie;
   xcb_randr_query_version_reply_t* randr_version;
@@ -57,6 +65,9 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
   int screen_count;
   xcb_screen_t* screens;
   int screen_i;
+  
+  (void) argc;
+  (void) argv;
   
   
   /* Get X connection */
@@ -121,6 +132,9 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
       printf("  CRTC count: %i\n", res_reply->num_crtcs);
       printf("  Output count: %i\n", res_reply->num_outputs);
       
+      
+      /* Get output information */
+      
       outputs = xcb_randr_get_screen_resources_current_outputs(res_reply);
       crtcs = xcb_randr_get_screen_resources_current_crtcs(res_reply);
       for (output_i = 0; output_i < res_reply->num_outputs; output_i++)
@@ -178,6 +192,9 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 		    return 1;
 		  }
 		
+		
+		/* Get output atoms */
+		
 		atoms = xcb_randr_list_output_properties_atoms(prop_reply);
 		atoms_end = atoms + xcb_randr_list_output_properties_atoms_length(prop_reply);
 		
@@ -208,6 +225,9 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 		    atom_name = alloca((atom_name_len + 1) * sizeof(char));
 		    memcpy(atom_name, atom_name_, atom_name_len * sizeof(char));
 		    *(atom_name + atom_name_len) = 0;
+		    
+		    
+		    /* Get output identifier */
 		    
 		    if (!strcmp(atom_name, "EDID"))
 		      {
@@ -240,7 +260,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 			memcpy(atom_data, atom_data_, length * sizeof(char));
 			*(atom_data + length) = 0;
 			
-			/* printf("    %s: %s\n", atom_name, atom_data); FIXME */
+			/* printf("    %s: %s\n", atom_name, atom_data); TODO */
 			
 			free(atom_reply);
 		      }
