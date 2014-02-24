@@ -811,7 +811,7 @@ Returns the current time in POSIX time.
 Returns the current time in Julian Day time.
 
 @item julian_centuries()
-Returns the current time in Julian Centuries time.
+Returns the current time in Julian Centuries time (100 Julian days since J2000.)
 
 @item radians(deg)
 Converts from degrees to radians.
@@ -819,17 +819,40 @@ Converts from degrees to radians.
 @item degrees(rad)
 Converts from radians to degrees.
 
-@c TODO : these could be documented (in the source code as well)
 @item sun_geometric_mean_longitude(t)
+Calculates the Sun's geometric mean longitude, in radians.
+
 @item sun_geometric_mean_anomaly(t)
+Calculates the Sun's geometric mean anomaly, in radians.
+
 @item earth_orbit_eccentricity(t)
+Calculates the Sun's the Earth's orbit eccentricity.
+
 @item sun_equation_of_centre(t)
+Calculates the Sun's equation of the centre, the difference
+between the true anomaly and the mean anomaly, in radians.
+
 @item sun_real_longitude(t)
+Calculates the Sun's real longitudinal position, in radians.
+
 @item sun_apparent_longitude(t)
+Calculates the Sun's apparent longitudinal position, in radians.
+
 @item mean_ecliptic_obliquity(t)
+Calculates the mean ecliptic obliquity, in radians,
+of the Sun's apparent motion without variation correction.
+
 @item corrected_mean_ecliptic_obliquity(t)
+Calculates the mean ecliptic obliquity, in radians,
+of the Sun's apparent motion with variation correction.
+
 @item solar_declination(t)
+Calculates the Sun's declination, in radians.
+
 @item equation_of_time(t)
+Calculates the equation of time, the discrepancy between
+apparent and mean solar time, in degrees.
+
 @item hour_angle_from_elevation(latitude, declination, elevation)
 Calculates the solar hour angle from the Sun's elevation.
 

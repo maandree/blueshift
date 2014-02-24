@@ -115,7 +115,7 @@ def julian_day():
 
 def julian_centuries():
     '''
-    Get current Julian Centuries time
+    Get current Julian Centuries time (100 Julian days since J2000)
     
     @return  :float  The current Julian Centuries time
     '''
@@ -140,15 +140,40 @@ def degrees(rad):
     return rad * 180 / math.pi
 
 def sun_geometric_mean_longitude(t):
+    '''
+    Calculates the Sun's geometric mean longitude
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The Sun's geometric mean longitude in radians
+    '''
     return radians((0.0003032 * t ** 2 + 36000.76983 * t + 280.46646) % 360)
 
 def sun_geometric_mean_anomaly(t):
+    '''
+    Calculates the Sun's geometric mean anomaly
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The Sun's geometric mean anomaly in radians
+    '''
     return radians(-0.0001537 * t ** 2 + 35999.05029 * t + 357.52911)
 
 def earth_orbit_eccentricity(t):
+    '''
+    Calculates the Sun's the Earth's orbit eccentricity
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The Earth's orbit eccentricity
+    '''
     return -0.0000001267 * t ** 2 - 0.000042037 * t + 0.016708634
 
 def sun_equation_of_centre(t):
+    '''
+    Calculates the Sun's equation of the centre, the difference between
+    the true anomaly and the mean anomaly
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The Sun's equation of the centre, in radians
+    '''
     a = sun_geometric_mean_anomaly(t)
     rc = math.sin(1 * a) * (-0.000014 * t ** 2 - 0.004817 * t + 1.914602)
     rc += math.sin(2 * a) * (-0.000101 * t + 0.019993)
@@ -156,32 +181,68 @@ def sun_equation_of_centre(t):
     return radians(rc)
 
 def sun_real_longitude(t):
+    '''
+    Calculates the Sun's real longitudinal position
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The longitude, in radians
+    '''
     rc = sun_geometric_mean_longitude(t)
     return rc + sun_equation_of_centre(t)
 
 def sun_apparent_longitude(t):
+    '''
+    Calculates the Sun's apparent longitudinal position
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The longitude, in radians
+    '''
     rc = degrees(sun_real_longitude(t)) - 0.00569
     rc -= 0.00478 * math.sin(radians(-1934.136 * t + 125.04))
     return radians(rc)
 
 def mean_ecliptic_obliquity(t):
+    '''
+    Calculates the mean ecliptic obliquity of the Sun's apparent motion without variation correction
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The uncorrected mean obliquity, in radians
+    '''
     rc = 0.001813 * t ** 3 - 0.00059 * t ** 2 - 46.815 * t + 21.448
     rc = 26 + rc / 60
     rc = 23 + rc / 60
     return radians(rc)
 
 def corrected_mean_ecliptic_obliquity(t):
+    '''
+    Calculates the mean ecliptic obliquity of the Sun's apparent motion with variation correction
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The mean obliquity, in radians
+    '''
     rc = -1934.136 * t + 125.04
     rc = 0.00256 * math.cos(radians(rc))
     rc += degrees(mean_ecliptic_obliquity(t))
     return radians(rc)
 
 def solar_declination(t):
+    '''
+    Calculates the Sun's declination
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The Sun's declination, in radians
+    '''
     rc = math.sin(corrected_mean_ecliptic_obliquity(t))
     rc *= math.sin(sun_apparent_longitude(t))
     return math.asin(rc)
 
 def equation_of_time(t):
+    '''
+    Calculates the equation of time, the discrepancy between apparent and mean solar time
+    
+    @param   t:float  The time in Julian Centuries
+    @return  :float   The equation of time, in degrees
+    '''
     l = sun_geometric_mean_longitude(t)
     e = earth_orbit_eccentricity(t)
     m = sun_geometric_mean_anomaly(t)
