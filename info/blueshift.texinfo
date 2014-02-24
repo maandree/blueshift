@@ -265,6 +265,22 @@ resets effects and exits.
 
 @kbd{Control+c} is treated as SIGTERM.
 
+@item SIGTSTP
+@itemx SIGCONT
+Blueshift does implement special handling
+of the termporary stop signal (SIGTSTP),
+or continue signal (SIGCONT). So if you send
+SIGTSTP to Blueshift it pause until you send
+SIGCONT.
+
+With usual TTY settings, the terminal sends
+SIGTSTP when @kbd{Control+z} is processed.
+Shells can send SIGCONT if you type either
+of @code{%}, @code{fg}, @code{%blueshift} or
+@code{fg blueshift}. @code{bg} or
+@code{bg blueshift} can be used to continue
+in the background instead of in the foreground.
+
 @item SIGUSR1
 Reloads the configuration script.
 
@@ -635,6 +651,51 @@ that were applied at the time of invokation of
 working curves.
 
 
+@node Applying colour curves
+@section Applying colour curves
+
+To apply a colour curve to the display
+server, invoke the @code{randr} function, or
+@code{vidmode}@footnote{@code{vidmode} has
+the same API as @code{randr}, but it only
+supports using the zeroth CRTC};
+@code{print_curves} can be used to print
+the curves to stdout instead (for debugging).
+These functions apply the curves to all
+monitors in the default screen (screen 0),
+put you can also use select monitors by
+specifying each monitor in as separate
+arguments. The monitors are indexed from
+zero. The screen by can be selected by
+adding the argument @code{screen = X},
+where @code{X} is the index of the screen.
+@code{print_curves} has a third optional
+parameters: @code{compact}, if it is set
+to @code{True}, the curves will be printed
+with run-length encoding.
+
+If you want to write your own curve flushing
+fucntion @code{translate_to_integers} can be
+used, it returned the colour curves converted
+from floating point lists to integer lists in
+a tuple of three (red, green and blue.) Replace
+the parameterless function @code{close_c_bindings}
+to make it free all used resource, this is
+invoked when Blueshift exits.
+
+When Blueshift exists, it invoked the
+parameterless function @code{reset} which
+you should replace. By default it resets
+the colour curves and flushes it to all
+monitors. To restrict which monitors it
+applies the changes to replace
+@code{monitor_controller} with a parameterless
+function that sends the colour curves to
+the desired monitors to the display server.
+This is only done if Blueshift runs in
+continuous mode.
+
+
 @node Hardware detection
 @section Hardware detection
 
@@ -681,51 +742,6 @@ The screen index. @code{none} if not
 used.
 
 @end table
-
-
-@node Applying colour curves
-@section Applying colour curves
-
-To apply a colour curve to the display
-server, invoke the @code{randr} function, or
-@code{vidmode}@footnote{@code{vidmode} has
-the same API as @code{randr}, but it only
-supports using the zeroth CRTC};
-@code{print_curves} can be used to print
-the curves to stdout instead (for debugging).
-These functions apply the curves to all
-monitors in the default screen (screen 0),
-put you can also use select monitors by
-specifying each monitor in as separate
-arguments. The monitors are indexed from
-zero. The screen by can be selected by
-adding the argument @code{screen = X},
-where @code{X} is the index of the screen.
-@code{print_curves} has a third optional
-parameters: @code{compact}, if it is set
-to @code{True}, the curves will be printed
-with run-length encoding.
-
-If you want to write your own curve flushing
-fucntion @code{translate_to_integers} can be
-used, it returned the colour curves converted
-from floating point lists to integer lists in
-a tuple of three (red, green and blue.) Replace
-the parameterless function @code{close_c_bindings}
-to make it free all used resource, this is
-invoked when Blueshift exits.
-
-When Blueshift exists, it invoked the
-parameterless function @code{reset} which
-you should replace. By default it resets
-the colour curves and flushes it to all
-monitors. To restrict which monitors it
-applies the changes to replace
-@code{monitor_controller} with a parameterless
-function that sends the colour curves to
-the desired monitors to the display server.
-This is only done if Blueshift runs in
-continuous mode.
 
 
 @node Continuous mode
