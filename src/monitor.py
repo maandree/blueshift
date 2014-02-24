@@ -365,6 +365,7 @@ class Output:
     @variable  widthmm:int?    The physical width of the monitor, measured in millimetres, `None` if unknown or not connected
     @variable  heigthmm:int?   The physical height of the monitor, measured in millimetres, `None` if unknown or not connected
     @variable  crtc:int?       The CRTC index, `None` if not connected
+    @variable  screen:int?     The screen index, `None` if none
     '''
     def __init__(self):
         '''

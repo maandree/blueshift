@@ -284,6 +284,7 @@ Disables or enables Blueshift.
 * Custom colour curve manipulators::    Creating custom colour adjustment functions
 * Preexisting adjustments::             Using preexisting adjustment, in use and ICC
 * Applying colour curves::              Appying colour adjustments to the video drivers
+* Hardware detection::                  Detecting connected monitors
 * Continuous mode::                     Creating continuous mode configurations
 * Solar time::                          Solar functions, such as elevation calcuation
 @end menu
@@ -632,6 +633,54 @@ a parameterless function that applies adjustsments
 that were applied at the time of invokation of
 @code{randr_get} or @code{vidmode_get} to the current
 working curves.
+
+
+@node Hardware detection
+@section Hardware detection
+
+To support multiple monitors in a dynamic way,
+the function @code{list_screens} can be used.
+@code{list_screens} is parameterless and returns
+the an instance of the class @code{Screens}.
+Instances of @code{Screens} have one varible:
+@code{screens}, a list of instances of the class
+@code{Screen}. The index of each screens is their
+index in @code{screens}.
+
+Instances of the class @code{Screen} have two
+varibles: @code{crtc_count}, the number of CRT
+controllers used within the screen, and
+@code{outputs}, a list of all output ports as
+instances of the class @code{Output}. Instances
+of @code{Output} have six variables:
+
+@table @code
+@item name
+The name of the output port.
+
+@item connected
+Whether the output is known to be connected
+to a monitor.
+
+@item widthmm
+The physical width of the monitor, measured
+in millimetres. @code{None} if unknown or if
+not connected.
+
+@item heightmm
+The physical height of the monitor, measured
+in millimetres. @code{None} if unknown or if
+not connected.
+
+@item crtc
+The CRT controller index. @code{none} if not
+connected.
+
+@item screen
+The screen index. @code{none} if not
+used.
+
+@end table
 
 
 @node Applying colour curves
