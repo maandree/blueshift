@@ -28,7 +28,7 @@ def linear_to_standard(*colour):
 
 def standard_to_linear(*colour):
     '''
-    Convert [0, 1] sRGB to linear [0, 1] RGB
+    Convert [0, 1] sRGB to [0, 1] linear RGB
     
     @param   colour:*float           The red component, the green component, and the blue component
     @return  :[float, float, float]  The red, green and blue components

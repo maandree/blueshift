@@ -586,7 +586,7 @@ of functions used to convert colour space:
 Convert [0, 1] linear RGB to [0, 1] sRGB
 
 @item standard_to_linear(r, g, b)
-Convert [0, 1] sRGB to linear [0, 1] RGB
+Convert [0, 1] sRGB to [0, 1] linear RGB
 
 @item ciexyy_to_ciexyz(x, y, Y)
 Convert CIE xyY to CIE XYZ
