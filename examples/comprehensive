@@ -10,7 +10,7 @@
 
 
 # Geographical coodinates.
-# (KTH computer laboratories in this example.)
+# (KTH building D computer laboratories in this example.)
 latitude, longitude = 59.3472, 18.0728
 
 # Custom dayness by time settings.
@@ -135,6 +135,16 @@ if not panicgate:
     calib_get = randr_get
     #calib_get = vidmode_get
     current_calibration = [calib_get]
+
+
+# These are fun curve manipulator settings that lowers the
+# colour resolution. `red_x_resolution` is the number of colours
+# colours there are one encoding axis of the red curve.
+# `red_y_resolution` is how many colours there are on the
+# output axis of the red curve.
+red_x_resolution, red_y_resolution = [i_size], [o_size]
+green_x_resolution, green_y_resolution = [i_size], [o_size]
+blue_x_resolution, blue_y_resolution = [i_size], [o_size]
 
 
 # Loads the current monitor calibrations.
@@ -264,6 +274,15 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         # Apply colour contrast using the sRGB colour space.
         # If we only used one parameter, it would be applied to all colour components.
         rgb_contrast(contrast_red_, contrast_green_, contrast_blue_)
+        
+        # Apply low colour resolution emulation.
+        rx = red_x_resolution[m % len(red_x_resolution)]
+        ry = red_y_resolution[m % len(red_y_resolution)]
+        gx = green_x_resolution[m % len(green_x_resolution)]
+        gy = green_y_resolution[m % len(green_y_resolution)]
+        bx = blue_x_resolution[m % len(blue_x_resolution)]
+        by = blue_y_resolution[m % len(blue_y_resolution)]
+        lower_resolution(rx, ry, gx, gy, bx, by)
         
         # Clip colour curves to fit [0, 1] to avoid errors by complex numbers.
         clip()

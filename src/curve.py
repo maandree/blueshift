@@ -461,18 +461,31 @@ def manipulate(r, g = None, b = None):
             curve[i] = f(curve[i])
 
 
-# TODO document this elsewhere
-def lower_resolution(x_colours = None, y_colours = None):
+def lower_resolution(rx_colours = None, ry_colours = None, gx_colours = None, gy_colours = None, bx_colours = None, by_colours = None):
     '''
     Emulates low colour resolution
     
-    @param  x_colours:int?  The number of colours to emulate on the encoding axis, `i_size` if `None`
-    @param  y_colours:int?  The number of colours to emulate on the output axis, `o_size` if `None`
+    @param  rx_colours:int?  The number of colours to emulate on the red encoding axis, `i_size` if `None`
+    @param  ry_colours:int?  The number of colours to emulate on the red output axis, `o_size` if `None`
+    @param  gx_colours:int?  The number of colours to emulate on the green encoding axis, `rx_colours` of `None`
+    @param  gy_colours:int?  The number of colours to emulate on the green output axis, `ry_colours` if `None`
+    @param  bx_colours:int?  The number of colours to emulate on the blue encoding axis, `rx_colours` if `None`
+    @param  by_colours:int?  The number of colours to emulate on the blue output axis, `rg_colours` if `None`
     '''
-    if x_colours is None:  x_colours = i_size
-    if y_colours is None:  y_colours = o_size
-    x_, y_, i_ = x_colours - 1, y_colours - 1, i_size - 1
-    for i_curve, o_curve in curves([0] * i_size, [0] * i_size, [0] * i_size):
+    if rx_colours is None:  rx_colours = i_size
+    if ry_colours is None:  ry_colours = o_size
+    if gx_colours is None:  gx_colours = rx_colours
+    if gy_colours is None:  gy_colours = ry_colours
+    if bx_colours is None:  bx_colours = rx_colours
+    if by_colours is None:  by_colours = ry_colours
+    r_colours = (rx_colours, ry_colours)
+    g_colours = (gx_colours, gy_colours)
+    b_colours = (bx_colours, by_colours)
+    for i_curve, (x_colours, y_colours) in curves(r_colours, g_colours, b_colours):
+        if (x_colours == i_size) and (y_colours == o_size):
+            continue
+        o_curve = [0] * i_size
+        x_, y_, i_ = x_colours - 1, y_colours - 1, i_size - 1
         for i in range(i_size):
             x = int(i * x_colours / i_size)
             x = int(x * i_ / x_)
