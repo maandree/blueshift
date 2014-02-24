@@ -12,9 +12,9 @@ to do so in X11.
 
 VidMode can only modify the primary monitor.
 
-Blueshift only support upto 64 monitors. If you have
-more please send be a photo of your awesome setup I
-will make sure to fix this.
+Blueshift only support up to 64 monitors. If you have
+more please send be a photo of your awesome setup and
+I will make sure to fix this.
 
 Blueshift requires adjustable gamma ramps. It is
 very rare that video drivers do not support this.
