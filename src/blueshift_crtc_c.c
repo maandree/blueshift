@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <alloca.h>
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -208,7 +209,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 		    memcpy(atom_name, atom_name_, atom_name_len * sizeof(char));
 		    *(atom_name + atom_name_len) = 0;
 		    
-		    /*if (!strcmp(atom_name, "EDID"))*/
+		    if (!strcmp(atom_name, "EDID"))
 		      {
 			xcb_randr_get_output_property_cookie_t atom_cookie;
 			xcb_randr_get_output_property_reply_t* atom_reply;
@@ -239,7 +240,7 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 			memcpy(atom_data, atom_data_, length * sizeof(char));
 			*(atom_data + length) = 0;
 			
-			printf("    %s: %s\n", atom_name, atom_data);
+			/* printf("    %s: %s\n", atom_name, atom_data); FIXME */
 			
 			free(atom_reply);
 		      }
