@@ -1,6 +1,7 @@
 High priority:
 	Document and add to examples: list_screens, Screens, Screen and Output
-	Do all transitions form current settings and include that in fade time calculation
+	Do all transitions form current settings and include that in fade time calculation,
+	  unless we have stored settings handled by the configuration script that are correct
 
 Medium priority:
 	Small examples
@@ -9,8 +10,6 @@ Medium priority:
 
 Low priority:
 	Fix errors caused by SIGUSR2
-	Set _ICC_PROFILE X atom
+	http://www.oyranos.org/wiki/index.php?title=ICC_Profiles_in_X_Specification_0.2
 	Add support for monitor hotplugging
-	http://www.argyllcms.com/doc/ucmm.html
-	http://www.oyranos.org/wiki/index.php?title=Oyranos/X11_Requirements
 
