@@ -304,15 +304,15 @@ def continuous_run():
 
 
 ## Read command line arguments
-parser =  ArgParser('Colour temputare controller',
-                    sys.argv[0] + ' [options] [-- configuration-options]',
-                    'Blueshift adjusts the colour temperature of your\n'
-                    'monitor according to brightness outside to reduce\n'
-                    'eye strain and make it easier to fall asleep when\n'
-                    'going to bed. IT can also be used to increase the\n'
-                    'colour temperature and make the monitor bluer,\n'
-                    'this helps you focus on your work.',
-                    None, True, ArgParser.standard_abbreviations())
+parser = ArgParser('Colour temputare controller',
+                   sys.argv[0] + ' [options] [-- configuration-options]',
+                   'Blueshift adjusts the colour temperature of your\n'
+                   'monitor according to brightness outside to reduce\n'
+                   'eye strain and make it easier to fall asleep when\n'
+                   'going to bed. IT can also be used to increase the\n'
+                   'colour temperature and make the monitor bluer,\n'
+                   'this helps you focus on your work.',
+                   None, True, ArgParser.standard_abbreviations())
 
 dn = '\nUse twice or daytime and nighttime respectively'
 parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
