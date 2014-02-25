@@ -7,7 +7,7 @@
 # function modifier. Neither does it support multiple screens,
 # this is normally not an issue because Xinerama is normally used
 # to put all monitors on the same screen; nor does it parse
-# ad-hoc settings
+# ad-hoc settings, or use monitor identifiation.
 
 
 # Geographical coodinates.
