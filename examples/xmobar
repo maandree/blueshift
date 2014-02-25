@@ -27,5 +27,5 @@ whitepoint = whitepoint[0] + whitepoint[1] + whitepoint[2]
 
 
 # Print information.
-print('<fc=#%s>%i</fc>K (%.1f° %.2f%%)' % (whitepoint, int(temperature_now), elevation, dayness))
+print('<fc=#%s>%i</fc>K %.1f° %.2f%%' % (whitepoint, int(temperature_now), elevation, dayness))
 
