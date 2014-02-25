@@ -1,0 +1,77 @@
+# -*- python -*-
+
+# This example uses option parsing and CRTC searching.
+# `Screens.find_by_crtc` and `Screen.find_by_crtc`, are
+# not used, those are not useful for anything. They can
+# be used for seaching the number of connected monitors,
+# but `Screen.crtc_count` is much more effective.
+
+
+# We want to use the ad-hoc mode options.
+uses_adhoc_opts = True
+
+# Parse gamma option from ad-hoc mode options.
+gamma_ = parser.opts['--gamma']
+if gamma_ is None:
+    gamma_ = [1, 1, 1]
+else:
+    if len(gamma_) > 1:
+        print('--gamma can only be used once')
+        sys.exit(1)
+    gamma_ = [float(x) for x in gamma_[0].split(':')]
+
+# Parse temperature option from ad-hoc mode options.
+temperature_ = parser.opts['--temperature']
+if temperature_ is None:
+    temperature_ = 5000
+else:
+    if len(temperature_) > 1:
+        print('--temperature can only be used once')
+        sys.exit(1)
+    temperature_ = float(temperature_[0])
+
+
+# Read configuration script options.
+parser = ArgParser('Colour temputare controller',
+                   '%s [-p] -c %s -- [options]' % (sys.argv[0], conf_opts[0]),
+                   'Example configuration script using option parsing\n'
+                   'and CRTC searching functions.',
+                   None, True, ArgParser.standard_abbreviations())
+
+parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
+parser.add_argumented(['-n', '--name'], 0, 'NAME', 'Select output by name')
+parser.add_argumented(['-s', '--size'], 0, 'WIDTH_MM:HEIGHT_MM', 'Select output by monitor size')
+
+parser.parse(conf_opts)
+parser.support_alternatives()
+
+if parser.opts['--help'] is not None:
+    parser.help()
+    sys.exit(0)
+
+
+# Find CRTC:s.
+screens = list_screens()
+outputs = []
+
+# Find CRTC:s by name.
+if parser.opts['--name'] is not None:
+    for name in parser.opts['--name']:
+        outputs += screens.find_by_name(name)
+
+# Find CRTC:s by monitor size.
+if parser.opts['--size'] is not None:
+    for size in parser.opts['--size']:
+        outputs += screens.find_by_size(*[int(x) for x in size.split(':')])
+
+
+# Adjust colour curves.
+for output in outputs:
+    # Perform adjustments.
+    start_over()
+    temperature(temperature_, lambda t : divide_by_maximum(cmf_10deg(t)))
+    gamma(*gamma_)
+    
+    # Apply adjustments.
+    randr(output.crtc, screen = output.screen)
+

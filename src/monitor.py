@@ -322,7 +322,7 @@ class Screen:
                 rc.append(self.outputs[i])
         return rc
     
-    def find_by_size(self, widthmm, heigthmm):
+    def find_by_size(self, widthmm, heightmm):
         '''
         Find output by physical size
         
@@ -333,7 +333,7 @@ class Screen:
         rc = []
         for i in range(len(self.outputs)):
             if self.outputs[i].widthmm == widthmm:
-                if self.outputs[i].heigthmm == heigthmm:
+                if self.outputs[i].heightmm == heightmm:
                     rc.append(self.outputs[i])
         return rc
     
