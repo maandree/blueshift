@@ -1,7 +1,7 @@
 # -*- python -*-
 
-# This example uses free function modifier and temporary curve
-# manipulation to make the colour curves logarithmic.
+# This example uses free function modifier and temporary
+# curve linearisation to make the colour curves logarithmic.
 
 
 import math
