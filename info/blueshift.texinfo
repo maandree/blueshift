@@ -160,7 +160,7 @@ installed version of the program
 
 Blueshift also supports a few options
 for ad-hoc settings. These are ignored
-(unlessed fetched by the configuration file)
+(unless fetched by the configuration file)
 if @option{-c} (@option{--configurations})
 is used.
 
