@@ -1,0 +1,24 @@
+# -*- python -*-
+
+# This example uses free function modifier and temporary curve
+# manipulation to make the colour curves logarithmic.
+
+
+import math
+
+# Use linear RGB.
+linearise()
+
+# Make the curves logarithmic. The function applies
+# to all colour curves, but you can change them
+# individually by specifing three functions: red,
+# green and blue.
+manipulate(lambda x : math.log(x + 1, 2))
+
+# Switch back to sRGB.
+standardise()
+
+# Apply settings, using vidmode.
+vidmode()
+#randr()
+
