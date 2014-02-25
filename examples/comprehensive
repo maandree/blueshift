@@ -3,11 +3,10 @@
 # This example is complete with exceptions for less normal colour
 # curve modifiers: nothing else than CIE 1964 10 degree CMF for
 # colour temperature, not use of temporarly linear RGB curves,
-# negative image, inverted image, sigmoid correction, or free
-# function modifier. Neither does it support multiple screens,
-# this is normally not an issue because Xinerama is normally used
-# to put all monitors on the same screen; nor does it parse
-# ad-hoc settings, or use monitor identifiation.
+# sigmoid correction, or free function modifier. Neither does it
+# support multiple screens, this is normally not an issue because
+# Xinerama is normally used to put all monitors on the same screen;
+# nor does it parse ad-hoc settings, or use monitor identifiation.
 
 
 # Geographical coodinates.
@@ -148,12 +147,32 @@ green_x_resolution, green_y_resolution = [i_size], [o_size]
 blue_x_resolution, blue_y_resolution = [i_size], [o_size]
 
 
+# Negative image settings. `None` means that negative image
+# is applied to none of the subpixels. `lambda : negative(True)`
+# and `negative(True, True, True)` applied negative image to
+# all subpixels by reversion the colour curves on the encoding
+# axes. For the three parameter functions, the first parameters
+# should be `True` to perform negative image on the red subpixel
+# and do nothing if `False`, and analogously for green on the
+# second parameter and blue on the third parameter. `rgb_invert`
+# inverts the curves on the output axes, and `cie_invert` does
+# the same thing except it calcuates the inversion in the CIE
+# xyY colour space.
+negative_image = [None]
+#negative_image = [lambda : negative(True)]
+#negative_image = [lambda : negative(True, True, True)]
+#negative_image = [lambda : rgb_invert(True)]
+#negative_image = [lambda : rgb_invert(True, True, True)]
+#negative_image = [lambda : cie_invert(True)]
+#negative_image = [lambda : cie_invert(True, True, True)]
+
+
 # Loads the current monitor calibrations.
 m = 0
 for i in range(len(current_calibration)):
     f = current_calibration[i]
     if f is not None:
-        if len(monitors) == 0:
+        if not len(monitors) == 0:
             m = monitors[i % len(monitors)]
         current_calibration[i] = f(m)
 
@@ -261,6 +280,11 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
                 for curve in (r_curve, g_curve, b_curve):
                     for i in range(i_size):
                         curve[i] = purify(curve[i], i / (i_size - 1))
+        
+        # Apply negative image.
+        f = negative_image[m % len(negative_image)]
+        if f is not None:
+            f()
         
         # Apply colour temperature using raw CIE 1964 10 degree CMF data with interpolation.
         temperature(temperature_, lambda t : divide_by_maximum(cmf_10deg(t)))
