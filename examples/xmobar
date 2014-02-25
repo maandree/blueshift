@@ -1,0 +1,31 @@
+# -*- python -*-
+
+# This example can be used in xmobar to display the
+# Sun's elevation and to what degree it is day time.
+
+
+# Geographical coodinates.
+# (KTH building D computer laboratories in this example.)
+latitude, longitude = 59.42430, 17.83521
+
+# The colour temperature at day and at night.
+temperature_day, temperature_night = 6500, 3700
+
+
+# The visibility of the Sun.
+dayness = sun(latitude, longitude)
+
+# The Sun's elevation.
+elevation = solar_elevation(latitude, longitude)
+
+
+# Calculation of the whitepoint with adjusted colour temperature.
+temperature_now = temperature_day * dayness + temperature_night * (1 - dayness)
+whitepoint = divide_by_maximum(cmf_10deg(temperature_now))
+whitepoint = [('0' + hex(int(c * 255 + 0.5))[2:].upper())[-2:] for c in whitepoint]
+whitepoint = whitepoint[0] + whitepoint[1] + whitepoint[2]
+
+
+# Print information.
+print('<fc=#%s>%.1f</fc>° (%.2f%%)' % (whitepoint, elevation, dayness))
+
