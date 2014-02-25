@@ -752,6 +752,40 @@ used.
 
 @end table
 
+@code{Screens} and @code{Screen} provide a set
+of functions for finding the output, and traversal
+the CRTC and screen, a monitor is connected to:
+
+@table @code
+@item find_by_crtc(index)
+Matches outputs by CRTC index. If @code{index}
+is @code{None}, it will find unused outputs.
+
+@item find_by_name(name)
+Matches outputs by output name.
+
+@item find_by_size(widthmm, heightmm)
+Matches outputs by physical size of the monitor.
+@code{widthmm} and @code{heightmm} are the
+monitor's physical width and heigth, respectively,
+measured in millimetres. IF @code{widthmm} and
+@code{heightmm} are @code{None} it will find
+unused outputs and outputs whether the monitor's
+size is unknown.
+
+@item find_by_connected(status)
+Matches outputs that are known to be in used
+(if @code{status} is @code{True}) or outputs
+that are either unused or not known whether
+they are used or not (if @code{status} is
+@code{False}.)
+
+@end table
+
+These functions returns a list of matching
+@code{Output}:s. The list is empty if non are
+found.
+
 
 @node Continuous mode
 @section Continuous mode
