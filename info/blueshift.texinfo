@@ -339,6 +339,15 @@ arguments passed onto the configuration script; and
 store information is required to survive a
 configuration reload, such as replaced functions.
 
+If you want to use the settings intended for ad-hoc
+mode, set @code{uses_adhoc_opts} to @code{True}. This
+lets you use @code{parser}, which is an instance of
+@code{ArgParser} (from the argparser library) which
+@code{parser} and @code{support_alternatives} already
+invoked, without a warning being printed. If you do
+not do this, @code{parser} will be @code{None} at the
+time @code{periodically} is first invoked by Blueshift.
+
 
 @node Colour curve manipulators
 @section Colour curve manipulators

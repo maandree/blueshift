@@ -31,7 +31,7 @@ PROGRAM_VERSION = '1.7'
 ## Set global variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
-global monitor_controller, running, continuous_run, panic, _globals_, conf_storage
+global monitor_controller, running, continuous_run, panic, _globals_, conf_storage, parser
 global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2
 
 
@@ -123,6 +123,11 @@ running = True
 panic = False
 '''
 :bool  `True` if the program has received two terminate signals
+'''
+
+uses_adhoc_opts = False
+'''
+:bool  `True` if the configuration screens parses the ad-hoc settings
 '''
 
 conf_opts = None
@@ -356,11 +361,6 @@ output = parser.opts['--output']
 if output is None:
     output = []
 
-if config_file is not None:
-    if any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, temperatures, output]):
-        print('--configurations can only be combined with --panicgate')
-        sys.exit(1)
-
 a = lambda opt : 0 if parser.opts[opt] is None else len(parser.opts[opt])
 for opt in ('--configurations', '--panicgate', '--reset', '--location'):
     if a(opt) > 1:
@@ -474,6 +474,11 @@ else:
         print('No configuration file found')
         sys.exit(1)
 
+    # Warn about ad-hoc settings
+    if not uses_adhoc_opts:
+        if any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, temperatures, output]):
+            print('%s: warning: --configurations can only be combined with --panicgate' % sys.argv[0])
+        parser = None
 
 ## Run periodically if configured to
 if periodically is not None:

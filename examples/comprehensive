@@ -6,7 +6,8 @@
 # negative image, inverted image, sigmoid correction, or free
 # function modifier. Neither does it support multiple screens,
 # this is normally not an issue because Xinerama is normally used
-# to put all monitors on the same screen.
+# to put all monitors on the same screen; nor does it parse
+# ad-hoc settings
 
 
 # Geographical coodinates.
@@ -160,6 +161,12 @@ for i in range(len(current_calibration)):
 monitor_controller = lambda : randr(*monitors)
 '''
 :()→void  Function used by Blueshift on exit to apply reset colour curves, if using preimplemented `reset`
+'''
+
+
+uses_adhoc_opts = False
+'''
+:bool  `True` if the configuration screens parses the ad-hoc settings
 '''
 
 
