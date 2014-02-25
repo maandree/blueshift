@@ -196,7 +196,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
                           of the time it is invoked and each time `fade` will increase towards
                           1, starting at 0, when the value is 1, the settings should be applied
                           to 100 %. After this this function will be invoked once again with
-                         `fade` being `None`. When Blueshift exits the same behaviour is used
+                          `fade` being `None`. When Blueshift exits the same behaviour is used
                           except, `fade` decrease towards -1 but start slightly below 0, when
                           -1 is reached all settings should be normal. Then Blueshift will NOT
                           invoke this function with `fade` being `None`, instead it will by
