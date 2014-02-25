@@ -363,6 +363,7 @@ temperatures = parser.opts['--temperature']
 output = parser.opts['--output']
 if output is None:
     output = []
+used_adhoc = any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, temperatures, output])
 
 ## Verify option correctness
 a = lambda opt : 0 if parser.opts[opt] is None else len(parser.opts[opt])
@@ -429,7 +430,7 @@ else:
     
     ## Warn about ad-hoc settings
     if not uses_adhoc_opts:
-        if any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, temperatures, output]):
+        if used_adhoc:
             print('%s: warning: --configurations can only be combined with --panicgate' % sys.argv[0])
         parser = None
 

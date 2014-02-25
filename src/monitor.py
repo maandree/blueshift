@@ -374,7 +374,7 @@ class Output:
         self.name = None
         self.connected = False
         self.widthmm = None
-        self.heigthmm = None
+        self.heightmm = None
         self.crtc = None
         self.screen = None
     
@@ -382,7 +382,7 @@ class Output:
         '''
         Return a string representation of the instance
         '''
-        rc = [self.name, self.connected, self.widthmm, self.heigthmm, self.crtc, self.screen]
+        rc = [self.name, self.connected, self.widthmm, self.heightmm, self.crtc, self.screen]
         rc = tuple([self.name] + list(map(lambda x : repr(x), rc[1:])))
         rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s]' % rc
         return rc

@@ -1,0 +1,34 @@
+# -*- python -*-
+
+# This example identifies which monitors you have plugged
+# in to the computer, and applied their proper calibration.
+
+
+# The colour temperature to apply.
+temp = 6500
+
+# List all connected outputs.
+outputs = list_screens().find_by_connected(True)
+
+# Configure each monitor.
+for output in outputs:
+    # Data that identifies the monitor.
+    monitor = (output.name, output.widthmm, output.heightmm)
+    
+    # Default gamma settings.
+    r_gamma, g_gamma, b_gamma = 1, 1, 1
+    
+    # Get the correct gamma settings for the monitor.
+    if   monitor == ('DVI-0', 364, 291):  r_gamma, g_gamma, b_gamma = 1.16, 1.15, 1.11
+    elif monitor == ('VGA-0', 364, 291):  r_gamma, g_gamma, b_gamma = 1.10, 1.16, 1.10
+    else:
+        print('Warning: unknown monitor at %s at size of %i mm by %i mm' % monitor)
+    
+    # Perform adjustments.
+    start_over()
+    temperature(temp, lambda t : divide_by_maximum(cmf_10deg(t)))
+    gamma(r_gamma, g_gamma, b_gamma)
+    
+    # Apply adjustments.
+    randr(output.crtc, screen = output.screen)
+
