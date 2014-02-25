@@ -375,100 +375,29 @@ for opt in ('--gamma', '--brightness', '++brightness', '--temperature'):
         print('%s can only be used up to two times' % opt)
         sys.exit(1)
 
+g, l = globals(), dict(locals())
+for key in l:
+    g[key] = l[key]
 settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures]
 if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
-    if len(parser.files) > 0:
-        print('%s: warning: configuration script arguments are not supported in ad-hoc mode' % sys.argv[0])
-    
-    ## Determine whether we should run in continuous mode
-    continuous = any(map(lambda a : (a is not None) and (len(a) == 2), settings))
-    continuous = continuous or (location is not None)
-    
-    ## Select default settings when not specified
-    d = lambda a, default : [default, default] if a is None else (a * 2 if len(a) == 1 else a)
-    gammas = d(gammas, "1:1:1")
-    rgb_brightnesses = d(rgb_brightnesses, "1")
-    cie_brightnesses = d(cie_brightnesses, "1")
-    if temperatures is None:
-        temperatures = ['3700', '6500']
-    elif len(temperatures) == 1:
-        temperatures *= 2
-    
-    ## Parse string arrays into floating point matrices
-    settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures, [location]]
-    s = lambda f, v : f(v) if v is not None else None
-    settings = [s(lambda c : [s(lambda x : [float(y) for y in x.split(':')], x) for x in c], c) for c in settings]
-    [gammas, rgb_brightnesses, cie_brightnesses, temperatures, location] = settings
-    location = None if location is None else location[0]
-    
-    ## Select method for calculating to what degree the adjustments should be applied
-    alpha = lambda : 1
-    if continuous:
-        if location is not None:
-            alpha = lambda : sun(*location)
-        else:
-            def alpha_():
-                now = datetime.datetime.now()
-                hh, mm = now.hour, now.minute + now.second / 60
-                if 12 <= hh <= 22:
-                    return 1 - (hh - 12) / (22 - 12) - mm / 60
-                if hh <= 12:
-                    hh += 22 - 12
-                return (hh - 22) / 14 + m / 60
-            alpha = alpha_
-    
-    ## Set monitor control
-    def reduce(f, items):
-        '''
-        https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-        '''
-        if len(items) < 2:
-            return items
-        rc = items[0]
-        for i in range(1, len(items)):
-            rc = f(rc, items[i])
-        return rc
-    output = reduce(lambda x, y : x + y, [a.split(',') for a in output])
-    monitor_controller = lambda : randr(*output)
-    
-    def apply(dayness, pureness):
-        '''
-        Apply adjustments
-        
-        @param  dayness:float   The visibility of the sun
-        @param  pureness:float  Transitioning progress, 1 for at clean state, 0 for at adjusted state
-        '''
-        start_over()
-        interpol_ = lambda d, p, a, r : d * r + (p[0] * a + p[1] * (1 - a)) * (1 - r)
-        interpol = lambda d, p : [interpol_(d, [p[0][i], p[1][i]], dayness, pureness) for i in range(len(p[0]))]
-        temperature(*interpol(6500, temperatures), algorithm = lambda t : divide_by_maximum(cmf_10deg(t)))
-        rgb_brightness(*interpol(1, rgb_brightnesses))
-        cie_brightness(*interpol(1, cie_brightnesses))
-        clip()
-        gamma(*interpol(1, gammas))
-        clip()
-        monitor_controller()
-    
-    if continuous and not doreset:
-        ## Continuous mode
-        def periodically(year, month, day, hour, minute, second, weekday, fade):
-            apply(alpha(), 0 if fade is None else 1 - abs(fade))
+    code, pathname = None, None
+    for p in sys.path:
+        p += '/adhoc.py'
+        if os.path.exists(p):
+            pathname = p
+            exit
+    if pathname is not None:
+        with open(pathname, 'rb') as script:
+            code = script.read()
     else:
-        ## One shot mode
-        if not panicgate:
-            signal.signal(signal.SIGTERM, signal_SIGTERM)
-            trans = 0
-            while running:
-                try:
-                    apply(alpha(), trans if doreset else 1 - trans)
-                    trans += 0.05
-                    time.sleep(0.1)
-                except KeyboardInterrupt:
-                    signal_SIGTERM(0, None)
-                if trans >= 1:
-                    break
-        apply(alpha(), 1 if doreset else 0)
+        import zipimport
+        importer = zipimport.zipimporter(sys.argv[0])
+        code = importer.get_data('adhoc.py')
+        pathname = sys.argv[0] + '/adhoc.py'
+    code = code.decode('utf-8', 'error') + '\n'
+    code = compile(code, pathname, 'exec')
+    exec(code, g)
 else:
     ## Load extension and configurations via blueshiftrc
     if config_file is None:
@@ -491,11 +420,8 @@ else:
         code = None
         with open(config_file, 'rb') as script:
             code = script.read()
-        code = code.decode('utf8', 'error') + '\n'
+        code = code.decode('utf-8', 'error') + '\n'
         code = compile(code, config_file, 'exec')
-        g, l = globals(), dict(locals())
-        for key in l:
-            g[key] = l[key]
         exec(code, g)
     else:
         print('No configuration file found')
