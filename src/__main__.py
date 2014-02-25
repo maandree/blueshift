@@ -304,7 +304,7 @@ def continuous_run():
 
 
 ## Read command line arguments
-parser = ArgParser('Colour temputare controller',
+parser = ArgParser('Colour temperature controller',
                    sys.argv[0] + ' [options] [-- configuration-options]',
                    'Blueshift adjusts the colour temperature of your\n'
                    'monitor according to brightness outside to reduce\n'
