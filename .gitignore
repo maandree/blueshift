@@ -5,6 +5,11 @@ obj/
 .*
 !.git*
 *~
+*.swp
+*.swo
+*.bak
+*.pyc
+*.pyo
 *.o
 *.so
 *.out
