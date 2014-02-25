@@ -1,10 +1,8 @@
 High priority:
-	Add to examples: list_screens, Screens, Screen and Output
 	Do all transitions form current settings and include that in fade time calculation,
 	  unless we have stored settings handled by the configuration script that are correct
 
 Medium priority:
-	Small examples
 	-r support in the comperhensive example
 	Finish support for EDID
 
