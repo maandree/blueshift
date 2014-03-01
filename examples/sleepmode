@@ -2,7 +2,7 @@
 
 # This example graciously fades out the screen on start and
 # in on exit. It is a nice alternative to turning off the
-# monitor, just press Control+C when you wake up.
+# monitor, just press Control+c when you wake up.
 
 
 # The (zero-based) index of the monitors (CRTC:s) to apply
@@ -26,6 +26,12 @@ monitors = []
 gamma_red, gamma_green, gamma_blue = [1], [1], [1]
 
 # The red, green and blue brightness, respectively.
+# If you zero out green and blue and leave only red, you
+# will be able to see what is on the as long as their is
+# a difference in the red channel, and it will not affect
+# your night vision. This is perfect if want to be able
+# able read something on the screen during night (perhaps
+# a clock) or directly when you wake up.
 redness, greenness, blueness = [0.25], [0], [0]
 
 
