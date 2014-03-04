@@ -377,7 +377,7 @@ def reset():
             randr(monitors[m % len(monitors)])
 
 
-if get_dayness is not None:
+if (get_dayness is not None) and not doreset:
     # Set transition time, 0 on high day and 5 seconds on high night.
     fadein_time = 5 * (1 - get_dayness())
     # Do 10 changes per second.
