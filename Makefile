@@ -311,5 +311,5 @@ uninstall:
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_randr.c src/blueshift_vidmode.c
+	-rm -r bin obj src/blueshift_randr.c src/blueshift_vidmode.c blueshift.{info,pdf,ps,dvi}
 
