@@ -1,0 +1,62 @@
+# -*- python -*-
+
+# This example demonstrates how the currents settings
+# can be read and transitioned from.
+
+
+uses_adhoc_opts = True
+'''
+:bool  `True` if the configuration script parses the ad-hoc settings
+'''
+
+
+# Get --temperature from Blueshift ad-hoc settigns
+temperature_to = int(parser.opts['--temperature'][0])
+
+
+# Get current colour curves
+randr_get(0)()
+r_, g_, b_ = r_curve[:], g_curve[:], b_curve[:]
+start_over()
+
+
+# Calculate divergence
+temperature(temperature_to, lambda t : divide_by_maximum(cmf_10deg(t)))
+f = lambda xy : abs(xy[0] - xy[1])
+divergence = max([max(map(f, zip(x, y))) for x, y in curves(r_, g_, b_)])
+
+
+# Get the end state colour curves
+r, g, b = r_curve[:], g_curve[:], b_curve[:]
+
+
+# Calculate transition time
+fadein_time = divergence * 5
+fadein_steps = fadein_time * 10
+
+# Function for setting the colour temperature
+def adjust(alpha):
+    f = lambda on : on[0] * (1 - alpha) + on[1] * alpha
+    ccc = curves((r_, r), (g_, g), (b_, b))
+    ccc = [(out, list(map(f, zip(old, new)))) for out, (old, new) in ccc]
+    for out, curve in ccc:
+        out[:] = curve
+    randr(0)
+
+# Perform transition
+if divergence and not panicgate:
+    signal.signal(signal.SIGTERM, signal_SIGTERM)
+    dtime = fadein_time / fadein_steps
+    df = 1 / fadein_steps
+    trans = 0
+    while running:
+        try:
+            trans += df
+            if trans > 1:
+                break
+            adjust(trans)
+            time.sleep(dtime)
+        except KeyboardInterrupt:
+            running = False
+adjust(1)
+

@@ -65,7 +65,7 @@ PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py
 CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 # Configuration script example files
 EXAMPLES = comprehensive sleepmode crtc-detection crtc-searching logarithmic \
-           xmobar xpybar stored-settings
+           xmobar xpybar stored-settings current-settings
 
 
 # Build rules
