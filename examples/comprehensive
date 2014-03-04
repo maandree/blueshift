@@ -6,7 +6,7 @@
 # sigmoid correction, or free function modifier. Neither does it
 # support multiple screens, this is normally not an issue because
 # Xinerama is normally used to put all monitors on the same screen;
-# nor does it parse ad-hoc settings or configuration options, or
+# nor does it parse options other than -r from ad-hoc settigns, or
 # use monitor identifiation.
 
 
@@ -132,8 +132,8 @@ icc_calibration_profile = [None]
 # -p (--panicgate) is used.
 current_calibration = [None]
 if not panicgate:
-    #calib_get = None
-    calib_get = randr_get
+    calib_get = None
+    #calib_get = randr_get
     #calib_get = vidmode_get
     current_calibration = [calib_get]
 
@@ -184,10 +184,14 @@ monitor_controller = lambda : randr(*monitors)
 '''
 
 
-uses_adhoc_opts = False
+uses_adhoc_opts = True
 '''
-:bool  `True` if the configuration screens parses the ad-hoc settings
+:bool  `True` if the configuration script parses the ad-hoc settings
 '''
+
+
+# Get --reset from Blueshift ad-hoc settigns
+doreset = parser.opts['--reset']
 
 
 last_dayness = None
@@ -400,13 +404,16 @@ else:
     if not panicgate:
         signal.signal(signal.SIGTERM, signal_SIGTERM)
         trans = 0
-        apply(trans)
+        apply((1 - trans) if doreset else trans)
         while running:
             time.sleep(0.1)
             if trans >= 1:
                 break
             trans += 0.05
-            apply(trans)
-    apply(None)
+            apply((1 - trans) if doreset else trans)
+    if not doreset:
+        apply(None)
+    else:
+        reset()
     periodically = None
 

@@ -130,7 +130,7 @@ panic = False
 
 uses_adhoc_opts = False
 '''
-:bool  `True` if the configuration screens parses the ad-hoc settings
+:bool  `True` if the configuration script parses the ad-hoc settings
 '''
 
 conf_opts = None
