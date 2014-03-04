@@ -1,21 +1,24 @@
 # Maintainer: Mattias Andrée <`base64 -d`(bWFhbmRyZWUK)@member.fsf.org>
 
 pkgname=blueshift
-pkgver=1.6
+pkgver=1.7
 pkgrel=1
 pkgdesc="An extensible and highly configurable alternative to redshift"
 arch=(i686 x86_64)
 url="https://github.com/maandree/blueshift"
 license=('AGPL3')
-depends=(python3 libxcb argparser)
-makedepends=(cython gcc python3 libxcb make coreutils sed zip texinfo auto-auto-complete)
+depends=(python3 argparser libxcb libxxf86vm libx11)
+makedepends=(cython gcc python3 libxcb libxxf86vm libx11 make coreutils sed zip texinfo auto-auto-complete)
 install=blueshift.install
 source=($url/archive/$pkgver.tar.gz)
-sha256sums=('5df863bbdbbf6d49546266c0f6686eb8bf4bf595a9049932d6c816a260788d8f')
+sha256sums=('d6930a0c4c980d3c9f2f6ba081edd4e59158d750090383eb463e6c3d78474def')
 
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
+  LDFLAGS=${LDFLAGS/--as-needed/}
+  LDFLAGS=${LDFLAGS/,,/,}
+  export LDFLAGS
   make PREFIX=/usr LIBEXEC=/lib/blueshift
 }
 
