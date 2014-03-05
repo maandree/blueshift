@@ -12,20 +12,49 @@ latitude, longitude = 59.3472, 18.0728
 temperature_day, temperature_night = 6500, 3700
 
 
+# Get current time.
+now   = epoch()
+now_m = now - 1
+now_p = now + 1
+now_d = now_p - now_m
+now   = epoch_to_julian_centuries(now)
+now_m = epoch_to_julian_centuries(now_m)
+now_p = epoch_to_julian_centuries(now_p)
+
 # The visibility of the Sun.
-dayness = sun(latitude, longitude)
+dayness   = sun(latitude, longitude, now)
+dayness_m = sun(latitude, longitude, now_m)
+dayness_p = sun(latitude, longitude, now_p)
+dayness_d = (dayness_p - dayness_m) / now_d
 
 # The Sun's elevation.
-elevation = solar_elevation(latitude, longitude)
+elevation   = solar_elevation(latitude, longitude, now)
+elevation_m = solar_elevation(latitude, longitude, now_m)
+elevation_p = solar_elevation(latitude, longitude, now_p)
+elevation_d = (elevation_p - elevation_m) / now_d
 
+# Calculation of the colour temperature.
+temperature   = temperature_day * dayness   + temperature_night * (1 - dayness)
+temperature_m = temperature_day * dayness_m + temperature_night * (1 - dayness_m)
+temperature_p = temperature_day * dayness_p + temperature_night * (1 - dayness_p)
+temperature_d = (temperature_p - temperature_m) / now_d
 
-# Calculation of the whitepoint with adjusted colour temperature.
+# Calculate the whitepoint with adjusted colour temperature.
 temperature_now = temperature_day * dayness + temperature_night * (1 - dayness)
-whitepoint = divide_by_maximum(cmf_10deg(temperature_now))
+whitepoint = divide_by_maximum(cmf_10deg(temperature))
 whitepoint = [str(int(c * 255 + 0.5)) for c in whitepoint]
 whitepoint = ';'.join(whitepoint)
 
+# Convert derivative to per minutes from per seconds.
+temperature_d *= 60
+elevation_d *= 60
+dayness_d *= 60
+
 
 # Print information.
-print('\033[38;2;%sm%i\033[0mK %.1f° %.0f%%' % (whitepoint, int(temperature_now), elevation, int(dayness * 100)))
+dayness *= 100
+dayness_d *= 100
+output = '\033[38;2;%sm%0.f\033[0mK %.1fK/min %.1f° %.2f°/min %.0f%% %.1f%%/min'
+output %= (whitepoint, temperature, temperature_d, elevation, elevation_d, dayness, dayness_d)
+print(output)
 
