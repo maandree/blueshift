@@ -202,7 +202,7 @@ def sun_geometric_mean_anomaly(t):
 
 def earth_orbit_eccentricity(t):
     '''
-    Calculates the Sun's the Earth's orbit eccentricity
+    Calculates the Earth's orbit eccentricity
     
     @param   t:float  The time in Julian Centuries
     @return  :float   The Earth's orbit eccentricity

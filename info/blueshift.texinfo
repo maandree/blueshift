@@ -1002,7 +1002,7 @@ Calculates the Sun's geometric mean longitude, in radians.
 Calculates the Sun's geometric mean anomaly, in radians.
 
 @item earth_orbit_eccentricity(t)
-Calculates the Sun's the Earth's orbit eccentricity.
+Calculates the Earth's orbit eccentricity.
 
 @item sun_equation_of_centre(t)
 Calculates the Sun's equation of the centre, the difference
