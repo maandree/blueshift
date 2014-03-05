@@ -645,7 +645,8 @@ Input and output is one colour instance.
 If you want to calculated the distance (difference)
 between two colours, you can use @code{delta_e}. It
 has two parameters, each is red–green–blue-tuple of
-an sRGB colour.
+an sRGB colour. The just notice difference is circa
+2,3.
 
 
 @node Preexisting adjustments
