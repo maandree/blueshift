@@ -72,7 +72,7 @@ def matrix_mul_vector(matrix, vector):
     @param   vector:list<int>        The vector
     @return  :list<int>              The resulting vector
     '''
-    return [[r * v for r, v in zip(row, vector)] for row in matrix]
+    return [sum([r * v for r, v in zip(row, vector)]) for row in matrix]
 
 
 ciexyz_to_linear_matrix = [[ 3.240450, -1.537140, -0.4985320],
@@ -151,9 +151,9 @@ def ciexyz_to_cielab(x, y, z):
     x /= 0.95047
     z /= 1.08883
     f = lambda c : c ** 1 / 3 if c > 0.00885642 else (7.78 + 703 / 99900) * c + 0.1379310
-    l = 116 * f(Y) - 16
-    a = 500 * (f(X) - f(Y))
-    b = 200 * (f(Y) - f(Z))
+    l = 116 * f(y) - 16
+    a = 500 * (f(x) - f(y))
+    b = 200 * (f(y) - f(z))
     return (l, a, b)
 
 
@@ -172,7 +172,7 @@ def cielab_to_xiexyz(l, a, b):
     f = lambda c : c ** 3 if c ** 3 > 0.00885642 else (c - 0.1379310) / (7.78 + 703 / 99900)    
     (x, y, z) = [f(c) for c in (x, y, z)]
     x *= 0.95047
-    y *= 1.08883
+    z *= 1.08883
     return (x, y, z)
 
 
