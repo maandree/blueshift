@@ -630,11 +630,22 @@ Convert [0, 1] sRGB to CIE xyY
 
 @item ciexyy_to_srgb(x, y, Y)
 Convert CIE xyY to [0, 1] sRGB
+
+@item ciexyz_to_cielab(x, y, z)
+Convert CIE XYZ to CIE L*a*b*
+
+@item cielab_to_xiexyz(l, a, b)
+Convert CIE L*a*b* to CIE XYZ
 @end table
 
 All these functions return lists with
 the three colour components, not tuples.
 Input and output is one colour instance.
+
+If you want to calculated the distance (difference)
+between two colours, you can use @code{delta_e}. It
+has two parameters, each is red–green–blue-tuple of
+an sRGB colour.
 
 
 @node Preexisting adjustments
