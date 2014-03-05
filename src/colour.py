@@ -64,6 +64,21 @@ def ciexyz_to_ciexyy(X, Y, Z):
     return [x, y, Y]
 
 
+def matrix_mul_vector(matrix, vector):
+    '''
+    Multiplies a matrix with a vector
+    
+    @param   matrix:list<list<int>>  The matrix
+    @param   vector:list<int>        The vector
+    @return  :list<int>              The resulting vector
+    '''
+    return [[r * v for r, v in zip(row, vector)] for row in matrix]
+
+
+ciexyz_to_linear_matrix = [[ 3.240450, -1.537140, -0.4985320],
+                           [-0.969266,  1.876010,  0.0415561],
+                           [0.0556434, -0.204026,  1.0572300]]
+
 def ciexyz_to_linear(X, Y, Z):
     '''
     Convert CIE XYZ to [0, 1] linear RGB
@@ -73,11 +88,12 @@ def ciexyz_to_linear(X, Y, Z):
     @param   Z:float                 The Z parameter
     @return  :[float, float, float]  The red, green and blue components
     '''
-    r =  3.24156 * X - 1.53767 * Y - 0.49870 * Z
-    g = -0.96920 * X + 1.87589 * Y + 0.04155 * Z
-    b =  0.05562 * X - 0.20396 * Y + 1.05686 * Z
-    return [r, g, b]
+    return matrix_mul_vector(ciexyz_to_linear_matrix, [X, Y, Z])
 
+
+linear_to_ciexyz_matrix = [[0.4124564, 0.3575761, 0.1804375],
+                           [0.2126729, 0.7151522, 0.0721750],
+                           [0.0193339, 0.1191920, 0.9503041]]
 
 def linear_to_ciexyz(r, g, b):
     '''
@@ -88,10 +104,7 @@ def linear_to_ciexyz(r, g, b):
     @param   b:float                 The blue component
     @return  :[float, float, float]  The X, Y and Z parameters
     '''
-    X = 0.4123160 * r + 0.3576020 * g + 0.1805010 * b
-    Y = 0.2126000 * r + 0.7151990 * g + 0.0722016 * b
-    Z = 0.0193297 * r + 0.1192040 * g + 0.9506340 * b
-    return [X, Y, Z]
+    return matrix_mul_vector(linear_to_ciexyz_matrix, [r, g, b])
 
 
 def srgb_to_ciexyy(r, g, b):
@@ -124,4 +137,58 @@ def ciexyy_to_srgb(x, y, Y):
     rc = ciexyz_to_linear(*rc)
     rc = linear_to_standard(*rc)
     return rc
+
+
+def ciexyz_to_cielab(x, y, z):
+    '''
+    Convert from CIE XYZ to CIE L*a*b*
+    
+    @param   x:float                 The X parameter
+    @param   y:float                 The Y parameter
+    @param   z:float                 The Z parameter
+    @return  :[float, float, float]  The L*, a* and b* components
+    '''
+    x /= 0.95047
+    z /= 1.08883
+    f = lambda c : c ** 1 / 3 if c > 0.00885642 else (7.78 + 703 / 99900) * c + 0.1379310
+    l = 116 * f(Y) - 16
+    a = 500 * (f(X) - f(Y))
+    b = 200 * (f(Y) - f(Z))
+    return (l, a, b)
+
+
+def cielab_to_xiexyz(l, a, b):
+    '''
+    Convert from CIE L*a*b* to CIE XYZ
+    
+    @param   l:float                 The L* parameter
+    @param   a:float                 The a* parameter
+    @param   b:float                 The b* parameter
+    @return  :[float, float, float]  The X, Y and Z components
+    '''
+    y = (l + 16) / 116
+    x = a / 500 + y
+    z = y - b / 200
+    f = lambda c : c ** 3 if c ** 3 > 0.00885642 else (c - 0.1379310) / (7.78 + 703 / 99900)    
+    (x, y, z) = [f(c) for c in (x, y, z)]
+    x *= 0.95047
+    y *= 1.08883
+    return (x, y, z)
+
+
+def delta_e(a, b):
+    '''
+    Convert the distance (∆E*_ab) between two [0, 1] sRGB colours
+    
+    @param   a:(float, float, float)  The first colour
+    @param   b:(float, float, float)  The second colour
+    @return  :float                   The difference
+    '''
+    a = standard_to_linear(*a)
+    b = standard_to_linear(*b)
+    a = linear_to_ciexyz(*a)
+    b = linear_to_ciexyz(*b)
+    a = ciexyz_to_cielab(*a)
+    b = ciexyz_to_cielab(*b)
+    return sum([(c1 - c2) ** 2 for c1, c2 in zip(a, b)]) ** 0.5
 
