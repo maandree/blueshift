@@ -1,5 +1,6 @@
 Medium priority:
 	Finish support for EDID
+	Document related software
 
 Low priority:
 	Fix errors caused by SIGUSR2
