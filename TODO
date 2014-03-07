@@ -1,6 +1,7 @@
 Medium priority:
 	Finish support for EDID
 	Document related software
+	Add example that parses text-based conf file
 
 Low priority:
 	Fix errors caused by SIGUSR2
