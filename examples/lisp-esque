@@ -12,6 +12,7 @@
 
 # Get the name of .conf file
 conf = '%s.conf' % (config_file[:-2] if config_file.endswith('rc') else config_file)
+# TODO it should be possible to change file
 
 
 # Read .conf file
