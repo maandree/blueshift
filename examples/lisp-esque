@@ -1,0 +1,113 @@
+# -*- python -*-
+
+# This example reads an lisp-esque syntax configuration
+# file to make it easier for non-programmers to use
+# Blueshift. It will read a file with the same pathname
+# just with ‘.conf’ appended (‘lisp-esque.conf’ in this
+# case.) However, if the filename of this file ends with
+# with ‘rc’, that part will be removed, for example, if
+# you rename this script to ‘~/.blueshiftrc’ it will read
+# ‘~/.blueshift.conf’ rather than ‘~/.blueshiftrc.conf’.
+
+
+# Get the name of .conf file
+conf = '%s.conf' % (config_file[:-2] if config_file.endswith('rc') else config_file)
+
+
+# Read .conf file
+with open(conf, 'r') as file:
+    conf = file.read()
+
+
+def abort(text, returncode = 1):
+    '''
+    Abort the program
+    
+    @param   text:str        Error message
+    @return  returncode:int  The programs return code
+    '''
+    printerr('\033[01;31m%s\033[00m' % text)
+    sys.exit(returncode)
+
+
+def parse(code):
+    '''
+    Parse the .conf file and return it as a tree
+    
+    @param   data:str      The .conf file content to parse
+    @return  :list<↑|str>  The root node in the tree
+    '''
+    stack, stackptr = [], -1
+    comment, escape, quote, buf = False, False, None, None
+    col, char, line = 0, 0, 1
+    
+    for c in range(data):
+        if comment:
+            if c in '\n\r\f':
+                comment = False
+        elif escape:
+            escape = False
+            if   c == 'a':  buf += '\a'
+            elif c == 'b':  buf += chr(8)
+            elif c == 'e':  buf += '\033'
+            elif c == 'f':  buf += '\f'
+            elif c == 'n':  buf += '\n'
+            elif c == 'r':  buf += '\r'
+            elif c == 't':  buf += '\t'
+            elif c == 'v':  buf += chr(11)
+            elif c == '0':  buf += '\0'
+            else:
+                buf += c
+        elif c == quote:
+            quote = None
+        elif (c in ';#') and (quote is None):
+            if buf is not None:
+                stack[stackptr].append(buf)
+                buf = None
+            comment = True
+        elif (c == '(') and (quote is None):
+            if buf is not None:
+                stack[stackptr].append(buf)
+                buf = None
+            stackptr += 1
+            if stackptr == len(stack):
+                stack.append([])
+            else:
+                stack[stackptr] = []
+        elif (c == ')') and (quote is None):
+            if buf is not None:
+                stack[stackptr].append(buf)
+                buf = None
+            if stackptr == 0:
+                return stack[0]
+            stackptr -= 1
+            stack[stackptr].append(stack[stackptr + 1])
+        elif (c in ' \t\n\r\f') and (quote is None):
+            if buf is not None:
+                stack[stackptr].append(buf)
+                buf = None
+        else:
+            if buf is None:
+                buf = ''
+            if c == '\\':
+                escape = True
+            elif (c in '\'\"') and (quote is None):
+                quote = c
+            else:
+                buf += c
+        
+        if c == '\t':
+            col |= 7
+        col += 1
+        char += 1
+        if c in '\n\r\f':
+            line += 1
+            col = 0
+            char = 0
+    
+    abort('premature end of file')
+
+
+# Parse .conf file
+conf = parse(conf)
+
