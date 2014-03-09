@@ -125,7 +125,212 @@ def parse(code):
     abort('premature end of file')
 
 
-# Parse .conf file
+# Parse .conf file in tree
 conf = parse(conf)
-print(conf)
+
+
+# Parse .conf file tree
+if isinstance(conf[0], str) and not conf[0].startswith(':'):
+    conf = conf[1:]
+
+## For the following functions, the type of args is the type of args
+## after it has been evaluated, they may be functions inside that
+## break this until the functions have been evaluated. The type for
+## args before evaluation is always list<↑|str>.
+
+def _monitors(mods, args):
+    '''
+    Select monitors to use by index
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  Indices of outputs, <screen>: or <screen>:<output> or 'nil', empty for all
+    '''
+    pass
+
+def _crtc(mods, args):
+    '''
+    Find monitors by name
+    
+    @param   mods:[]|[str]   Optionally the number of monitors to list
+    @param   args:list<str>  Names of outputs
+    @return  :list<str>      <screen>:<output> encoding of found monitors
+    '''
+    pass
+
+def _size(mods, args):
+    '''
+    Find monitors by physical size
+    
+    @param   mods:[]|[str]                     Optionally the number of monitors to list
+    @param   args:[str, str]|list<[str, str]>  Width–height-pairs, in millimetres
+    @return  :list<str>                        <screen>:<output> encoding of found monitors
+    '''
+    pass
+
+def _coordinates(mods, args):
+    '''
+    Specify geographical location by coordinates
+    
+    @param  mods:[]|[str]    Continuously updates if 'cont' is included
+    @param  args:[str, str]  The latitude and longitude (northwards and eastwards in degrees)
+    '''
+    pass
+
+def _parse(mods, args):
+    '''
+    Parse a string into a tree
+    
+    @param   mods:[]       Not used
+    @param   args:[str]    The string
+    @return  :list<↑|str>  The tree
+    '''
+    pass
+
+def _read(mods, args):
+    '''
+    Read an external file
+    
+    @param   mods:[]     Not used
+    @param   args:[str]  The file
+    @return  :[str]      The content of the file
+    '''
+    pass
+
+def _spawn(mods, args):
+    '''
+    Run an external command
+    
+    @param   mods:[]         Not used
+    @param   args:list<str>  The command
+    @return  :[str]          The output of the command
+    '''
+    pass
+
+def _include(mods, args):
+    '''
+    Include external files
+    
+    @param   mods:[]         Not used
+    @param   args:list<str>  The files
+    @return  :list<↑|str>    The content of the file as a tree concatenated
+    '''
+    pass
+
+def _source(mods, args):
+    '''
+    Load external Python files
+    
+    @param   mods:[]         Not used
+    @param   args:list<str>  The files
+    '''
+    pass
+
+def _eval(mods, args):
+    '''
+    Evaluate strings of Python code
+    
+    @param   mods:[]           Not used
+    @param   args:list<↑|str>  The strings
+    @return  :list<↑|str>      The evaluated valus
+    '''
+    pass
+
+def _timepoints(mods, args):
+    '''
+    Select time points when different settings are applied,
+    continuous transition betweem them will be used. This are
+    not used by default, be can be enabled in the next section.
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  The time points in 24-hour colour formated as
+                            H, H:M or H:M:S, leading zeroes are allowed
+    '''
+    pass
+
+def _points(mods, args):
+    '''
+    Select method for calculating the time the different settings are (fully) applied
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  Either 'solar' optionally followed by solar
+                            elevation in degrees, 'time' or 'constant'
+    '''
+    pass
+
+def _dayness(mods, args):
+    '''
+    Configure so that adjustments only need day and night settings, time
+    settings application points are reduced to different degrees of these
+    settings
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  Mapping from points (implied by index) to dayness degrees
+    '''
+    pass
+
+def _method(mods, args):
+    '''
+    Select colour curve applying method
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  The methods to use: 'randr', 'vidmode', 'print'
+    '''
+    pass
+
+def _transfrom(mods, args):
+    '''
+    Let Blueshift transition from the currently applied settings when it starts
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  Method for (optionally) each monitor: 'randr', 'vidmode' or 'nil'
+    '''
+    pass
+
+def _negative(mods, args):
+    pass
+
+def _invert(mods, args):
+    pass
+
+def _temperature(mods, args):
+    pass
+
+def _compose(mods, args):
+    pass
+
+def _current(mods, args):
+    pass
+
+def _brightness(mods, args):
+    pass
+
+def _contrast(mods, args):
+    pass
+
+def _resolution(mods, args):
+    pass
+
+def _gamma(mods, args):
+    pass
+
+def _pgamma(mods, args):
+    pass
+
+def _clip(mods, args):
+    pass
+
+def _sigmoid(mods, args):
+    pass
+
+def _limits(mods, args):
+    pass
+
+def _linearise(mods, args):
+    pass
+
+def _manipulate(mods, args):
+    pass
+
+def _standardise(mods, args):
+    pass
 
