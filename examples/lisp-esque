@@ -51,14 +51,14 @@ def parse(code):
     '''
     Parse the .conf file and return it as a tree
     
-    @param   data:str      The .conf file content to parse
+    @param   code:str      The .conf file content to parse
     @return  :list<↑|str>  The root node in the tree
     '''
     stack, stackptr = [], -1
     comment, escape, quote, buf = False, False, None, None
     col, char, line = 0, 0, 1
     
-    for c in range(data):
+    for c in code:
         if comment:
             if c in '\n\r\f':
                 comment = False
