@@ -127,4 +127,5 @@ def parse(code):
 
 # Parse .conf file
 conf = parse(conf)
+print(conf)
 
