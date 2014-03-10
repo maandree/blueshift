@@ -10,4 +10,7 @@ Medium priority:
 Low priority:
 	Add wayland support
 	Add mir support
+	Make it possible to do adjustments without a display server,
+	  it will require a lot of work but it might be possible to
+	  use parts of X or Wayland.
 
