@@ -325,8 +325,13 @@ lists, where 0 is the darkest colour and 1
 is the brightest colour. Values outside this
 range are clipped unless @code{clip_result}
 is set to @code{False}. By calling @code{clip}
-(has no parameters) this clipping is done
-independently of the value of @code{clip_result}.
+this clipping is done independently of the value
+of @code{clip_result}. @code{clip} optionally
+takes one or three arguments, if one, nothing
+will happen if it is @code{False}, if three,
+nothing will happen for the red, green and
+blue colour curves if the first, second and
+third arguments, respectively, is @code{False}.
 When applied these values are automatically
 translated to appropriate integer values:
 [0, @code{o_size} - 1].
@@ -427,9 +432,34 @@ used to calibrate white point.
 Converts the colour curves from sRGB to
 linear RGB. sRGB is the default colour space.
 
+@item linearise(rgb)
+Converts the colour curves from sRGB to
+linear RGB if @code{rgb} is @code{True}.
+sRGB is the default colour space.
+
+@item linearise(r, g, b)
+Converts the colour curves from sRGB to
+linear RGB, but only for the red, green
+and blue colour curves if @code{red},
+@code{green}, @code{blue} is @code{True},
+respectively. sRGB is the default colour
+space.
+
 @item standardise()
 Converts the colour curves from linear RGB to
 sRGB, the default colour space.
+
+@item standardise(rgb)
+Converts the colour curves from linear RGB to
+sRGB, the default colour space, if @code{rgb}
+is @code{True}.
+
+@item standardise(r, g, b)
+Converts the colour curves from linear RGB to
+sRGB, the default colour space, but only for
+the red, green and blue colour curves if
+@code{red}, @code{green}, @code{blue} is
+@code{True}, respectively.
 
 @item gamma(rgb)
 Adjusts the gamma to @code{rgb}.

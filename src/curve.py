@@ -298,24 +298,36 @@ def cie_brightness(level):
             (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y * level)
 
 
-def linearise():
+def linearise(r = True, g = None, b = None):
     '''
     Convert the curves from formatted in standard RGB to linear RGB
+    
+    @param  r:bool   Whether to convert the red colour curve
+    @param  g:bool?  Whether to convert the green colour curve, defaults to `r` if `None`
+    @param  b:bool?  Whether to convert the blue colour curve, defaults to `r` if `None`
     '''
+    if g is None:  g = r
+    if b is None:  b = r
     for i in range(i_size):
-        r, g, b = r_curve[i], g_curve[i], b_curve[i]
-        (r, g, b) = standard_to_linear(r, g, b)
-        r_curve[i], g_curve[i], b_curve[i] = r, g, b
+        sr, sg, sb = r_curve[i], g_curve[i], b_curve[i]
+        (lr, lg, lb) = standard_to_linear(sr, sg, sb)
+        r_curve[i], g_curve[i], b_curve[i] = (lr if r else sr), (lg if g else sg), (lb if b else sb)
 
 
-def standardise():
+def standardise(r = True, g = None, b = None):
     '''
     Convert the curves from formatted in linear RGB to standard RGB
+    
+    @param  r:bool   Whether to convert the red colour curve
+    @param  g:bool?  Whether to convert the green colour curve, defaults to `r` if `None`
+    @param  b:bool?  Whether to convert the blue colour curve, defaults to `r` if `None`
     '''
+    if g is None:  g = r
+    if b is None:  b = r
     for i in range(i_size):
-        r, g, b = r_curve[i], g_curve[i], b_curve[i]
-        (r, g, b) = linear_to_standard(r, g, b)
-        r_curve[i], g_curve[i], b_curve[i] = r, g, b
+        lr, lg, lb = r_curve[i], g_curve[i], b_curve[i]
+        (sr, sg, sb) = linear_to_standard(lr, lg, lb)
+        r_curve[i], g_curve[i], b_curve[i] = (sr if r else lr), (sg if g else lg), (sb if b else lb)
 
 
 def gamma(r, g = None, b = None):
@@ -509,11 +521,16 @@ def start_over():
         b_curve[i] = v
 
 
-def clip():
+def clip(r = True, g = None, b = None):
     '''
     Clip all values below the actual minimum and above actual maximums
+    
+    @param  r:bool   Whether to clip the red colour curve
+    @param  g:bool?  Whether to clip the green colour curve, defaults to `r` if `None`
+    @param  b:bool?  Whether to clip the blue colour curve, defaults to `r` if `None`
     '''
-    for curve in (r_curve, g_curve, b_curve):
-        for i in range(i_size):
-            curve[i] = min(max(0.0, curve[i]), 1.0)
+    for curve, action in curves(r, r if g is None else g, r if b is None else b):
+        if action:
+            for i in range(i_size):
+                curve[i] = min(max(0.0, curve[i]), 1.0)
 
