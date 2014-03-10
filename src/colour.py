@@ -169,7 +169,7 @@ def cielab_to_xiexyz(l, a, b):
     y = (l + 16) / 116
     x = a / 500 + y
     z = y - b / 200
-    f = lambda c : c ** 3 if c ** 3 > 0.00885642 else (c - 0.1379310) / (7.78 + 703 / 99900)    
+    f = lambda c : c ** 3 if c ** 3 > 0.00885642 else (c - 0.1379310) / (7.78 + 703 / 99900)
     (x, y, z) = [f(c) for c in (x, y, z)]
     x *= 0.95047
     z *= 1.08883
