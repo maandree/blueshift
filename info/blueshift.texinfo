@@ -37,7 +37,8 @@ Texts. A copy of the license is included in the section entitled
 
 @titlepage
 @title blueshift
-@subtitle Automatically adjust the colour temperature
+@c @subtitle Automatically adjust the colour temperature
+@subtitle The grand unified dynamic colour adjustment framework
 @author by Mattias Andrée (maandree)
 
 @page
