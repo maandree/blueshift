@@ -1205,10 +1205,10 @@ An object-oriented X library for Python based on xpyb.
 
 @item pygtk
 (Not ported to Python 3)@*
-GTK+ 2 bindings bindings for Python.
+GTK+ 2 bindings for Python.
 
 @item python-gobject
-GTK+ 3 bindings bindings for Python.
+GTK+ 3 bindings for Python.
 
 @item python2-geoclue
 (Not ported to Python 3)@*
