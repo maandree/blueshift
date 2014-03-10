@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from subprocess import Popen, PIPE
+
 from curve import *
 
 
@@ -22,8 +24,52 @@ def load_icc(pathname):
     '''
     Load ICC profile from a file
     
-    @param   pathname  The ICC profile file
-    @return            Function to invoke, parameterless, to apply the ICC profile to the colour curves
+    @param   pathname:str  The ICC profile file
+    @return  :()→void       Function to invoke, parameterless, to apply the ICC profile to the colour curves
+    '''
+    content = None
+    with open(pathname, 'rb') as file:
+        content = file.read()
+    return content
+
+
+def get_current_icc():
+    '''
+    Get all currently applied ICC profiles as profile applying functions
+    
+    @return  list<(screen:int, monitor:int, profile:()→void)>  List of used profiles
+    '''
+    return [(screen, monitor, parse_icc(profile)) for screen, monitor, profile in get_current_icc_raw()]
+
+
+def get_current_icc_raw():
+    '''
+    Get all currently applied ICC profiles as raw profile data
+    
+    @return  list<(screen:int, monitor:int, profile:bytes())>  List of used profiles
+    '''
+    process = Popen([LIBEXECDIR + "/blueshift_iccprofile"], stdout = PIPE)
+    lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
+    while process.returncode is None:
+        process.wait()
+    if process.returncode != 0:
+        raise Exception('blueshift_iccprofile exited with value %i' % process.returncode)
+    rc = []
+    for line in lines:
+        if len(line) == 0:
+            continue
+        (s, m, p) = lines.split(': ')
+        p = bytes([int(p[i : i + 2], 16) for i in range(0, len(p), 2)])
+        rc.append((s, m, p))
+    return rc
+
+
+def parse_icc(content):
+    '''
+    Parse ICC profile from raw data
+    
+    @param   content:bytes  The ICC profile data
+    @return  :()→void       Function to invoke, parameterless, to apply the ICC profile to the colour curves
     '''
     MLUT_TAG = 0x6d4c5554
     VCGT_TAG = 0x76636774
@@ -42,9 +88,6 @@ def load_icc(pathname):
         rc, content[:] = content[:n], content[n:]
         return rc
     
-    content = None
-    with open(pathname, 'rb') as file:
-        content = file.read()
     content = list(content)
     read(128)
     

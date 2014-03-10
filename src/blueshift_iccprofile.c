@@ -184,16 +184,17 @@ int main(int argc, char** argv)
 	    }
 	  
 	  {
-	    char* value = alloca((len + 1) * sizeof(char));
+	    char* value = alloca((2 * len + 1) * sizeof(char));
 	    char* value_ = xcb_get_property_value(prop_reply);
 	    
-	    memcpy(value, value_, len);
-	    *(value + len) = 0;
+	    for (i = 0; i < len; i++)
+	      {
+		*(value + i * 2 + 0) = "0123456789abcdef"[(*(value_ + i) >> 4) & 15];
+		*(value + i * 2 + 1) = "0123456789abcdef"[(*(value_ + i) >> 0) & 15];
+	      }
+	    *(value + 2 * len) = 0;
 	    
-	    printf("%i: %i: %s", screen_i, monitor, value);
-	    fflush(stdout);
-	    putchar('\0');
-	    putchar('\n');
+	    printf("%i: %i: %s\n", screen_i, monitor, value);
 	  }
 	  
 	  free(prop_reply);

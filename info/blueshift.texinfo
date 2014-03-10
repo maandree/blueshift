@@ -694,6 +694,28 @@ profile file. @code{load_icc} takes one argument, the
 pathname of the ICC profile file; the function returns
 a fuction that can be invoked to apply the profile.
 
+Alternatively, you can use either of the functions:
+
+@table @code
+@item parse_icc(data)
+Parse raw (series of bytes) ICC profile data into a function
+that applies the profile when invoked.
+
+@item get_current_icc_raw()
+Load the raw data for the currently applied ICC profiles,
+stored on the X server. This function returns a list of
+3-tuples, each tuple contains the index of a screen,
+the index of a monitor and the raw data (series of bytes)
+of the ICC profile for indicated monitor on the indicated
+screen. Monitors without profiles are not listed.
+
+@item get_current_icc()
+This function works like @code{get_current_icc_raw}, except
+rather than returning raw profile data it returns functions
+that apply the profiles when invoked.
+
+@end table
+
 If you want to apply your adjustments on top of the
 current colour adjustments, you can use the functions
 @code{randr_get} or @code{vidmode_get}. @code{randr_get}
