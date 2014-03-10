@@ -169,7 +169,7 @@ def _size(mods, args):
 
 def _edid(mods, args):
     '''
-    Find monitors by extended display information data
+    Find monitors by extended display identification data
     
     @param   mods:[]|[str]   Optionally the number of monitors to list
     @param   args:list<str>  EDID of outputs' monitors

@@ -853,7 +853,7 @@ they are used or not (if @code{status} is
 
 @item find_by_edid(name)
 Matches outputs by monitor extended display
-information data.
+identification data.
 
 @end table
 
