@@ -542,6 +542,11 @@ Applies the functions @code{r}, @code{g} and
 @code{b} : float @click{} float to red, green
 and blue colour curves, respectively.
 
+@item cie_manipulate(f)
+Applies the function @code{f} : float @click{}
+float to Y component (illumination) colour curves
+converted to CIE xyY.
+
 @item temperature(temperature, algorithm)
 Applies the a blackbody colour temperature of
 @code{temperature}@footnote{Actually multiplied

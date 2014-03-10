@@ -473,6 +473,22 @@ def manipulate(r, g = None, b = None):
             curve[i] = f(curve[i])
 
 
+def cie_manipulate(f):
+    '''
+    Manipulate the colour curves using a lambda function on the CIE xyY colour space
+    
+    @param  f:(float)?→float   Lambda function to manipulate the Y component, nothing is done if `f` is `None`
+    
+    The lambda functions thats a colour value and maps it to a new illumination value.
+    For example, if the value 0.5 is already mapped to 0.25, then if the function
+    maps 0.25 to 0.5, the value 0.5 will revert back to being mapped to 0.5.
+    '''
+    if f is not None:
+        for i in range(i_size):
+            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, f(Y))
+
+
 def lower_resolution(rx_colours = None, ry_colours = None, gx_colours = None, gy_colours = None, bx_colours = None, by_colours = None):
     '''
     Emulates low colour resolution
