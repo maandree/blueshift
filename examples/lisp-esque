@@ -424,9 +424,32 @@ def _clip(mods, args):
     pass
 
 def _sigmoid(mods, args):
+    '''
+    Add sigmoid curve cancellation adjustment
+    
+    @param  mods:list<str>                    'red', 'green' and 'blue' for restricting to those colour curves
+                                              and 'default' for using before and after Blueshift is running
+    @param  args:list<str|[str]               The adjustment at each time point, or all day long,
+                     |[str, str, str]         optionally with individual colour curve control; or
+                     |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                     |list<[str, str, str]>>  optionally with individual colour curve control;
+                                              'nil' for nothing
+    '''
     pass
 
 def _limits(mods, args):
+    '''
+    Add sigmoid curve cancellation adjustment
+    
+    @param  mods:list<str>              red', 'green' and 'blue' for restricting to those colour curves,
+                                        'cie' for using CIE xyY and 'default' for using before and after
+                                        Blueshift is running
+    @param  args:list<str>|             Add limitations all day long either [minimum, maximum], or
+                                        [red minimum, red maximum, green minimum, green maximum,
+                                        blue minimum, blue maximum], optionally
+                 list<list<str>         optionally for each monitor (all if just one specified) (outer/middle),
+                     |list<list<str>>   optionally at each time point (outer)
+    '''
     pass
 
 def _linearise(mods, args):
@@ -440,7 +463,27 @@ def _linearise(mods, args):
     '''
     pass
 
+def _icc(mods, args):
+    '''
+    Add adjustment by ICC profile
+    
+    @param  mods:[]|[str]             'filter' or 'calib' (default) for when Blueshift is running and
+                                      Blueshift is running but also before and after, respectively
+    @param  args:list<str|list<str>>  The ICC profile pathname for each time point (all day long if one),
+                                      and optionally (inner) for each monitor.
+    '''
+    pass
+
 def _manipulate(mods, args):
+    '''
+    Add curve manipulation function adjustment
+    
+    @param  mods:list<str>                  red', 'green' and 'blue' for restricting to those colour curves,
+                                            'cie' for using CIE xyY and 'default' for using before and after
+                                            Blueshift is running
+    @param  args:list<[str, str, str]|str>  Function for each monitor (for all if just one specified), and
+                                            optionally one per colour curve (red, green and blue)
+    '''
     pass
 
 def _standardise(mods, args):
