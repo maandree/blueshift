@@ -287,36 +287,140 @@ def _transfrom(mods, args):
     pass
 
 def _negative(mods, args):
+    '''
+    Add negative image adjustment
+    
+    @param  mods:list<str>                  'red', 'green' and 'blue' for restricting to those colour
+                                            curves, and 'default' for using before and after Blueshift
+                                            is running
+    @param  args:list<[str, str, str]|str>  'yes' and 'no' or 3–tuple for red, green and blue, for each
+                                            monitor (or all of them) on whether to apply negative image,
+                                            'yes' implied for all monitors if empty
+    '''
     pass
 
 def _invert(mods, args):
+    '''
+    Add colour invertion adjustment
+    
+    @param  mods:list<str>                  'red', 'green' and 'blue' for restricting to those colour
+                                            curves, 'cie' for using CIE xyY and 'default' for using
+                                            before and after Blueshift is running
+    @param  args:list<[str, str, str]|str>  'yes' and 'no' or 3–tuple for red, green and blue, for each
+                                            monitor (or all of them) on whether to apply colour invertion,
+                                            'yes' implied for all monitors if empty
+    '''
     pass
 
 def _temperature(mods, args):
+    '''
+    Add colour temperature adjustment
+    
+    @param  mods:[]|[str]              'default' for using before and after Blueshift is running
+    @param  args:list<[str]|list<str>  Temperature to apply all day long or depending
+                                       on time, or either of those depending on monitor
+    '''
     pass
 
 def _compose(mods, args):
+    '''
+    Compose a function
+    
+    @param  mods:[]                   Not used
+    @param  args:list<str|list<str>>  The name of the function follow by parameters wrappers:
+                                      'as-is' for unmodified, 'yes' for tautology, 'no' for contradiction,
+                                      and functions names for functions, or a composition
+    '''
     pass
 
 def _current(mods, args):
+    '''
+    Add adjustments applied when Blueshift starts
+    
+    @param  mods:[]         Not used
+    @param  args:list<str>  Method used to get the current adjustments, options for all monitors:
+                            'randr' for `randr_get`, 'vidmode' for `vidmode_get` or 'nil' for none
+    '''
     pass
 
 def _brightness(mods, args):
+    '''
+    Add white point level adjustment
+    
+    @param  mods:list<str>                    'red', 'green' and 'blue' for restricting to those
+                                              colour curves, 'cie' for using CIE xyY and 'default'
+                                              for using before and after Blueshift is running
+    @param  args:list<str|[str]               The adjustment at each time point, or all day long,
+                     |[str, str, str]         optionally with individual colour curve control; or
+                     |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                     |list<[str, str, str]>>  optionally with individual colour curve control
+    '''
     pass
 
 def _contrast(mods, args):
+    '''
+    Add black point–white point divergence level adjustment
+    
+    @param  mods:list<str>                    'red', 'green' and 'blue' for restricting to those
+                                              colour curves, 'cie' for using CIE xyY and 'default'
+                                              for using before and after Blueshift is running
+    @param  args:list<str|[str]               The adjustment at each time point, or all day long,
+                     |[str, str, str]         optionally with individual colour curve control; or
+                     |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                     |list<[str, str, str]>>  optionally with individual colour curve control
+    '''
     pass
 
 def _resolution(mods, args):
+    '''
+    Add colour curve resolution adjustment
+    
+    @param  mods:list<str>                    'red', 'green' and 'blue' for restricting to those colour curves
+                                              and 'default' for using before and after Blueshift is running,
+                                              and 'output' for on the output axis, and 'encoding' for on the
+                                              encoding axis.
+    @param  args:list<str|[str]               The adjustment at each time point, or all day long,
+                     |[str, str, str]         optionally with individual colour curve control; or
+                     |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                     |list<[str, str, str]>>  optionally with individual colour curve control
+    '''
     pass
 
 def _gamma(mods, args):
+    '''
+    Add gamma correction adjustment
+    
+    @param  mods:list<str>                    'red', 'green' and 'blue' for restricting to those colour curves
+                                              and 'default' for using before and after Blueshift is running
+    @param  args:list<str|[str]               The adjustment at each time point, or all day long,
+                     |[str, str, str]         optionally with individual colour curve control; or
+                     |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                     |list<[str, str, str]>>  optionally with individual colour curve control
+    '''
     pass
 
 def _pgamma(mods, args):
+    '''
+    Add gamma correction adjustment without curve clipping
+    
+    @param  mods:list<str>                    'red', 'green' and 'blue' for restricting to those colour curves
+                                              and 'default' for using before and after Blueshift is running
+    @param  args:list<str|[str]               The adjustment at each time point, or all day long,
+                     |[str, str, str]         optionally with individual colour curve control; or
+                     |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                     |list<[str, str, str]>>  optionally with individual colour curve control
+    '''
     pass
 
 def _clip(mods, args):
+    '''
+    Add curve clipping adjustment
+    
+    @param  mods:list<str>                  'red', 'green' and 'blue' for restricting to those colour curves
+    @param  args:list<[str, str, str]|str>  'yes' and 'no' or 3–tuple for red, green and blue, for each
+                                            monitor (or all of them) on whether to clip the curve,
+                                            'yes' implied for all monitors if empty
+    '''
     pass
 
 def _sigmoid(mods, args):
@@ -326,11 +430,27 @@ def _limits(mods, args):
     pass
 
 def _linearise(mods, args):
+    '''
+    Add sRGB to linear RGB conversion adjustment
+    
+    @param  mods:list<str>                  'red', 'green' and 'blue' for restricting to those colour curves
+    @param  args:list<[str, str, str]|str>  'yes' and 'no' or 3–tuple for red, green and blue, for each
+                                            monitor (or all of them) on whether to convert the curve,
+                                            'yes' implied for all monitors if empty
+    '''
     pass
 
 def _manipulate(mods, args):
     pass
 
 def _standardise(mods, args):
+    '''
+    Add linear RGB to sRGB conversion adjustment
+    
+    @param  mods:list<str>                  'red', 'green' and 'blue' for restricting to those colour curves
+    @param  args:list<[str, str, str]|str>  'yes' and 'no' or 3–tuple for red, green and blue, for each
+                                            monitor (or all of them) on whether to convert the curve,
+                                            'yes' implied for all monitors if empty
+    '''
     pass
 
