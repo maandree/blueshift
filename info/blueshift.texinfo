@@ -827,6 +827,10 @@ that are either unused or not known whether
 they are used or not (if @code{status} is
 @code{False}.)
 
+@item find_by_edid(name)
+Matches outputs by monitor extended display
+information data.
+
 @end table
 
 These functions returns a list of matching

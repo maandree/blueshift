@@ -10,24 +10,34 @@ temp = 6500
 # List all connected outputs.
 outputs = list_screens().find_by_connected(True)
 
+# EDID of the primary monitors
+edid_0 = '00ffffffffffff0010ac00504d5730372f0c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff00364432353232424c3730574d0a00ea'
+
+# EDID of the secondary monitor
+edid_1 = '00ffffffffffff0010ac005045413035320c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff003644323532324339353041450a0039'
+
+# Gamma of the monitors
+gammas = [(1.16, 1.15, 1.11), (1.10, 1.16, 1.10)]
+
 # Configure each monitor.
 for output in outputs:
     # Data that identifies the monitor.
-    monitor = (output.name, output.widthmm, output.heightmm)
+    edid = output.edid
+    monitor = (output.name, output.widthmm, output.heightmm, edid is not None)
     
     # Default gamma settings.
-    r_gamma, g_gamma, b_gamma = 1, 1, 1
+    monitor_gamma = (1, 1, 1)
     
     # Get the correct gamma settings for the monitor.
-    if   monitor == ('DVI-0', 364, 291):  r_gamma, g_gamma, b_gamma = 1.16, 1.15, 1.11
-    elif monitor == ('VGA-0', 364, 291):  r_gamma, g_gamma, b_gamma = 1.10, 1.16, 1.10
+    if   (monitor == ('DVI-0', 364, 291, False)) or (edid == edid_0):  monitor_gamma = gammas[0]
+    elif (monitor == ('VGA-0', 364, 291, False)) or (edid == edid_1):  monitor_gamma = gammas[1]
     else:
-        print('Warning: unknown monitor at %s at size of %i mm by %i mm' % monitor)
+        print('Warning: unknown monitor at %s at size of %i mm by %i mm' % monitor[:3])
     
     # Perform adjustments.
     start_over()
     temperature(temp, lambda t : divide_by_maximum(cmf_10deg(t)))
-    gamma(r_gamma, g_gamma, b_gamma)
+    gamma(*monitor_gamma)
     
     # Apply adjustments.
     randr(output.crtc, screen = output.screen)

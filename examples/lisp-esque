@@ -167,6 +167,16 @@ def _size(mods, args):
     '''
     pass
 
+def _edid(mods, args):
+    '''
+    Find monitors by extended display information data
+    
+    @param   mods:[]|[str]   Optionally the number of monitors to list
+    @param   args:list<str>  EDID of outputs' monitors
+    @return  :list<str>      <screen>:<output> encoding of found monitors
+    '''
+    pass
+
 def _coordinates(mods, args):
     '''
     Specify geographical location by coordinates

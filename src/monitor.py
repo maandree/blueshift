@@ -267,6 +267,18 @@ class Screens:
             rc += screen.find_by_connected(status)
         return rc
     
+    def find_by_edid(self, edid):
+        '''
+        Find output by extended display identification data
+        
+        @param   edid:str?      The extended display identification data of the monitor
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for screen in self.screens:
+            rc += screen.find_by_edid(edid)
+        return rc
+    
     def __contains__(self, other):
         return other in self.screens
     def __getitem__(self, index):
@@ -350,6 +362,19 @@ class Screen:
                 rc.append(self.outputs[i])
         return rc
     
+    def find_by_edid(self, edid):
+        '''
+        Find output by extended display identification data
+        
+        @param   edid:str?      The extended display identification data of the monitor
+        @return  :list<Output>  Matching outputs
+        '''
+        rc = []
+        for i in range(len(self.outputs)):
+            if self.outputs[i].edid == edid:
+                rc.append(self.outputs[i])
+        return rc
+    
     def __repr__(self):
         '''
         Return a string representation of the instance
@@ -366,6 +391,7 @@ class Output:
     @variable  heigthmm:int?   The physical height of the monitor, measured in millimetres, `None` if unknown or not connected
     @variable  crtc:int?       The CRTC index, `None` if not connected
     @variable  screen:int?     The screen index, `None` if none
+    @variable  edid:str?       Extended display identification data, `None` if none
     '''
     def __init__(self):
         '''
@@ -377,14 +403,15 @@ class Output:
         self.heightmm = None
         self.crtc = None
         self.screen = None
+        self.edid = None
     
     def __repr__(self):
         '''
         Return a string representation of the instance
         '''
-        rc = [self.name, self.connected, self.widthmm, self.heightmm, self.crtc, self.screen]
-        rc = tuple([self.name] + list(map(lambda x : repr(x), rc[1:])))
-        rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s]' % rc
+        rc = [self.name, self.connected, self.widthmm, self.heightmm, self.crtc, self.screen, self.edid]
+        rc = tuple(rc[:1] + list(map(lambda x : repr(x), rc[1 : -1])) + [str(rc[-1])])
+        rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
         return rc
 
 def list_screens():
@@ -423,6 +450,8 @@ def list_screens():
                 output.widthmm, output.heightmm = None, None
         elif line.startswith('CRTC: '):
             output.crtc = int(line[len('CRTC: '):])
+        elif line.startswith('EDID: '):
+            output.edid = line[len('EDID: '):]
     rc = Screens()
     rc.screens = screens
     return rc

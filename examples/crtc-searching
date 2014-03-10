@@ -40,6 +40,7 @@ parser = ArgParser('Colour temputare controller',
 
 parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
 parser.add_argumented(['-n', '--name'], 0, 'NAME', 'Select output by name')
+parser.add_argumented(['-e', '--edid'], 0, 'EDID', 'Select output by monitor extended display information data')
 parser.add_argumented(['-s', '--size'], 0, 'WIDTH_MM:HEIGHT_MM', 'Select output by monitor size')
 
 parser.parse(conf_opts)
@@ -58,6 +59,11 @@ outputs = []
 if parser.opts['--name'] is not None:
     for name in parser.opts['--name']:
         outputs += screens.find_by_name(name)
+
+# Find CRTC:s by monitor extended display infomation data.
+if parser.opts['--edid'] is not None:
+    for edid in parser.opts['--edid']:
+        outputs += screens.find_by_edid(edid)
 
 # Find CRTC:s by monitor size.
 if parser.opts['--size'] is not None:

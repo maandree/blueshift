@@ -65,6 +65,7 @@ int main(int argc, char** argv)
   int screen_count;
   xcb_screen_t* screens;
   int screen_i;
+  int i;
   
   (void) argc;
   (void) argv;
@@ -238,7 +239,7 @@ int main(int argc, char** argv)
 			char* atom_data;
 			
 			atom_cookie = xcb_randr_get_output_property(connection, outputs[output_i], *atoms,
-								    XCB_GET_PROPERTY_TYPE_ANY, 0, 0, 0, 0);
+								    XCB_GET_PROPERTY_TYPE_ANY, 0, 128, 0, 0);
 			
 			atom_reply = xcb_randr_get_output_property_reply(connection, atom_cookie, &error);
 			
@@ -256,11 +257,15 @@ int main(int argc, char** argv)
 			atom_data_ = xcb_randr_get_output_property_data(atom_reply);
 			length = xcb_randr_get_output_property_data_length(atom_reply);
 			
-			atom_data = alloca((length + 1) * sizeof(char));
-			memcpy(atom_data, atom_data_, length * sizeof(char));
-			*(atom_data + length) = 0;
+			atom_data = alloca((2 * length + 1) * sizeof(char));
+			for (i = 0; i < length; i++)
+			  {
+			    *(atom_data + i * 2 + 0) = "0123456789abcdef"[(*(atom_data_ + i) >> 4) & 15];
+			    *(atom_data + i * 2 + 1) = "0123456789abcdef"[(*(atom_data_ + i) >> 0) & 15];
+			  }
+			*(atom_data + 2 * length) = 0;
 			
-			/* printf("    %s: %s\n", atom_name, atom_data); TODO */
+			printf("    %s: %s\n", atom_name, atom_data);
 			
 			free(atom_reply);
 		      }
