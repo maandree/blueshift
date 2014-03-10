@@ -186,6 +186,7 @@ int main(int argc, char** argv)
 	  {
 	    char* value = alloca((2 * len + 1) * sizeof(char));
 	    char* value_ = xcb_get_property_value(prop_reply);
+	    int i;
 	    
 	    for (i = 0; i < len; i++)
 	      {
