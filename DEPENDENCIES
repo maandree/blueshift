@@ -1,7 +1,7 @@
 RUNTIME DEPENDENCIES:
 
 	python3
-	libxcb (opt-out, for randr and crtc identification)
+	libxcb (opt-out, for randr, crtc identification and icc profile listing)
 	libx11 (opt-out, for vidmode)
 	libxxf86vm (opt-out, for vidmode)
 	argparser-python (https://github.com/maandree/argparser)
@@ -12,7 +12,7 @@ MAKE DEPENDENCIES:
 	cython
 	c99 (a C 99 compliant compiler; provided by gcc)
 	python3
-	libxcb (opt-out, for randr and crtc identification)
+	libxcb (opt-out, for randr, crtc identification and icc profile listing)
 	libx11 (opt-out, for vidmode)
 	libxxf86vm (opt-out, for vidmode)
 	make

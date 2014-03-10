@@ -39,7 +39,7 @@ PKGNAME ?= blueshift
 # Bindings for display server access
 SERVER_BINDINGS ?= randr vidmode
 # Executable bindings for display server access
-EXECS ?= idcrtc
+EXECS ?= idcrtc iccprofile
 
 # Executable library files
 EXECLIBS = $(foreach E,$(EXECS),blueshift_$(E))
@@ -52,6 +52,7 @@ WARN = -Wall -Wextra -pedantic
 # The C standard for C code compilation
 STD = c99
 LIBS_idcrtc = xcb-randr
+LIBS_iccprofile = xcb
 LIBS_randr = xcb-randr
 LIBS_vidmode = x11 xxf86vm
 LIBS = python3 $(foreach B,$(SERVER_BINDINGS) $(EXECS),$(LIBS_$(B)))
@@ -84,6 +85,11 @@ command: $(foreach C,$(CBINDINGS),bin/$(C)) $(foreach E,$(EXECLIBS),bin/$(E)) bi
 
 bin/blueshift_idcrtc: LIBS_=LIBS_idcrtc
 bin/blueshift_idcrtc: obj/blueshift_idcrtc.o
+	@mkdir -p bin
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -o $@ $^
+
+bin/blueshift_iccprofile: LIBS_=LIBS_iccprofile
+bin/blueshift_iccprofile: obj/blueshift_iccprofile.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -o $@ $^
 

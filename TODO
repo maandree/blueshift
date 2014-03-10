@@ -4,7 +4,6 @@ Medium priority:
 
 Low priority:
 	Fix errors caused by SIGUSR2
-	http://www.oyranos.org/wiki/index.php?title=ICC_Profiles_in_X_Specification_0.2
 	Add support for monitor hotplugging
 	Add backlight support
 	Add wayland support
