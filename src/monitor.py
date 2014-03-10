@@ -422,6 +422,10 @@ def list_screens():
     '''
     process = Popen([LIBEXECDIR + "/blueshift_idcrtc"], stdout = PIPE)
     lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
+    while process.returncode is None:
+        process.wait()
+    if process.returncode != 0:
+        raise Exception('blueshift_idcrtc exited with value %i' % process.returncode)
     lines = [line.strip() for line in lines]
     screens, screen_i, screen, output = None, None, None, None
     for line in lines:
