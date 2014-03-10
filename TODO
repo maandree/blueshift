@@ -1,11 +1,13 @@
-Medium priority:
-	Document related software
+High priority:
 	Add example that parses text-based conf file
+	Add support for monitor hotplugging
+	Add models for calculating fade and refrash rate parameters
+
+Medium priority:
+	Fix errors caused by SIGUSR2
+	Add backlight support
 
 Low priority:
-	Fix errors caused by SIGUSR2
-	Add support for monitor hotplugging
-	Add backlight support
 	Add wayland support
 	Add mir support
 

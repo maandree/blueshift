@@ -54,7 +54,8 @@ Texts. A copy of the license is included in the section entitled
 * Invoking::                        Invocation of @command{blueshift}.
 * Signals::                         Signals handled by @command{blueshift}.
 * Configuration API::               How to write configuration files.
-* Terminology::                     Related terminology
+* Related software::                Software related to @command{blueshift}.
+* Terminology::                     Related terminology.
 * GNU Free Documentation License::  Copying and sharing this manual.
 @end menu
 
@@ -71,7 +72,7 @@ to increase the colour temperature and make the
 monitor bluer, this helps you focus on your work.
 
 Blueshift is not user friendly and it is not
-meant too be. Blueshift does offer limited
+meant to be. Blueshift does offer limited
 use of command line options to apply settings,
 but it is really meant for you to have configuration
 files (written in Python 3) where all the policies
@@ -1154,6 +1155,82 @@ nautical twilight, measured in degrees.
 @item SOLAR_ELEVATION_RANGE_ASTRONOMICAL_TWILIGHT
 The Sun's lowest and highest elevation during
 astronomical twilight, measured in degrees.
+@end table
+
+
+
+@node Related software
+@chapter Related software
+
+@command{blueshift} by itself have a wide range of
+feature, but it can be extended further by additional
+software:
+
+@table @command
+@item blueshift-tray
+A wrapper for Blueshift that makes it easy to
+temporarily activate and deactivate Blueshift
+by placing it in the X system tray.
+
+@item blueshift-curse
+@command{blueshift-curse} is an extension for
+Blueshift that can be used by configuration scripts
+to make it possible for other applications, included
+an ncurses interface that comes with it, to do
+modifications to the configurations.
+@command{blueshift-curse} uses domain sockets for
+interprocess communication.
+@end table
+
+If you want to extend the capabilities of Blueshift
+for your configuration scripts their are some library
+packages that can be of particular interest:
+
+@table @command
+@item python3-xlib
+X library for Python based on the Xlib library.
+
+@item xpyb
+(Not ported to Python 3)@*
+X library for Python based on the XCB library.
+
+@item xpybutil
+(Not ported to Python 3)@*
+A Python rendition of xcb-util including EWMH, ICCCM, key binding, Xinerama, &c.
+
+@item ooxcb
+(Not ported to Python 3)@*
+An object-oriented X library for Python based on xpyb.
+
+@item pygtk
+(Not ported to Python 3)@*
+GTK+ 2 bindings bindings for Python.
+
+@item python-gobject
+GTK+ 3 bindings bindings for Python.
+
+@item python2-geoclue
+(Not ported to Python 3)@*
+GeoClue library for Python, can be used to get your geographical position.
+GeoClue uses D-Bus, and can use multiple position providers:
+@itemize @bullet{}
+@item GPS:
+Position information from a Global Positioning System receiver via @command{gpsd} and @command{gypsy}.
+@item GSM:
+Position information from cellular network connection.
+@item Plazes:
+Position information from the Plazes Wi-Fi location service.
+@item Hostip:
+Position information based on IP address.
+@item Manual:
+User-provided position information.
+@end itemize
+
+@item python-dbus
+Python bindings for D-Bus.
+
+@item python-networkmanager
+Python interface to NetworkManager.
 @end table
 
 
