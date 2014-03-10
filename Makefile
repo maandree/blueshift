@@ -223,7 +223,7 @@ install-command-share: $(foreach D,$(DATAFILES),res/$(D))
 .PHONY: install-license
 install-license:
 	install -dm755 -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
-	install -m644 COPYING LICENSE -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
+	install -m644 COPYING LICENSE.agpl3 LICENSE.gpl3 -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 
 # Install documentation
 
@@ -285,7 +285,8 @@ uninstall:
 	-rm -- $(foreach E,$(EXECLIBS),"$(DESTDIR)$(LIBEXECDIR)/$(E)")
 	-rmdir -- "$(DESTDIR)$(LIBEXECDIR)"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
-	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
+	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE.agpl3"
+	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE.gpl3"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 	-rm -- $(foreach F,$(DATAFILES),"$(DESTDIR)$(DATADIR)/$(PKGNAME)/$(F)")
 	-rmdir -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
