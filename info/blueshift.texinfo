@@ -553,7 +553,7 @@ converted to CIE xyY.
 Applies the a blackbody colour temperature of
 @code{temperature}@footnote{Actually multiplied
 by 1,000556328, due to revisions of natural
-constants} Kelvin. Where the white point
+constants.} Kelvin. Where the white point
 for that temperature is calculates by
 the function @code{algorithm} : @code{temperature}
 @click{} (red, green, blue). When the white
