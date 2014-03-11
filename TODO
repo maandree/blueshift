@@ -5,6 +5,7 @@ High priority:
 
 Medium priority:
 	Fix errors caused by SIGUSR2
+	Test, demo and document, _ICC_PROFILE
 
 Low priority:
 	Add wayland support
