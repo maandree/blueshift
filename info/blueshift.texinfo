@@ -297,14 +297,15 @@ Disables or enables Blueshift.
 @chapter Configuration API
 
 @menu
-* Configuration variables::             Configuration variables
-* Colour curve manipulators::           Configuration functions colour adjustments
-* Custom colour curve manipulators::    Creating custom colour adjustment functions
-* Preexisting adjustments::             Using preexisting adjustment, in use and ICC
-* Applying colour curves::              Appying colour adjustments to the video drivers
-* Hardware detection::                  Detecting connected monitors
-* Continuous mode::                     Creating continuous mode configurations
-* Solar time::                          Solar functions, such as elevation calcuation
+* Configuration variables::             Configuration variables.
+* Colour curve manipulators::           Configuration functions colour adjustments.
+* Custom colour curve manipulators::    Creating custom colour adjustment functions.
+* Preexisting adjustments::             Using preexisting adjustment, in use and ICC.
+* Applying colour curves::              Appying colour adjustments to the video drivers.
+* Hardware detection::                  Detecting connected monitors.
+* Backlight::                           Adjusting monitor backlight.
+* Continuous mode::                     Creating continuous mode configurations.
+* Solar time::                          Solar functions, such as elevation calcuation.
 @end menu
 
 
@@ -864,6 +865,48 @@ identification data.
 These functions returns a list of matching
 @code{Output}:s. The list is empty if non are
 found.
+
+
+@node Backlight
+@section Backlight
+
+@command{blueshift} offers support for adjusting
+the backlight on monitors through Linux's sysfs.
+When available this preferable to adjusting the
+brightness. It does however have two drawbacks:
+it interferes with manual adjustments and depending
+on the backlight controller you may have very
+few backlight levels available.
+
+To list the available backlight controllers, run the
+function @code{list_backlights}, has ho parameters,
+it returns a list of controller names.
+
+To use a backlight controller, invoke the contructor
+of the class @code{Backlight}. It takes one manditory
+argument, the backlight controller either by name or
+path, and two optional arguments: @code{adjbacklight}
+and @code{minimum}. @code{adjbacklight} is booleanic,
+if @code{True} the command @command{adjbacklight} from
+the package with the same name will be used to set the
+backlight, rather than @command{blueshift} setting it
+by itself; this lets you adjust the backlight without
+root permissions and without the administrator justing
+the permission of @file{/sys/class/backlight/*/brightness}
+files. @code{minimum} is an integer and is zero by default,
+which is the lowest logical value to have. @code{minimum}
+raises the minimum value from zero to avaoid the backlight
+from getting stuck at zero when reached, as happens on
+some controllers.
+
+Instances of the class @code{Backlight} have one
+variable: @code{maximum}. @code{maximum} is an integer
+and is the highest inclusive brightness level. Instances
+also have two properties: @code{actual} and
+@code{brightness}. @code{actual} is read-only and gets
+the current actual backlight level. @code{brightness}
+can both be read and write and gets or sets the current
+backlight level. Both are integer properties.
 
 
 @node Continuous mode
