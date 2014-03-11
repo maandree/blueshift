@@ -29,25 +29,25 @@ class threadlocal:
         self.tmap = {}
     
     def __getitem__(self, i):
-        t = threading.current_thread()
+        t = threading.get_ident()
         if t not in self.tmap:
             self.tmap[t] = self.default[:]
         return self.tmap[t][i]
     
     def __len__(self):
-        t = threading.current_thread()
+        t = threading.get_ident()
         if t not in self.tmap:
             self.tmap[t] = self.default[:]
         return len(self.tmap[t])
     
     def __setitem__(self, i, x):
-        t = threading.current_thread()
+        t = threading.get_ident()
         if t not in self.tmap:
             self.tmap[t] = self.default[:]
         self.tmap[t][i] = x
     
     def __delitem__(self, i):
-        t = threading.current_thread()
+        t = threading.get_ident()
         if t not in self.tmap:
             self.tmap[t] = self.default[:]
         del self.tmap[t][x]
