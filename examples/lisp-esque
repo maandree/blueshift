@@ -132,6 +132,7 @@ conf = parse(conf)
 if isinstance(conf[0], str) and not conf[0].startswith(':'):
     conf = conf[1:]
 
+
 ## For the following functions, the type of args is the type of args
 ## after it has been evaluated, they may be functions inside that
 ## break this until the functions have been evaluated. The type for
@@ -146,6 +147,7 @@ def _monitors(mods, args):
     '''
     pass
 
+
 def _crtc(mods, args):
     '''
     Find monitors by name
@@ -155,6 +157,7 @@ def _crtc(mods, args):
     @return  :list<str>      <screen>:<output> encoding of found monitors
     '''
     pass
+
 
 def _size(mods, args):
     '''
@@ -166,6 +169,7 @@ def _size(mods, args):
     '''
     pass
 
+
 def _edid(mods, args):
     '''
     Find monitors by extended display identification data
@@ -176,6 +180,7 @@ def _edid(mods, args):
     '''
     pass
 
+
 def _coordinates(mods, args):
     '''
     Specify geographical location by coordinates
@@ -184,6 +189,7 @@ def _coordinates(mods, args):
     @param  args:[str, str]  The latitude and longitude (northwards and eastwards in degrees)
     '''
     pass
+
 
 def _parse(mods, args):
     '''
@@ -195,6 +201,7 @@ def _parse(mods, args):
     '''
     pass
 
+
 def _read(mods, args):
     '''
     Read an external file
@@ -204,6 +211,7 @@ def _read(mods, args):
     @return  :[str]      The content of the file
     '''
     pass
+
 
 def _spawn(mods, args):
     '''
@@ -215,6 +223,7 @@ def _spawn(mods, args):
     '''
     pass
 
+
 def _include(mods, args):
     '''
     Include external files
@@ -225,6 +234,7 @@ def _include(mods, args):
     '''
     pass
 
+
 def _source(mods, args):
     '''
     Load external Python files
@@ -233,6 +243,7 @@ def _source(mods, args):
     @param   args:list<str>  The files
     '''
     pass
+
 
 def _eval(mods, args):
     '''
@@ -243,6 +254,7 @@ def _eval(mods, args):
     @return  :list<↑|str>      The evaluated valus
     '''
     pass
+
 
 def _timepoints(mods, args):
     '''
@@ -256,6 +268,7 @@ def _timepoints(mods, args):
     '''
     pass
 
+
 def _points(mods, args):
     '''
     Select method for calculating the time the different settings are (fully) applied
@@ -265,6 +278,7 @@ def _points(mods, args):
                             elevation in degrees, 'time' or 'constant'
     '''
     pass
+
 
 def _dayness(mods, args):
     '''
@@ -277,6 +291,7 @@ def _dayness(mods, args):
     '''
     pass
 
+
 def _method(mods, args):
     '''
     Select colour curve applying method
@@ -286,6 +301,7 @@ def _method(mods, args):
     '''
     pass
 
+
 def _transfrom(mods, args):
     '''
     Let Blueshift transition from the currently applied settings when it starts
@@ -294,6 +310,7 @@ def _transfrom(mods, args):
     @param  args:list<str>  Method for (optionally) each monitor: 'randr', 'vidmode' or 'nil'
     '''
     pass
+
 
 def _negative(mods, args):
     '''
@@ -308,6 +325,7 @@ def _negative(mods, args):
     '''
     pass
 
+
 def _invert(mods, args):
     '''
     Add colour invertion adjustment
@@ -321,6 +339,7 @@ def _invert(mods, args):
     '''
     pass
 
+
 def _temperature(mods, args):
     '''
     Add colour temperature adjustment
@@ -330,6 +349,7 @@ def _temperature(mods, args):
                                        on time, or either of those depending on monitor
     '''
     pass
+
 
 def _compose(mods, args):
     '''
@@ -342,6 +362,7 @@ def _compose(mods, args):
     '''
     pass
 
+
 def _current(mods, args):
     '''
     Add adjustments applied when Blueshift starts
@@ -351,6 +372,7 @@ def _current(mods, args):
                             'randr' for `randr_get`, 'vidmode' for `vidmode_get` or 'nil' for none
     '''
     pass
+
 
 def _brightness(mods, args):
     '''
@@ -366,6 +388,7 @@ def _brightness(mods, args):
     '''
     pass
 
+
 def _contrast(mods, args):
     '''
     Add black point–white point divergence level adjustment
@@ -379,6 +402,7 @@ def _contrast(mods, args):
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
     pass
+
 
 def _resolution(mods, args):
     '''
@@ -395,6 +419,7 @@ def _resolution(mods, args):
     '''
     pass
 
+
 def _gamma(mods, args):
     '''
     Add gamma correction adjustment
@@ -407,6 +432,7 @@ def _gamma(mods, args):
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
     pass
+
 
 def _pgamma(mods, args):
     '''
@@ -421,6 +447,7 @@ def _pgamma(mods, args):
     '''
     pass
 
+
 def _clip(mods, args):
     '''
     Add curve clipping adjustment
@@ -431,6 +458,7 @@ def _clip(mods, args):
                                             'yes' implied for all monitors if empty
     '''
     pass
+
 
 def _sigmoid(mods, args):
     '''
@@ -445,6 +473,7 @@ def _sigmoid(mods, args):
                                               'nil' for nothing
     '''
     pass
+
 
 def _limits(mods, args):
     '''
@@ -461,6 +490,7 @@ def _limits(mods, args):
     '''
     pass
 
+
 def _linearise(mods, args):
     '''
     Add sRGB to linear RGB conversion adjustment
@@ -472,6 +502,7 @@ def _linearise(mods, args):
     '''
     pass
 
+
 def _icc(mods, args):
     '''
     Add adjustment by ICC profile
@@ -482,6 +513,7 @@ def _icc(mods, args):
                                       and optionally (inner) for each monitor.
     '''
     pass
+
 
 def _manipulate(mods, args):
     '''
@@ -495,6 +527,7 @@ def _manipulate(mods, args):
     '''
     pass
 
+
 def _standardise(mods, args):
     '''
     Add linear RGB to sRGB conversion adjustment
@@ -505,6 +538,7 @@ def _standardise(mods, args):
                                             'yes' implied for all monitors if empty
     '''
     pass
+
 
 # Map function names to functions
 functions = { 'monitors'    : _monitors
@@ -541,4 +575,42 @@ functions = { 'monitors'    : _monitors
             , 'manipulate'  : _manipulate
             , 'standardise' : _standardise
             }
+
+
+def evaluate_tree(elements, implied_functions = True):
+    '''
+    Evaluate the tree
+    
+    @param  elements:list<↑|str>    Elements
+    @param  implied_functions:bool  Whether to parse the first element as a function call
+    '''
+    rc = []
+    if len(elements) == 0:
+        return rc
+    if elements[0] == '.':
+        elements = elements[1:]
+    else:
+        cand = elements[0].split(':')[0]
+        if cand in functions.keys():
+            elements = ['0' + elements[0], elements[1:]]
+    for i in range(len(elements)):
+        element = elements[i]
+        if element.startswith(':'):
+            if i + 1 < len(elements):
+                args = elements[i + 1]
+                i += 1
+                if isinstance(args, str):
+                    args = [args]
+                element = element[0].split(':')
+                rc += functions[element[0]](element[1:], args)
+        else:
+            if not isinstance(args, str):
+                element = evaluate_tree(element, implied_functions)
+            rc.append(element)
+    return rc
+
+
+# Evaluate tree
+parse_tree(conf, True)
+conf = None
 
