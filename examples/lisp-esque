@@ -507,3 +507,39 @@ def _standardise(mods, args):
     '''
     pass
 
+# Map function names to functions
+functions = { 'monitors'    : _monitors
+            , 'crtc'        : _crtc
+            , 'size'        : _size
+            , 'edid'        : _edid
+            , 'coordinates' : _coordinates
+            , 'parse'       : _parse
+            , 'read'        : _read
+            , 'spawn'       : _spawn
+            , 'include'     : _include
+            , 'source'      : _source
+            , 'eval'        : _eval
+            , 'timepoints'  : _timepoints
+            , 'points'      : _points
+            , 'dayness'     : _dayness
+            , 'method'      : _method
+            , 'transfrom'   : _transfrom
+            , 'negative'    : _negative
+            , 'invert'      : _invert
+            , 'temperature' : _temperature
+            , 'compose'     : _compose
+            , 'current'     : _current
+            , 'brightness'  : _brightness
+            , 'contrast'    : _contrast
+            , 'resolution'  : _resolution
+            , 'gamma'       : _gamma
+            , '\'gamma'     : _pgamma
+            , 'clip'        : _clip
+            , 'sigmoid'     : _sigmoid
+            , 'limits'      : _limits
+            , 'linearise'   : _linearise
+            , 'icc'         : _icc
+            , 'manipulate'  : _manipulate
+            , 'standardise' : _standardise
+            }
+
