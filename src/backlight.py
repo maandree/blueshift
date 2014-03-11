@@ -89,7 +89,7 @@ class Backlight:
         '''
         if not self.__adjbacklight:
             with open('%s/brightness' % self.__controller, 'wb') as file:
-                file.write((str(value + self.__minimum) + '\n').encode('utf-8'))
+                file.write(('%i\n' % (value + self.__minimum)).encode('utf-8'))
                 file.flush()
         else:
             cmd = ['adjbacklight', self.__controller, '--set', str(value + self.__minimum)]
