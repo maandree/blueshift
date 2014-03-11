@@ -814,13 +814,18 @@ in millimetres. @code{None} if unknown or if
 not connected.
 
 @item crtc
-The CRT controller index. @code{none} if not
+The CRT controller index. @code{None} if not
 connected.
 
 @item screen
-The screen index. @code{none} if not
-used.
+The screen index. @code{None} if not used.
 
+@item edid
+The extended display identification data of
+the monitor in lower case hexadecimal representations.
+@code{None} if not used or not found. If the monitor
+is used it is probably found because it is needed
+for plug and play support of the monitor.
 @end table
 
 @code{Screens} and @code{Screen} provide a set
@@ -854,7 +859,6 @@ they are used or not (if @code{status} is
 @item find_by_edid(name)
 Matches outputs by monitor extended display
 identification data.
-
 @end table
 
 These functions returns a list of matching
