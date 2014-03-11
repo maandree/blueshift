@@ -403,7 +403,7 @@ if (config_file is None) and any([doreset, location] + settings):
 else:
     ## Load extension and configurations via blueshiftrc
     if config_file is None:
-        for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '/etc/%rc'):
+        for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '$~/.config/%/%rc', '$~/.%c', '/etc/%rc'):
             file = file.replace('%', 'blueshift')
             for arg in ('XDG_CONFIG_HOME', 'HOME'):
                 if '$' + arg in file:
@@ -412,6 +412,9 @@ else:
                     else:
                         file = None
                         break
+            if file.startswith('$~'):
+                import pwd
+                file = pwd.getpwuid(os.getuid()).pw_dir + file[2:]
             if file is not None:
                 file = file.replace('\0', '$')
                 if os.path.exists(file):
