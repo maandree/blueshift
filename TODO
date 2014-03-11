@@ -5,7 +5,6 @@ High priority:
 
 Medium priority:
 	Fix errors caused by SIGUSR2
-	Add backlight support
 
 Low priority:
 	Add wayland support

@@ -8,6 +8,8 @@ arch=(i686 x86_64)
 url="https://github.com/maandree/blueshift"
 license=('AGPL3' 'GPL3' 'custom:GFDL1.3')
 depends=(python3 argparser libxcb libxxf86vm libx11)
+optdepends=('adjbacklight: for backlight adjustments without root requirements'
+            'linux: for backlight support')
 makedepends=(cython gcc python3 libxcb libxxf86vm libx11 make coreutils sed zip texinfo auto-auto-complete)
 install=blueshift.install
 source=($url/archive/$pkgver.tar.gz)

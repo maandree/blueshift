@@ -4,6 +4,8 @@ RUNTIME DEPENDENCIES:
 	libxcb (opt-out, for randr, crtc identification and icc profile listing)
 	libx11 (opt-out, for vidmode)
 	libxxf86vm (opt-out, for vidmode)
+	adjbacklight (optional, for permission-hasslefree backlight adjustments)
+	linux (optional, for backlight support)
 	argparser-python (https://github.com/maandree/argparser)
 
 

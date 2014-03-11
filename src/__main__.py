@@ -40,6 +40,7 @@ from solar import *
 from curve import *
 from colour import *
 from monitor import *
+from backlight import *
 
 
 config_file = None
