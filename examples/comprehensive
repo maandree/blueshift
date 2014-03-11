@@ -340,7 +340,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
             randr(monitors[m % len(monitors)])
     
     # Lets wait only 5 seconds, instead of a minute before running again.
-    wait_period = 10
+    wait_period = 5
 
 
 def reset():
