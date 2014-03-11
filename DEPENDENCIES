@@ -10,7 +10,7 @@ RUNTIME DEPENDENCIES:
 MAKE DEPENDENCIES:
 
 	cython
-	c99 (a C 99 compliant compiler; provided by gcc)
+	gcc
 	python3
 	libxcb (opt-out, for randr, crtc identification and icc profile listing)
 	libx11 (opt-out, for vidmode)
