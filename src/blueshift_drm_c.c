@@ -176,7 +176,16 @@ int main(int argc, char** argv)
   /* Accurate dimension on area not covered by the edges */
   printf("Connected: %i\n", connector->connection == DRM_MODE_CONNECTED);
   /* DRM_MODE_DISCONNECTED DRM_MODE_UNKNOWNCONNECTION */
-  printf("Encoder: %i\n", connector->encoder_id);
+  if (connector->connection == DRM_MODE_CONNECTED)
+    {
+      drmModeEncoder* encoder = drmModeGetEncoder(drm_fd, connector->encoder_id);
+      uint32_t crtc_id = encoder->crtc_id;
+      int crtc;
+      drmModeFreeEncoder(encoder);
+      for (crtc = 0; crtc < drm_res->count_crtcs; crtc++)
+	if (*(drm_res->crtcs + crtc) == crtc_id)
+	  printf("CRTC: %i\n", crtc);
+    }
   static const char* types[] = {"Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS",
 				"Component", "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP",
 				"VIRTUAL", "DSI"};
