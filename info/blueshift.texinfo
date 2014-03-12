@@ -739,7 +739,7 @@ To apply a colour curve to the display
 server, invoke the @code{randr} function, or
 @code{vidmode}@footnote{@code{vidmode} has
 the same API as @code{randr}, but it only
-supports using the zeroth CRTC};
+supports using the zeroth CRTC.};
 @code{print_curves} can be used to print
 the curves to stdout instead (for debugging).
 These functions apply the curves to all
