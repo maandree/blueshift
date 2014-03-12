@@ -589,9 +589,19 @@ int main(int argc, char** argv)
 		    }
 		}
 	    }
-	  
-	  blueshift_drm_close_connector(card, connector_i);
 	}
+    }
+  
+  for (card_i = 0; card_i < card_n; card_i++)
+    {
+      int card = *(cards + card_i);
+      int connector_n = blueshift_drm_connector_count(card);
+      int connector_i;
+      
+      for (connector_i = 0; connector_i < connector_n; connector_i++)
+	blueshift_drm_close_connector(card, connector_i);
+      
+      blueshift_drm_close_card(card);
     }
   
   blueshift_drm_close();
