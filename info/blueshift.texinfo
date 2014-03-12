@@ -790,7 +790,7 @@ Instances of @code{Screens} have one variable:
 index in @code{screens}.
 
 Instances of the class @code{Screen} have two
-varibles: @code{crtc_count}, the number of CRT
+variables: @code{crtc_count}, the number of CRT
 controllers used within the screen, and
 @code{outputs}, a list of all output ports as
 instances of the class @code{Output}. Instances
