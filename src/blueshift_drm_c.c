@@ -20,12 +20,29 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <fcntl.h>
 #include <alloca.h>
 
+#ifndef O_CLOEXEC
+  #define O_CLOEXEC  02000000
+#endif
+
+/* Requires video group */
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-/* Requires video group */
+
+
+/**
+ * File descriptor for the DRM connection
+ */
+static int drm_fd;
+
+/**
+ * DRM mode resources
+ */
+static drmModeRes* drm_res = NULL;
+
 
 
 /**
@@ -52,13 +69,89 @@ int blueshift_drm_card_count()
 }
 
 
+/**
+ * Open connection to a graphics card
+ * 
+ * @param   card  The index of the graphics card
+ * @return        Zero on success
+ */
+int blueshift_drm_open(int card)
+{
+  long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
+  char* pathname = alloca(maxlen * sizeof(char));
+  
+  sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, card);
+  
+  drm_fd = open(pathname, O_RDWR | O_CLOEXEC);
+  if (drm_fd < 0)
+    {
+      perror("open");
+      return 1;
+    }
+  
+  return 0;
+}
+
+
+/**
+ * Close connection to the graphics card
+ */
+void blueshift_drm_close()
+{
+  drmModeFreeResources(drm_res);
+  close(drm_fd);
+}
+
+
+/**
+ * Update the resource, required after `blueshift_drm_open`
+ */
+void blueshift_drm_update()
+{
+  if (drm_res)
+    drmModeFreeResources(drm_res);
+  
+  drm_res = drmModeGetResources(drm_fd);
+}
+
+
+/**
+ * Return the number of CRTC:s on the opened card
+ * 
+ * @return  The number of CRTC:s on the opened card
+ */
+int blueshift_drm_crtc_count()
+{
+  return drm_res->count_crtcs;
+}
+
+
+/**
+ * Return the number of connectors on the opened card
+ * 
+ * @return  The number of connectors on the opened card
+ */
+int blueshift_drm_connector_count()
+{
+  return drm_res->count_connectors;
+}
+
+
+
 int main(int argc, char** argv)
 {
   (void) argc;
   (void) argv;
   
   
-  printf("%li\n", blueshift_drm_card_count());
+  printf("Card count: %i\n", blueshift_drm_card_count());
+  
+  blueshift_drm_open(0);
+  blueshift_drm_update();
+  printf("CRTC count: %i\n", blueshift_drm_crtc_count());
+  printf("Connector count: %i\n", blueshift_drm_connector_count());
+  
+  blueshift_drm_close();
   
   return 0;
 }
