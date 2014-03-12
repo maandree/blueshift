@@ -49,6 +49,27 @@ adjustments that they implemented in Redshift or
 using very customised behaviour, such as the example
 configurations scripts sleepmode, xmobar and xmonad.
 
+Unique features
+---------------
+
+- Blueshift can cancel out effects of sigmoid curves.
+This type of calibration is very difficult to get right
+but is required to perfectly calibrate LCD monitors.
+
+- Blueshift is not limited to curve operations over sRGB,
+but have also support for curve operations over linear
+RGB and CIE xyY. This is useful for example for more
+accurate brightness modifying filters.
+
+These two types of calibrations can be built in to lookup
+tables, which ICC profiles normally uses, in other software
+if it is done manually.
+
+- (Currently being implement) Blueshift can modify the
+colour curves for monitors without a display server like
+X or Wayland. This is done by using Direct Rendering Manager.
+
+
 Installing
 ----------
 
