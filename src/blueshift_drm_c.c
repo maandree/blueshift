@@ -16,29 +16,57 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <sys/types.h>
-#include <dirent.h>
+#include <limits.h>
+#include <alloca.h>
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
+#ifndef PATH_MAX
+  #define PATH_MAX  4096
+#endif
+
 /* Requires video group */
+
+
+/**
+ * Get the number of cards present on the system
+ * 
+ * @return  The number of cards present on the system
+ */
+long card_count()
+{
+  char* pathname = alloca(PATH_MAX * sizeof(char));
+  long len = strlen("/dev/dri/card");
+  long count = 0;
+  struct stat attr;
+  
+  memcpy(pathname, "/dev/dri/card", len);
+  
+  for (;;)
+    {
+      sprintf(pathname + len, "%li", count);
+      if (stat(pathname, &attr))
+	break;
+      count++;
+    }
+  
+  return count;
+}
 
 
 int main(int argc, char** argv)
 {
-  DIR* dir;
-  
   (void) argc;
   (void) argv;
   
-  if ((dir = opendir("/dev/dri")) == NULL)
-    {
-      perror("opendir");
-      return 1;
-    }
   
-  free(dir);
+  printf("%li\n", card_count());
+  
   return 0;
 }
 
