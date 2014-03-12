@@ -137,6 +137,24 @@ int blueshift_drm_connector_count()
 }
 
 
+/**
+ * Return the size of the gamma ramps on a CRTC
+ * 
+ * @param   crtc_index  The index of the CRTC
+ * @return              The size of the gamma ramps on a CRTC
+ */
+int blueshift_drm_gamma_size(int crtc_index)
+{
+  drmModeCrtc* crtc = drmModeGetCrtc(drm_fd, *(drm_res->crtcs + crtc_index));
+  int gamma_size;
+  
+  gamma_size = crtc->gamma_size;
+  drmModeFreeCrtc(crtc);
+  
+  return gamma_size;
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -150,6 +168,7 @@ int main(int argc, char** argv)
   blueshift_drm_update();
   printf("CRTC count: %i\n", blueshift_drm_crtc_count());
   printf("Connector count: %i\n", blueshift_drm_connector_count());
+  printf("Gamma size: %i\n", blueshift_drm_gamma_size(0));
   
   blueshift_drm_close();
   
