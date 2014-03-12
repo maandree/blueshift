@@ -177,9 +177,9 @@ int main(int argc, char** argv)
   printf("Connected: %i\n", connector->connection == DRM_MODE_CONNECTED);
   /* DRM_MODE_DISCONNECTED DRM_MODE_UNKNOWNCONNECTION */
   printf("Encoder: %i\n", connector->encoder_id);
-  static char* types[] = {"Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS",
-			  "Component", "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP",
-			  "VIRTUAL", "DSI"};
+  static const char* types[] = {"Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS",
+				"Component", "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP",
+				"VIRTUAL", "DSI"};
   printf("Type: %s (%i)\n", types[connector->connector_type], connector->connector_type);
   int i;
   for (i = 0; i < connector->count_props; i++)
