@@ -37,9 +37,9 @@ COMMAND ?= blueshift
 PKGNAME ?= blueshift
 
 # Bindings for display server access
-SERVER_BINDINGS ?= randr vidmode
+SERVER_BINDINGS ?= randr vidmode drm
 # Executable bindings for display server access
-EXECS ?= idcrtc iccprofile drm
+EXECS ?= idcrtc iccprofile
 
 # Executable library files
 EXECLIBS = $(foreach E,$(EXECS),blueshift_$(E))
@@ -62,7 +62,7 @@ FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC 
 # Resource files
 DATAFILES = 2deg 10deg redshift redshift_old
 # Python source files
-PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py
+PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py backlight.py
 # Library files
 CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 # Configuration script example files
@@ -95,11 +95,7 @@ bin/blueshift_iccprofile: obj/blueshift_iccprofile.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -o $@ $^
 
-bin/blueshift_drm: LIBS_=LIBS_drm
-bin/blueshift_drm: obj/blueshift_drm_c.o
-	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -o $@ $^
-
+bin/blueshift_drm.so: LIBS_=LIBS_drm
 bin/blueshift_randr.so: LIBS_=LIBS_randr
 bin/blueshift_vidmode.so: LIBS_=LIBS_vidmode
 bin/%.so: obj/%.o obj/%_c.o
@@ -325,5 +321,5 @@ uninstall:
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_randr.c src/blueshift_vidmode.c blueshift.{info,pdf,ps,dvi}
+	-rm -r bin obj src/blueshift_{randr,vidmode,drm}.c blueshift.{info,pdf,ps,dvi}
 

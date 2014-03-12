@@ -89,7 +89,7 @@ static long card_connection_reuse_size = 0;
 
 
 /**
- * Free all resources, but your need to close all connections first
+ * Free all resources, but you need to close all connections first
  */
 void blueshift_drm_close()
 {
@@ -446,10 +446,10 @@ const char* blueshift_drm_get_connector_type_name(int connection, int connector_
  * @param   connector_index  The index of the connector
  * @param   edid             Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
  * @param   size             The size allocated to `edid` excluding your zero termination
- * @param   hex              Whether to convert to hexadecimal representation, this is preferable
+ * @param   hexadecimal      Whether to convert to hexadecimal representation, this is preferable
  * @return                   The length of the found value, 0 if none, as if hex is false
  */
-long blueshift_drm_get_edid(int connection, int connector_index, char* edid, long size, int hex)
+long blueshift_drm_get_edid(int connection, int connector_index, char* edid, long size, int hexadecimal)
 {
   card_connection* card = card_connections + connection;
   drmModeConnector* connector = *(card->connectors + connector_index);
@@ -464,7 +464,7 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
       if (!strcmp("EDID", prop->name))
 	{
 	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(fd, connector->prop_values[prop_i]);
-	  if (hex)
+	  if (hexadecimal)
 	    {
 	      rc += blob->length;
 	      uint32_t n = size / 2;
@@ -489,7 +489,7 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
 }
 
 
-
+/*
 int main(int argc, char** argv)
 {
   int card_n = blueshift_drm_card_count();
@@ -607,4 +607,5 @@ int main(int argc, char** argv)
   blueshift_drm_close();
   return 0;
 }
+*/
 
