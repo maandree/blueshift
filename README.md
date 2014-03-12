@@ -65,7 +65,7 @@ These two types of calibrations can be built in to lookup
 tables, which ICC profiles normally uses, in other software
 if it is done manually.
 
-- (Currently being implement) Blueshift can modify the
+- (Currently being implemented) Blueshift can modify the
 colour curves for monitors without a display server like
 X or Wayland. This is done by using Direct Rendering Manager.
 
