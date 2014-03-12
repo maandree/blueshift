@@ -48,6 +48,11 @@ typedef struct _card_connection
    */
   drmModeRes* res;
   
+  /**
+   * Resources for open connectors
+   */
+   drmModeConnector** connectors;
+  
 } card_connection;
 
 
@@ -80,12 +85,6 @@ static long card_connection_reuse_ptr = 0;
  * The allocation size of `card_connection_reusables`
  */
 static long card_connection_reuse_size = 0;
-
-
-/**
- * Connector information
- */
-static drmModeConnector* connector = NULL;
 
 
 
@@ -143,7 +142,7 @@ int blueshift_drm_open_card(int card_index)
 {
   long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
   char* pathname = alloca(maxlen * sizeof(char));
-  int drm_fd;
+  int fd;
   int rc;
   
   sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, card_index);
@@ -166,8 +165,9 @@ int blueshift_drm_open_card(int card_index)
       rc = card_connection_ptr++;
     }
   
-  *(card_connections + rc).fd = fd;
-  *(card_connections + rc).res = NULL;
+  (card_connections + rc)->fd = fd;
+  (card_connections + rc)->res = NULL;
+  (card_connections + rc)->connectors = NULL;
   
   return rc;
 }
@@ -270,7 +270,6 @@ int blueshift_drm_gamma_size(int connection, int crtc_index)
 int blueshift_drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
 {
   card_connection* card = card_connections + connection;
-  int i;
   
   /* We need to initialise it to avoid valgrind warnings */
   memset(red,   0, gamma_size * sizeof(uint16_t));
@@ -304,55 +303,69 @@ int blueshift_drm_set_gamma_ramps(int connection, int crtc_index, int gamma_size
 /**
  * Acquire information about a connector
  * 
+ * @param  connection       The identifier for the connection to the card
  * @param  connector_index  The index of the connector
  */
-void blueshift_drm_open_connector(int connector_index)
+void blueshift_drm_open_connector(int connection, int connector_index)
 {
-  connector = drmModeGetConnector(drm_fd, *(drm_res->connectors + connector_index));
+  card_connection* card = card_connections + connection;
+  
+  if (card->connectors == NULL)
+    card->connectors = malloc(card->res->count_connectors * sizeof(drmModeConnector*));
+  *(card->connectors + connector_index) = drmModeGetConnector(card->fd, *(card->res->connectors + connector_index));
 }
 
 
 /**
- * Release information about the connector
- */
-void blueshift_drm_close_connector()
-{
-  drmModeFreeConnector(connector);
-}
-
-
-/**
- * Get the physical width the monitor connected to the connector
+ * Release information about a connector
  * 
- * @return  The physical width of the monitor in millimetres, 0 if unknown or not connected
+ * @param  connection       The identifier for the connection to the card
+ * @param  connector_index  The index of the connector
  */
-int blueshift_drm_get_width()
+void blueshift_drm_close_connector(int connection, int connector_index)
+{
+  drmModeFreeConnector(*((card_connections + connection)->connectors + connector_index));
+}
+
+
+/**
+ * Get the physical width the monitor connected to a connector
+ * 
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @return                   The physical width of the monitor in millimetres, 0 if unknown or not connected
+ */
+int blueshift_drm_get_width(int connection, int connector_index)
 {
   /* Accurate dimension on area not covered by the edges */
-  return connector->mmWidth;
+  return (card_connections + connection)->connectors[connector_index]->mmWidth;
 }
 
 
 /**
- * Get the physical height the monitor connected to the connector
+ * Get the physical height the monitor connected to a connector
  * 
- * @return  The physical height of the monitor in millimetres, 0 if unknown or not connected
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @return                   The physical height of the monitor in millimetres, 0 if unknown or not connected
  */
-int blueshift_drm_get_height()
+int blueshift_drm_get_height(int connection, int connector_index)
 {
   /* Accurate dimension on area not covered by the edges */
-  return connector->mmHeight;
+  return (card_connections + connection)->connectors[connector_index]->mmHeight;
 }
 
 
 /**
  * Get whether a monitor is connected to a connector
  * 
- * @return  1 if there is a connection, 0 otherwise, -1 if unknown
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @return                   1 if there is a connection, 0 otherwise, -1 if unknown
  */
-int blueshift_drm_is_connected()
+int blueshift_drm_is_connected(int connection, int connector_index)
 {
-  switch (connector->connection)
+  switch ((card_connections + connection)->connectors[connector_index]->connection)
     {
     case DRM_MODE_CONNECTED:
       return 1;
@@ -366,20 +379,26 @@ int blueshift_drm_is_connected()
 
 
 /**
- * Get the index of the CRTC of the monitor connected to the connector
+ * Get the index of the CRTC of the monitor connected to a connector
  * 
- * @return  The index of the CRTC
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @return                   The index of the CRTC
  */
-int blueshift_drm_get_crtc()
+int blueshift_drm_get_crtc(int connection, int connector_index)
 {
-  drmModeEncoder* encoder = drmModeGetEncoder(drm_fd, connector->encoder_id);
+  card_connection* card = card_connections + connection;
+  drmModeEncoder* encoder = drmModeGetEncoder(card->fd, card->connectors[connector_index]->encoder_id);
   uint32_t crtc_id = encoder->crtc_id;
+  drmModeRes* res = card->res;
   int crtc;
+  int n;
   
   drmModeFreeEncoder(encoder);
   
-  for (crtc = 0; crtc < drm_res->count_crtcs; crtc++)
-    if (*(drm_res->crtcs + crtc) == crtc_id)
+  n = res->count_crtcs;
+  for (crtc = 0; crtc < n; crtc++)
+    if (*(res->crtcs + crtc) == crtc_id)
       return crtc;
   
   return -1;
@@ -387,51 +406,62 @@ int blueshift_drm_get_crtc()
 
 
 /**
- * Get the index of the type of the connector
+ * Get the index of the type of a connector
  * 
- * @return  The connector type by index, 0 for unknown
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @return                   The connector type by index, 0 for unknown
  */
-int blueshift_drm_get_connector_type_index()
+int blueshift_drm_get_connector_type_index(int connection, int connector_index)
 {
-  return connector->connector_type;
+  return (card_connections + connection)->connectors[connector_index]->connector_type;
 }
 
 
 /**
- * Get the name of the type of the connector
+ * Get the name of the type of a connector
  * 
- * @return  The connector type by name, "Unknown" if not identifiable,
- *          "Unrecognised" if Blueshift does not recognise it.
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @return                   The connector type by name, "Unknown" if not identifiable,
+ *                           "Unrecognised" if Blueshift does not recognise it.
  */
-const char* blueshift_drm_get_connector_type_name()
+const char* blueshift_drm_get_connector_type_name(int connection, int connector_index)
 {
   static const char* TYPE_NAMES[] = {
     "Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS", "Component",
     "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP", "VIRTUAL", "DSI"};
   
-  int type = connector->connector_type;
+  int type = ((card_connections + connection)->connectors[connector_index])->connector_type;
   return (size_t)type < sizeof(TYPE_NAMES) / sizeof(char*) ? TYPE_NAMES[type] : "Unrecognised";
 }
 
 
 /**
- * Get the extended display identification data for the monitor connected to the connector
+ * Get the extended display identification data for the monitor connected to a connector
  * 
- * @param   edid  Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
- * @param   size  The size allocated to `edid` excluding your zero termination
- * @param   hex   Whether to convert to hexadecimal representation, this is preferable
- * @return        The length of the found value, 0 if none, as if hex is false
+ * @param   connection       The identifier for the connection to the card
+ * @param   connector_index  The index of the connector
+ * @param   edid             Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
+ * @param   size             The size allocated to `edid` excluding your zero termination
+ * @param   hex              Whether to convert to hexadecimal representation, this is preferable
+ * @return                   The length of the found value, 0 if none, as if hex is false
  */
-long blueshift_drm_get_edid(char* edid, long size, int hex)
+long blueshift_drm_get_edid(int connection, int connector_index, char* edid, long size, int hex)
 {
+  card_connection* card = card_connections + connection;
+  drmModeConnector* connector = *(card->connectors + connector_index);
+  int fd = card->fd;
   long rc = 0;
+  int prop_n = connector->count_props;
   int prop_i;
-  for (prop_i = 0; prop_i < connector->count_props; prop_i++)
+  
+  for (prop_i = 0; prop_i < prop_n; prop_i++)
     {
-      drmModePropertyRes* prop = drmModeGetProperty(drm_fd, connector->props[prop_i]);
+      drmModePropertyRes* prop = drmModeGetProperty(fd, connector->props[prop_i]);
       if (!strcmp("EDID", prop->name))
 	{
-	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(drm_fd, connector->prop_values[prop_i]);
+	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(fd, connector->prop_values[prop_i]);
 	  if (hex)
 	    {
 	      rc += blob->length;
@@ -452,6 +482,7 @@ long blueshift_drm_get_edid(char* edid, long size, int hex)
 	}
       drmModeFreeProperty(prop);
     }
+  
   return rc;
 }
 
