@@ -166,9 +166,43 @@ int main(int argc, char** argv)
   
   blueshift_drm_open(0);
   blueshift_drm_update();
+  
   printf("CRTC count: %i\n", blueshift_drm_crtc_count());
   printf("Connector count: %i\n", blueshift_drm_connector_count());
   printf("Gamma size: %i\n", blueshift_drm_gamma_size(0));
+  
+  drmModeConnector* connector = drmModeGetConnector(drm_fd, *(drm_res->connectors + 2));
+  printf("Physical size: %i mm by %i mm\n", connector->mmWidth, connector->mmHeight);
+  /* Accurate dimension on area not covered by the edges */
+  printf("Connected: %i\n", connector->connection == DRM_MODE_CONNECTED);
+  /* DRM_MODE_DISCONNECTED DRM_MODE_UNKNOWNCONNECTION */
+  printf("Encoder: %i\n", connector->encoder_id);
+  static char* types[] = {"Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS",
+			  "Component", "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP",
+			  "VIRTUAL", "DSI"};
+  printf("Type: %s (%i)\n", types[connector->connector_type], connector->connector_type);
+  int i;
+  for (i = 0; i < connector->count_props; i++)
+    {
+      drmModePropertyRes* prop;
+      prop = drmModeGetProperty(drm_fd, connector->props[i]);
+      if (!strcmp("EDID", prop->name))
+	{
+	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(drm_fd, connector->prop_values[i]);
+	  char* value = alloca((blob->length * 2 + 1) * sizeof(char));
+	  uint32_t j;
+	  for (j = 0; j < blob->length; j++)
+	    {
+	      *(value + j * 2 + 0) = "0123456789abcdef"[(*((char*)(blob->data) + j) >> 4) & 15];
+	      *(value + j * 2 + 1) = "0123456789abcdef"[(*((char*)(blob->data) + j) >> 0) & 15];
+	    }
+	  *(value + blob->length * 2) = 0;
+	  printf("%s: %s\n", prop->name, value);
+	  drmModeFreePropertyBlob(blob);
+	}
+      drmModeFreeProperty(prop);
+    }
+  drmModeFreeConnector(connector);
   
   blueshift_drm_close();
   
