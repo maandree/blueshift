@@ -33,18 +33,16 @@
  * 
  * @return  The number of cards present on the system
  */
-long blueshift_drm_card_count()
+int blueshift_drm_card_count()
 {
-  long len = strlen("/dev/dri/card");
-  char* pathname = alloca((len + 21) * sizeof(char));
-  long count = 0;
+  long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
+  char* pathname = alloca(maxlen * sizeof(char));
+  int count = 0;
   struct stat attr;
-  
-  memcpy(pathname, "/dev/dri/card", len);
   
   for (;;)
     {
-      sprintf(pathname + len, "%li", count);
+      sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, count);
       if (stat(pathname, &attr))
 	break;
       count++;
