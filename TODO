@@ -1,7 +1,7 @@
 High priority:
 	Add example that parses text-based conf file
 	Add support for monitor hotplugging
-	Add models for calculating fade and refrash rate parameters
+	Add models for calculating fade and refresh rate parameters
 
 Medium priority:
 	Fix errors caused by SIGUSR2
@@ -10,7 +10,8 @@ Medium priority:
 Low priority:
 	Add wayland support
 	Add mir support
-	Make it possible to do adjustments without a display server,
-	  it will require a lot of work but it might be possible to
-	  use parts of X or Wayland.
+	Add DRM (Direct Rendering Manager) support
+	  It looks like this can be used to get/set the gamma ramps
+	  without a display server running. It can also get physical
+	  size and probably other data currently support under X.
 
