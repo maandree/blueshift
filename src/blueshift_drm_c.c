@@ -431,7 +431,7 @@ int main(int argc, char** argv)
 			*(blue + j) /= 2;
 		      
 		      drmModeCrtcSetGamma(drm_fd, *(drm_res->crtcs + crtc), gamma_size, red, green, blue);
-		      // TODO what more is required to set gamma ramps?
+		      /* Fails if inside a graphical environment */
 		    }
 		}
 	    }
