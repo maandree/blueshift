@@ -238,6 +238,13 @@ Select CRTC to apply changes to. This is
 comma separated list, and multiple options
 may be used. It is best to start one
 instance per monitor with colour calibration.
+
+Be aware than under X — using RandR — the
+primary monitor is reported to have the
+zeroth CRTC. But under TTY — using DRM —
+this is no concept of primary monitors,
+and thus the CRTC indices can slightly
+different.
 @end table
 
 @option{-g}, @option{-b}, @option{+b}, and
