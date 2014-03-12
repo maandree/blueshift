@@ -199,6 +199,8 @@ void blueshift_drm_close_card(int connection)
   card_connection* card = card_connections + connection;
   
   drmModeFreeResources(card->res);
+  if (card->connectors)
+    free(card->connectors);
   close(card->fd);
   
   if (connection + 1 == card_connection_reuse_ptr)
@@ -491,6 +493,7 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
 int main(int argc, char** argv)
 {
   int card_n = blueshift_drm_card_count();
+  int* cards = alloca(card_n * sizeof(int*));
   int card_i;
   
   (void) argc;
@@ -499,59 +502,61 @@ int main(int argc, char** argv)
   printf("Card count: %i\n", card_n);
   for (card_i = 0; card_i < card_n; card_i++)
     {
+      *(cards + card_i) = blueshift_drm_open_card(card_i);
+      blueshift_drm_update_card(*(cards + card_i));
+    }
+  
+  for (card_i = 0; card_i < card_n; card_i++)
+    {
+      int card = *(cards + card_i);
       int connector_n;
       int connector_i;
       
       printf("Card: %i\n", card_i);
       
-      blueshift_drm_open(0);
-      blueshift_drm_update();
+      connector_n = blueshift_drm_connector_count(card);
       
-      connector_n = blueshift_drm_connector_count();
-      
-      printf("  CRTC count: %i\n", blueshift_drm_crtc_count());
+      printf("  CRTC count: %i\n", blueshift_drm_crtc_count(card));
       printf("  Connector count: %i\n", connector_n);
       
       for (connector_i = 0; connector_i < connector_n; connector_i++)
 	{
-	  int crtc;
+	  blueshift_drm_open_connector(card, connector_i);
 	  
-	  blueshift_drm_open_connector(connector_i);
-	  
-	  printf("  Connector: %i\n",
-		 connector_i);
-	  printf("    Connected: %i\n",
-		 blueshift_drm_is_connected());
+	  printf("  Connector: %i\n", connector_i);
+	  printf("    Connected: %i\n", blueshift_drm_is_connected(card, connector_i));
 	  printf("    Connector type: %s (%i)\n",
-		 blueshift_drm_get_connector_type_name(),
-		 blueshift_drm_get_connector_type_index());
+		 blueshift_drm_get_connector_type_name(card, connector_i),
+		 blueshift_drm_get_connector_type_index(card, connector_i));
 	  
-	  if (blueshift_drm_is_connected() == 1)
+	  if (blueshift_drm_is_connected(card, connector_i) == 1)
 	    {
 	      long size = 128;
-	      char* edid = malloc((size * 2 + 1) * sizeof(char));
+	      char* edid;
 	      long n;
+	      int crtc;
 	      
 	      printf("    Physical size: %i mm by %i mm\n",
-		     blueshift_drm_get_width(),
-		     blueshift_drm_get_height());
+		     blueshift_drm_get_width(card, connector_i),
+		     blueshift_drm_get_height(card, connector_i));
 	      
-	      if ((n = blueshift_drm_get_edid(edid, size, 1)))
+	      edid = malloc((size * 2 + 1) * sizeof(char));
+	      if ((n = blueshift_drm_get_edid(card, connector_i, edid, size, 1)))
 		{
 		  if (n > size)
 		    {
 		      size = n;
 		      edid = realloc(edid, (size * 2 + 1) * sizeof(char));
-		      blueshift_drm_get_edid(edid, size, 1);
+		      blueshift_drm_get_edid(card, connector_i, edid, size, 1);
 		    }
 		  *(edid + n * 2) = 0;
 		  printf("    EDID: %s\n", edid);
 		}
 	      free(edid);
 	      
-	      if ((crtc = blueshift_drm_get_crtc()) >= 0)
+	      if ((crtc = blueshift_drm_get_crtc(card, connector_i)) >= 0)
 		{
-		  int gamma_size = blueshift_drm_gamma_size(crtc);
+		  int gamma_size = blueshift_drm_gamma_size(card, crtc);
 		  uint16_t* red = alloca(3 * gamma_size * sizeof(uint16_t));
 		  uint16_t* green = red + gamma_size;
 		  uint16_t* blue = green + gamma_size;
@@ -559,37 +564,37 @@ int main(int argc, char** argv)
 		  printf("    CRTC: %i\n", crtc);
 		  printf("    Gamma size: %i\n", gamma_size);
 		  
-		  if (!blueshift_drm_get_gamma_ramps(crtc, gamma_size, red, green, blue))
+		  if (!blueshift_drm_get_gamma_ramps(card, crtc, gamma_size, red, green, blue))
 		    {
-		      int j;
+		      int i;
 		      printf("    Red:");
-		      for (j = 0; j < gamma_size; j++)
-			printf(" %u", *(red + j));
+		      for (i = 0; i < gamma_size; i++)
+			printf(" %u", *(red + i));
 		      printf("\n    Green:");
-		      for (j = 0; j < gamma_size; j++)
-			printf(" %u", *(green + j));
+		      for (i = 0; i < gamma_size; i++)
+			printf(" %u", *(green + i));
 		      printf("\n    Blue:");
-		      for (j = 0; j < gamma_size; j++)
-			printf(" %u", *(blue + j));
+		      for (i = 0; i < gamma_size; i++)
+			printf(" %u", *(blue + i));
 		      printf("\n");
 		      
-		      for (j = 0; j < gamma_size; j++)
-			*(red + j) /= 2;
-		      for (j = 0; j < gamma_size; j++)
-			*(green + j) /= 2;
-		      for (j = 0; j < gamma_size; j++)
-			*(blue + j) /= 2;
+		      for (i = 0; i < gamma_size; i++)
+			*(red + i) /= 2;
+		      for (i = 0; i < gamma_size; i++)
+			*(green + i) /= 2;
+		      for (i = 0; i < gamma_size; i++)
+			*(blue + i) /= 2;
 		      
-		      blueshift_drm_set_gamma_ramps(crtc, gamma_size, red, green, blue);
+		      blueshift_drm_set_gamma_ramps(card, crtc, gamma_size, red, green, blue);
 		    }
 		}
 	    }
 	  
-	  blueshift_drm_close_connector();
+	  blueshift_drm_close_connector(card, connector_i);
 	}
     }
-  blueshift_drm_close();
   
+  blueshift_drm_close();
   return 0;
 }
 
