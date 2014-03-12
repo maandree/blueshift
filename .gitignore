@@ -18,6 +18,7 @@ obj/
 __pycache__/
 /src/blueshift_randr.c
 /src/blueshift_vidmode.c
+/src/blueshift_drm.c
 *.info
 *.pdf
 *.dvi
