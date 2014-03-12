@@ -10,8 +10,4 @@ Medium priority:
 Low priority:
 	Add wayland support
 	Add mir support
-	Add DRM (Direct Rendering Manager) support
-	  It looks like this can be used to get/set the gamma ramps
-	  without a display server running. It can also get physical
-	  size and probably other data currently support under X.
 
