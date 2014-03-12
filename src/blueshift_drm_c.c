@@ -273,6 +273,70 @@ const char* blueshift_drm_get_connector_type_name()
 }
 
 
+/**
+ * Get the current gamma ramps of the 
+ * 
+ * @param   crtc_index  The index of the CRTC to read from
+ * @param   gamma_size  The size a gamma ramp
+ * @param   red         Storage location for the red gamma ramp
+ * @param   green       Storage location for the green gamma ramp
+ * @param   blue        Storage location for the blue gamma ramp
+ * @return              Zero on success
+ */
+int blueshift_drm_get_gamma_ramps(int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
+{
+  int i;
+  
+  /* We need to initialise it to avoid valgrind warnings */
+  for (i = 0; i < gamma_size; i++)
+    *(red + i) = *(green + i) = *(blue + i) = 0;
+  
+  return drmModeCrtcGetGamma(drm_fd, *(drm_res->crtcs + crtc_index), gamma_size, red, green, blue);
+}
+
+
+/**
+ * Get the extended display identification data for the monitor connected to the connector
+ * 
+ * @param   edid  Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
+ * @param   size  The size allocated to `edid` excluding your zero termination
+ * @param   hex   Whether to convert to hexadecimal representation, this is preferable
+ * @return        The length of the found value, 0 if none, as if hex is false
+ */
+long blueshift_drm_get_edid(char* edid, long size, int hex)
+{
+  long rc = 0;
+  int prop_i;
+  for (prop_i = 0; prop_i < connector->count_props; prop_i++)
+    {
+      drmModePropertyRes* prop = drmModeGetProperty(drm_fd, connector->props[prop_i]);
+      if (!strcmp("EDID", prop->name))
+	{
+	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(drm_fd, connector->prop_values[prop_i]);
+	  if (hex)
+	    {
+	      rc += blob->length;
+	      uint32_t n = size / 2;
+	      uint32_t i;
+	      if (n < blob->length)
+		n = blob->length;
+	      for (i = 0; i < n ; i++)
+		{
+		  *(edid + i * 2 + 0) = "0123456789abcdef"[(*((char*)(blob->data) + i) >> 4) & 15];
+		  *(edid + i * 2 + 1) = "0123456789abcdef"[(*((char*)(blob->data) + i) >> 0) & 15];
+		}
+	    }
+	  else
+	    memcpy(edid, blob->data, (blob->length < size ? blob->length : size) * sizeof(char));
+	  drmModeFreePropertyBlob(blob);
+	  prop_i = connector->count_props; /* stop to for loop */
+	}
+      drmModeFreeProperty(prop);
+    }
+  return rc;
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -297,19 +361,15 @@ int main(int argc, char** argv)
       if (crtc >= 0)
 	{
 	  int gamma_size = blueshift_drm_gamma_size(crtc);
-	  uint16_t* red = alloca(gamma_size * sizeof(uint16_t));
-	  uint16_t* green = alloca(gamma_size * sizeof(uint16_t));
-	  uint16_t* blue = alloca(gamma_size * sizeof(uint16_t));
-	  int j;
+	  uint16_t* red = alloca(3 * gamma_size * sizeof(uint16_t));
+	  uint16_t* green = red + gamma_size;
+	  uint16_t* blue = green + gamma_size;
 	  
 	  printf("CRTC: %i\n", crtc);
 	  
-	  /* We need to initialise it to avoid valgrind warnings */
-	  for (j = 0; j < gamma_size; j++)
-	    *(red + j) = *(green + j) = *(blue + j) = 0;
-	  
-	  if (!drmModeCrtcGetGamma(drm_fd, *(drm_res->crtcs + crtc), gamma_size, red, green, blue))
+	  if (!blueshift_drm_get_gamma_ramps(crtc, gamma_size, red, green, blue))
 	    {
+	      int j;
 	      printf("Red:");
 	      for (j = 0; j < gamma_size; j++)
 		printf(" %u", *(red + j));
@@ -333,27 +393,27 @@ int main(int argc, char** argv)
 	    }
 	}
       
-      int i;
-      for (i = 0; i < connector->count_props; i++)
-	{
-	  drmModePropertyRes* prop;
-	  prop = drmModeGetProperty(drm_fd, connector->props[i]);
-	  if (!strcmp("EDID", prop->name))
-	    {
-	      drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(drm_fd, connector->prop_values[i]);
-	      char* value = alloca((blob->length * 2 + 1) * sizeof(char));
-	      uint32_t j;
-	      for (j = 0; j < blob->length; j++)
-		{
-		  *(value + j * 2 + 0) = "0123456789abcdef"[(*((char*)(blob->data) + j) >> 4) & 15];
-		  *(value + j * 2 + 1) = "0123456789abcdef"[(*((char*)(blob->data) + j) >> 0) & 15];
-		}
-	      *(value + blob->length * 2) = 0;
-	      printf("%s: %s\n", prop->name, value);
-	      drmModeFreePropertyBlob(blob);
-	    }
-	  drmModeFreeProperty(prop);
-	}
+      {
+	long size = 128;
+	char* edid = malloc((size * 2 + 1) * sizeof(char));
+	long n;
+	
+	*(edid + size * 2) = 0;
+	
+	n = blueshift_drm_get_edid(edid, size, 1);
+	if (n)
+	  {
+	    if (n > size)
+	      {
+		size = n;
+		edid = realloc(edid, (size * 2 + 1) * sizeof(char));
+		blueshift_drm_get_edid(edid, size, 1);
+	      }
+	    *(edid + n * 2) = 0;
+	    printf("EDID: %s\n", edid);
+	  }
+	free(edid);
+      }
     }
   printf("Connector type: %s (%i)\n",
 	 blueshift_drm_get_connector_type_name(),
