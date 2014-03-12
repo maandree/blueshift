@@ -1,13 +1,23 @@
 RUNTIME DEPENDENCIES:
 
 	python3
-	libxcb (opt-out, for randr, crtc identification and icc profile listing)
-	libx11 (opt-out, for vidmode)
-	libxxf86vm (opt-out, for vidmode)
-	libdrm (opt-out, for drm)
-	adjbacklight (optional, for permission-hasslefree backlight adjustments)
-	linux (optional, for backlight support)
-	argparser-python (https://github.com/maandree/argparser)
+
+	argparser-python
+	
+	libxcb (opt-out)
+	    For RandR support and CRTC listing and ICC profile listing under X
+	
+	libx11, libxxf86vm (opt-out)
+	    For VidMode support under X
+	
+	libdrm (opt-out)
+	    For support under TTY through DRM
+	
+	linux (optional)
+	    For backlight support though sysfs
+	
+	linux, adjbacklight (optional)
+	    For permission-hasslefree backlight adjustments though sysfs
 
 
 MAKE DEPENDENCIES:
@@ -15,14 +25,21 @@ MAKE DEPENDENCIES:
 	cython
 	gcc
 	python3
-	libxcb (opt-out, for randr, crtc identification and icc profile listing)
-	libx11 (opt-out, for vidmode)
-	libxxf86vm (opt-out, for vidmode)
-	libdrm (opt-out, for drm)
+	libxcb (opt-out, see runtime dependencies)
+	libx11 (opt-out, see runtime dependencies)
+	libxxf86vm (opt-out, see runtime dependencies)
+	libdrm (opt-out, see runtime dependencies)
 	make
 	coreutils
 	sed
 	zip
 	texinfo (opt-out)
-	auto-auto-complete (opt-out) (https://github.com/maandree/auto-auto-complete)
+	auto-auto-complete (opt-out)
+
+
+DEPENDENCY SOURCES:
+
+	argparser-python      https://github.com/maandree/argparser
+	adjbacklight          https://github.com/maandree/adjbacklight
+	auto-auto-complete    https://github.com/maandree/auto-auto-complete
 
