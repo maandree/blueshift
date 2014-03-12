@@ -274,7 +274,7 @@ const char* blueshift_drm_get_connector_type_name()
 
 
 /**
- * Get the current gamma ramps of the 
+ * Get the current gamma ramps of the monitor connected to the connector
  * 
  * @param   crtc_index  The index of the CRTC to read from
  * @param   gamma_size  The size a gamma ramp
@@ -292,6 +292,24 @@ int blueshift_drm_get_gamma_ramps(int crtc_index, int gamma_size, uint16_t* red,
     *(red + i) = *(green + i) = *(blue + i) = 0;
   
   return drmModeCrtcGetGamma(drm_fd, *(drm_res->crtcs + crtc_index), gamma_size, red, green, blue);
+}
+
+
+/* Fails if inside a graphical environment */
+
+/**
+ * Set the gamma ramps of the of the monitor connected to the connector
+ * 
+ * @param   crtc_index  The index of the CRTC to read from
+ * @param   gamma_size  The size a gamma ramp
+ * @param   red         The red gamma ramp
+ * @param   green       The green gamma ramp
+ * @param   blue        The blue gamma ramp
+ * @return              Zero on success
+ */
+int blueshift_drm_set_gamma_ramps(int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
+{
+  return drmModeCrtcSetGamma(drm_fd, *(drm_res->crtcs + crtc_index), gamma_size, red, green, blue);
 }
 
 
@@ -430,8 +448,7 @@ int main(int argc, char** argv)
 		      for (j = 0; j < gamma_size; j++)
 			*(blue + j) /= 2;
 		      
-		      drmModeCrtcSetGamma(drm_fd, *(drm_res->crtcs + crtc), gamma_size, red, green, blue);
-		      /* Fails if inside a graphical environment */
+		      blueshift_drm_set_gamma_ramps(crtc, gamma_size, red, green, blue);
 		    }
 		}
 	    }
