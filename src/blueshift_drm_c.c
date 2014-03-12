@@ -38,7 +38,7 @@
  * 
  * @return  The number of cards present on the system
  */
-long card_count()
+long blueshift_drm_card_count()
 {
   char* pathname = alloca(PATH_MAX * sizeof(char));
   long len = strlen("/dev/dri/card");
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
   (void) argv;
   
   
-  printf("%li\n", card_count());
+  printf("%li\n", blueshift_drm_card_count());
   
   return 0;
 }
