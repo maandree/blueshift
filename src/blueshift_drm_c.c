@@ -171,7 +171,7 @@ int main(int argc, char** argv)
   printf("Connector count: %i\n", blueshift_drm_connector_count());
   printf("Gamma size: %i\n", blueshift_drm_gamma_size(0));
   
-  drmModeConnector* connector = drmModeGetConnector(drm_fd, *(drm_res->connectors + 2));
+  drmModeConnector* connector = drmModeGetConnector(drm_fd, *(drm_res->connectors + 3));
   printf("Physical size: %i mm by %i mm\n", connector->mmWidth, connector->mmHeight);
   /* Accurate dimension on area not covered by the edges */
   printf("Connected: %i\n", connector->connection == DRM_MODE_CONNECTED);
@@ -214,6 +214,16 @@ int main(int argc, char** argv)
 	      for (j = 0; j < gamma_size; j++)
 		printf(" %u", *(blue + j));
 	      printf("\n");
+	      
+	      for (j = 0; j < gamma_size; j++)
+		*(red + j) /= 2;
+	      for (j = 0; j < gamma_size; j++)
+		*(green + j) /= 2;
+	      for (j = 0; j < gamma_size; j++)
+		*(blue + j) /= 2;
+	      
+	      printf("(%i)\n", drmModeCrtcSetGamma(drm_fd, crtc_id, gamma_size, red, green, blue));
+	      /* TODO what more is required to set gamma ramps? */
 	    }
 	}
     }
