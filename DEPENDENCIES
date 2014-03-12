@@ -11,13 +11,13 @@ RUNTIME DEPENDENCIES:
 	    For VidMode support under X
 	
 	libdrm (opt-out)
-	    For support under TTY through DRM
+	    For support under TTY via DRM
 	
 	linux (optional)
-	    For backlight support though sysfs
+	    For backlight support via sysfs
 	
 	linux, adjbacklight (optional)
-	    For permission-hasslefree backlight adjustments though sysfs
+	    For permission-hasslefree backlight adjustments via sysfs
 
 
 MAKE DEPENDENCIES:
