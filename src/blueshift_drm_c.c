@@ -181,10 +181,41 @@ int main(int argc, char** argv)
       drmModeEncoder* encoder = drmModeGetEncoder(drm_fd, connector->encoder_id);
       uint32_t crtc_id = encoder->crtc_id;
       int crtc;
+      
       drmModeFreeEncoder(encoder);
       for (crtc = 0; crtc < drm_res->count_crtcs; crtc++)
 	if (*(drm_res->crtcs + crtc) == crtc_id)
-	  printf("CRTC: %i\n", crtc);
+	  {
+	    printf("CRTC: %i\n", crtc);
+	    break;
+	  }
+      
+      if (crtc < drm_res->count_crtcs)
+	{
+	  int gamma_size = blueshift_drm_gamma_size(crtc);
+	  uint16_t* red = alloca(gamma_size * sizeof(uint16_t));
+	  uint16_t* green = alloca(gamma_size * sizeof(uint16_t));
+	  uint16_t* blue = alloca(gamma_size * sizeof(uint16_t));
+	  int j;
+	  
+	  /* We need to initialise it to avoid valgrind warnings */
+	  for (j = 0; j < gamma_size; j++)
+	    *(red + j) = *(green + j) = *(blue + j) = 0;
+	  
+	  if (!drmModeCrtcGetGamma(drm_fd, crtc_id, gamma_size, red, green, blue))
+	    {
+	      printf("Red:");
+	      for (j = 0; j < gamma_size; j++)
+		printf(" %u", *(red + j));
+	      printf("\nGreen:");
+	      for (j = 0; j < gamma_size; j++)
+		printf(" %u", *(green + j));
+	      printf("\nBlue:");
+	      for (j = 0; j < gamma_size; j++)
+		printf(" %u", *(blue + j));
+	      printf("\n");
+	    }
+	}
     }
   static const char* types[] = {"Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS",
 				"Component", "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP",
