@@ -34,20 +34,79 @@
 
 
 /**
- * File descriptor for the DRM connection
+ * Resources for an open connection to a graphics card
  */
-static int drm_fd;
+typedef struct _card_connection
+{
+  /**
+   * File descriptor for the connection
+   */
+  int fd;
+  
+  /**
+   * Card resources
+   */
+  drmModeRes* res;
+  
+} card_connection;
+
 
 /**
- * DRM mode resources
+ * Mapping from card connection identifiers to card connection resources
  */
-static drmModeRes* drm_res = NULL;
+static card_connection* card_connections = NULL;
+
+/**
+ * Next card connection identifiers
+ */
+static long card_connection_ptr = 0;
+
+/**
+ * Size of the storage allocated for card connection resouces
+ */
+static long card_connection_size = 0;
+
+/**
+ * Card connection identifier reuse stack
+ */
+static long* card_connection_reusables = NULL;
+
+/**
+ * The head of `card_connection_reusables`
+ */
+static long card_connection_reuse_ptr = 0;
+
+/**
+ * The allocation size of `card_connection_reusables`
+ */
+static long card_connection_reuse_size = 0;
+
 
 /**
  * Connector information
  */
 static drmModeConnector* connector = NULL;
 
+
+
+/**
+ * Free all resources, but your need to close all connections first
+ */
+void blueshift_drm_close()
+{
+  if (card_connections)
+    free(card_connections);
+  
+  if (card_connection_reusables)
+    free(card_connection_reusables);
+  
+  card_connections = NULL;
+  card_connection_ptr = 0;
+  card_connection_size = 0;
+  card_connection_reusables = NULL;
+  card_connection_reuse_ptr = 0;
+  card_connection_reuse_size = 0;
+}
 
 
 /**
@@ -60,12 +119,12 @@ int blueshift_drm_card_count()
   long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
   char* pathname = alloca(maxlen * sizeof(char));
   int count = 0;
-  struct stat attr;
+  struct stat _attr;
   
   for (;;)
     {
       sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, count);
-      if (stat(pathname, &attr))
+      if (stat(pathname, &_attr))
 	break;
       count++;
     }
@@ -77,86 +136,168 @@ int blueshift_drm_card_count()
 /**
  * Open connection to a graphics card
  * 
- * @param   card  The index of the graphics card
- * @return        Zero on success
+ * @param   card_index  The index of the graphics card
+ * @return              -1 on failure, otherwise an identifier for the connection to the card
  */
-int blueshift_drm_open(int card)
+int blueshift_drm_open_card(int card_index)
 {
   long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
   char* pathname = alloca(maxlen * sizeof(char));
+  int drm_fd;
+  int rc;
   
-  sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, card);
+  sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, card_index);
   
-  drm_fd = open(pathname, O_RDWR | O_CLOEXEC);
-  if (drm_fd < 0)
+  fd = open(pathname, O_RDWR | O_CLOEXEC);
+  if (fd < 0)
     {
       perror("open");
-      return 1;
+      return -1;
     }
   
-  return 0;
+  if (card_connection_reuse_ptr)
+    rc = *(card_connection_reusables + --card_connection_reuse_ptr);
+  else
+    {
+      if (card_connection_size == 0)
+	card_connections = malloc((card_connection_size = 8) * sizeof(card_connection));
+      else if (card_connection_ptr == card_connection_size)
+	card_connections = realloc(card_connections, (card_connection_size <<= 1) * sizeof(card_connection));
+      rc = card_connection_ptr++;
+    }
+  
+  *(card_connections + rc).fd = fd;
+  *(card_connections + rc).res = NULL;
+  
+  return rc;
+}
+
+
+/**
+ * Update the resource, required after `blueshift_drm_open_card`
+ * 
+ * @param  connection  The identifier for the connection to the card
+ */
+void blueshift_drm_update_card(int connection)
+{
+  card_connection* card = card_connections + connection;
+  
+  if (card->res)
+    drmModeFreeResources(card->res);
+  
+  card->res = drmModeGetResources(card->fd);
 }
 
 
 /**
  * Close connection to the graphics card
+ * 
+ * @param  connection  The identifier for the connection to the card
  */
-void blueshift_drm_close()
+void blueshift_drm_close_card(int connection)
 {
-  drmModeFreeResources(drm_res);
-  close(drm_fd);
-}
-
-
-/**
- * Update the resource, required after `blueshift_drm_open`
- */
-void blueshift_drm_update()
-{
-  if (drm_res)
-    drmModeFreeResources(drm_res);
+  card_connection* card = card_connections + connection;
   
-  drm_res = drmModeGetResources(drm_fd);
+  drmModeFreeResources(card->res);
+  close(card->fd);
+  
+  if (connection + 1 == card_connection_reuse_ptr)
+    card_connection_reuse_ptr--;
+  else
+    {
+      if (card_connection_reuse_size == 0)
+	card_connection_reusables = malloc((card_connection_reuse_size = 8) * sizeof(long));
+      else if (card_connection_reuse_ptr == card_connection_reuse_size)
+	card_connection_reusables = realloc(card_connection_reusables, (card_connection_reuse_size <<= 1) * sizeof(long));
+      *(card_connection_reusables + card_connection_reuse_ptr++) = connection;
+    }
 }
 
 
 /**
  * Return the number of CRTC:s on the opened card
  * 
- * @return  The number of CRTC:s on the opened card
+ * @param   connection  The identifier for the connection to the card
+ * @return              The number of CRTC:s on the opened card
  */
-int blueshift_drm_crtc_count()
+int blueshift_drm_crtc_count(int connection)
 {
-  return drm_res->count_crtcs;
+  return (card_connections + connection)->res->count_crtcs;
 }
 
 
 /**
  * Return the number of connectors on the opened card
  * 
- * @return  The number of connectors on the opened card
+ * @param   connection  The identifier for the connection to the card
+ * @return              The number of connectors on the opened card
  */
-int blueshift_drm_connector_count()
+int blueshift_drm_connector_count(int connection)
 {
-  return drm_res->count_connectors;
+  return (card_connections + connection)->res->count_connectors;
 }
 
 
 /**
  * Return the size of the gamma ramps on a CRTC
  * 
+ * @param   connection  The identifier for the connection to the card
  * @param   crtc_index  The index of the CRTC
  * @return              The size of the gamma ramps on a CRTC
  */
-int blueshift_drm_gamma_size(int crtc_index)
+int blueshift_drm_gamma_size(int connection, int crtc_index)
 {
-  drmModeCrtc* crtc = drmModeGetCrtc(drm_fd, *(drm_res->crtcs + crtc_index));
-  int gamma_size;
+  card_connection* card = card_connections + connection;
+  drmModeCrtc* crtc = drmModeGetCrtc(card->fd, *(card->res->crtcs + crtc_index));
+  int gamma_size = crtc->gamma_size;
   
-  gamma_size = crtc->gamma_size;
   drmModeFreeCrtc(crtc);
-  
   return gamma_size;
+}
+
+
+/**
+ * Get the current gamma ramps of a monitor
+ * 
+ * @param   connection  The identifier for the connection to the card
+ * @param   crtc_index  The index of the CRTC to read from
+ * @param   gamma_size  The size a gamma ramp
+ * @param   red         Storage location for the red gamma ramp
+ * @param   green       Storage location for the green gamma ramp
+ * @param   blue        Storage location for the blue gamma ramp
+ * @return              Zero on success
+ */
+int blueshift_drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
+{
+  card_connection* card = card_connections + connection;
+  int i;
+  
+  /* We need to initialise it to avoid valgrind warnings */
+  memset(red,   0, gamma_size * sizeof(uint16_t));
+  memset(green, 0, gamma_size * sizeof(uint16_t));
+  memset(blue,  0, gamma_size * sizeof(uint16_t));
+  
+  return drmModeCrtcGetGamma(card->fd, *(card->res->crtcs + crtc_index), gamma_size, red, green, blue);
+}
+
+
+/**
+ * Set the gamma ramps of the of a monitor
+ * 
+ * @param   connection  The identifier for the connection to the card
+ * @param   crtc_index  The index of the CRTC to read from
+ * @param   gamma_size  The size a gamma ramp
+ * @param   red         The red gamma ramp
+ * @param   green       The green gamma ramp
+ * @param   blue        The blue gamma ramp
+ * @return              Zero on success
+ */
+int blueshift_drm_set_gamma_ramps(int connection, int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
+{
+  card_connection* card = card_connections + connection;
+  
+  /* Fails if inside a graphical environment */
+  return drmModeCrtcSetGamma(card->fd, *(card->res->crtcs + crtc_index), gamma_size, red, green, blue);
 }
 
 
@@ -180,8 +321,6 @@ void blueshift_drm_close_connector()
 }
 
 
-/* Accurate dimension on area not covered by the edges */
-
 /**
  * Get the physical width the monitor connected to the connector
  * 
@@ -189,6 +328,7 @@ void blueshift_drm_close_connector()
  */
 int blueshift_drm_get_width()
 {
+  /* Accurate dimension on area not covered by the edges */
   return connector->mmWidth;
 }
 
@@ -200,6 +340,7 @@ int blueshift_drm_get_width()
  */
 int blueshift_drm_get_height()
 {
+  /* Accurate dimension on area not covered by the edges */
   return connector->mmHeight;
 }
 
@@ -270,46 +411,6 @@ const char* blueshift_drm_get_connector_type_name()
   
   int type = connector->connector_type;
   return (size_t)type < sizeof(TYPE_NAMES) / sizeof(char*) ? TYPE_NAMES[type] : "Unrecognised";
-}
-
-
-/**
- * Get the current gamma ramps of the monitor connected to the connector
- * 
- * @param   crtc_index  The index of the CRTC to read from
- * @param   gamma_size  The size a gamma ramp
- * @param   red         Storage location for the red gamma ramp
- * @param   green       Storage location for the green gamma ramp
- * @param   blue        Storage location for the blue gamma ramp
- * @return              Zero on success
- */
-int blueshift_drm_get_gamma_ramps(int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
-{
-  int i;
-  
-  /* We need to initialise it to avoid valgrind warnings */
-  for (i = 0; i < gamma_size; i++)
-    *(red + i) = *(green + i) = *(blue + i) = 0;
-  
-  return drmModeCrtcGetGamma(drm_fd, *(drm_res->crtcs + crtc_index), gamma_size, red, green, blue);
-}
-
-
-/* Fails if inside a graphical environment */
-
-/**
- * Set the gamma ramps of the of the monitor connected to the connector
- * 
- * @param   crtc_index  The index of the CRTC to read from
- * @param   gamma_size  The size a gamma ramp
- * @param   red         The red gamma ramp
- * @param   green       The green gamma ramp
- * @param   blue        The blue gamma ramp
- * @return              Zero on success
- */
-int blueshift_drm_set_gamma_ramps(int crtc_index, int gamma_size, uint16_t* red, uint16_t* green, uint16_t* blue)
-{
-  return drmModeCrtcSetGamma(drm_fd, *(drm_res->crtcs + crtc_index), gamma_size, red, green, blue);
 }
 
 
