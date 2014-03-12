@@ -20,15 +20,10 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <limits.h>
 #include <alloca.h>
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
-
-#ifndef PATH_MAX
-  #define PATH_MAX  4096
-#endif
 
 /* Requires video group */
 
@@ -40,8 +35,8 @@
  */
 long blueshift_drm_card_count()
 {
-  char* pathname = alloca(PATH_MAX * sizeof(char));
   long len = strlen("/dev/dri/card");
+  char* pathname = alloca((len + 21) * sizeof(char));
   long count = 0;
   struct stat attr;
   
