@@ -1221,6 +1221,7 @@ temporarily activate and deactivate Blueshift
 by placing it in the X system tray.
 
 @item blueshift-curse
+(Under development)@*
 @command{blueshift-curse} is an extension for
 Blueshift that can be used by configuration scripts
 to make it possible for other applications, included
@@ -1228,6 +1229,24 @@ an ncurses interface that comes with it, to do
 modifications to the configurations.
 @command{blueshift-curse} uses domain sockets for
 interprocess communication.
+
+@item blueshift-vt-cues
+(Development planned)@*
+@command{blueshift-vt-cues} is an extension for
+Blueshift that, with the support of a daemon, can
+listen for virtual terminal (VT) switching events.
+@command{blueshift-vt-cues} uses domain sockets for
+interprocess communication between the daemons and
+users. It provides information about the currently
+active VT such as VT number, wich user has ownership
+of the VT and either it is a text (or framebuffer)
+session or a graphical session (such as X, Wayland
+and Mir.)
+@command{blueshift-vt-cues} also provides the
+capability of informing the Blueshift configuration
+scripts whether or not they should reset the the
+adjustments to make sure that one user's adjustments
+does not interfere with another user's adjustments.
 @end table
 
 If you want to extend the capabilities of Blueshift
