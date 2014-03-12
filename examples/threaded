@@ -22,7 +22,7 @@ gamma_green = [1.15, 1.16]
 gamma_blue  = [1.11, 1.10]
 
 
-# Make colour curves thread local
+# Make colour curves thread local.
 class threadlocal:
     def __init__(self, obj):
         self.default = obj
@@ -56,18 +56,23 @@ r_curve = threadlocal([i / (i_size - 1) for i in range(i_size)])
 g_curve = threadlocal([i / (i_size - 1) for i in range(i_size)])
 b_curve = threadlocal([i / (i_size - 1) for i in range(i_size)])
 
-## cmf_10deg uses non-thread safe cache, run once in advance so it is not done by the threads
+## cmf_10deg uses non-thread safe cache, run once in advance so it is not done by the threads.
 cmf_10deg(0)
 
 
-# Thread synchronisation barrier
+# Thread synchronisation barrier.
 barrier = threading.Barrier(len(gamma_red) + 1)
 
 # Help functions for colour interpolation.
 interpol, purify = None, None
 
-# Parameters in `periodically`
+# Parameters in `periodically`.
 fade_ = None
+
+# randr is not threadsafe, and absolutely not if you have multiple screens.
+# This semaphore is used to make sure that two threads are not accessing randr at the same time.
+flush_semaphore = threading.Semaphore()
+
 
 def adjust(m):
     '''
@@ -97,7 +102,9 @@ def adjust(m):
         gamma(gamma_red[m], gamma_green[m], gamma_blue[m])
         
         # Flush settings to monitor.
+        flush_semaphore.acquire()
         randr(m)
+        flush_semaphore.release()
         
         # Signal thread completion.
         barrier.wait()
