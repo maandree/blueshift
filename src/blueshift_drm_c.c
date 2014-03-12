@@ -340,86 +340,105 @@ long blueshift_drm_get_edid(char* edid, long size, int hex)
 
 int main(int argc, char** argv)
 {
+  int card_n = blueshift_drm_card_count();
+  int card_i;
+  
   (void) argc;
   (void) argv;
   
-  
-  printf("Card count: %i\n", blueshift_drm_card_count());
-  
-  blueshift_drm_open(0);
-  blueshift_drm_update();
-  blueshift_drm_open_connector(3);
-  
-  printf("CRTC count: %i\n", blueshift_drm_crtc_count());
-  printf("Connector count: %i\n", blueshift_drm_connector_count());
-  printf("Gamma size: %i\n", blueshift_drm_gamma_size(0));
-  printf("Physical size: %i mm by %i mm\n", blueshift_drm_get_width(), blueshift_drm_get_height());
-  printf("Connected: %i\n", blueshift_drm_is_connected());
-  if (blueshift_drm_is_connected() == 1)
-    {;
-      int crtc = blueshift_drm_get_crtc();
-      if (crtc >= 0)
-	{
-	  int gamma_size = blueshift_drm_gamma_size(crtc);
-	  uint16_t* red = alloca(3 * gamma_size * sizeof(uint16_t));
-	  uint16_t* green = red + gamma_size;
-	  uint16_t* blue = green + gamma_size;
-	  
-	  printf("CRTC: %i\n", crtc);
-	  
-	  if (!blueshift_drm_get_gamma_ramps(crtc, gamma_size, red, green, blue))
-	    {
-	      int j;
-	      printf("Red:");
-	      for (j = 0; j < gamma_size; j++)
-		printf(" %u", *(red + j));
-	      printf("\nGreen:");
-	      for (j = 0; j < gamma_size; j++)
-		printf(" %u", *(green + j));
-	      printf("\nBlue:");
-	      for (j = 0; j < gamma_size; j++)
-		printf(" %u", *(blue + j));
-	      printf("\n");
-	      
-	      for (j = 0; j < gamma_size; j++)
-		*(red + j) /= 2;
-	      for (j = 0; j < gamma_size; j++)
-		*(green + j) /= 2;
-	      for (j = 0; j < gamma_size; j++)
-		*(blue + j) /= 2;
-	      
-	      drmModeCrtcSetGamma(drm_fd, *(drm_res->crtcs + crtc), gamma_size, red, green, blue);
-	      /* TODO what more is required to set gamma ramps? */
-	    }
-	}
+  printf("Card count: %i\n", card_n);
+  for (card_i = 0; card_i < card_n; card_i++)
+    {
+      int connector_n;
+      int connector_i;
       
-      {
-	long size = 128;
-	char* edid = malloc((size * 2 + 1) * sizeof(char));
-	long n;
-	
-	*(edid + size * 2) = 0;
-	
-	n = blueshift_drm_get_edid(edid, size, 1);
-	if (n)
-	  {
-	    if (n > size)
-	      {
-		size = n;
-		edid = realloc(edid, (size * 2 + 1) * sizeof(char));
-		blueshift_drm_get_edid(edid, size, 1);
-	      }
-	    *(edid + n * 2) = 0;
-	    printf("EDID: %s\n", edid);
-	  }
-	free(edid);
-      }
+      printf("Card: %i\n", card_i);
+      
+      blueshift_drm_open(0);
+      blueshift_drm_update();
+      
+      connector_n = blueshift_drm_connector_count();
+      
+      printf("  CRTC count: %i\n", blueshift_drm_crtc_count());
+      printf("  Connector count: %i\n", connector_n);
+      
+      for (connector_i = 0; connector_i < connector_n; connector_i++)
+	{
+	  int crtc;
+	  
+	  blueshift_drm_open_connector(connector_i);
+	  
+	  printf("  Connector: %i\n",
+		 connector_i);
+	  printf("    Connected: %i\n",
+		 blueshift_drm_is_connected());
+	  printf("    Connector type: %s (%i)\n",
+		 blueshift_drm_get_connector_type_name(),
+		 blueshift_drm_get_connector_type_index());
+	  
+	  if (blueshift_drm_is_connected() == 1)
+	    {
+	      long size = 128;
+	      char* edid = malloc((size * 2 + 1) * sizeof(char));
+	      long n;
+	      
+	      printf("    Physical size: %i mm by %i mm\n",
+		     blueshift_drm_get_width(),
+		     blueshift_drm_get_height());
+	      
+	      if ((n = blueshift_drm_get_edid(edid, size, 1)))
+		{
+		  if (n > size)
+		    {
+		      size = n;
+		      edid = realloc(edid, (size * 2 + 1) * sizeof(char));
+		      blueshift_drm_get_edid(edid, size, 1);
+		    }
+		  *(edid + n * 2) = 0;
+		  printf("    EDID: %s\n", edid);
+		}
+	      free(edid);
+	      
+	      if ((crtc = blueshift_drm_get_crtc()) >= 0)
+		{
+		  int gamma_size = blueshift_drm_gamma_size(crtc);
+		  uint16_t* red = alloca(3 * gamma_size * sizeof(uint16_t));
+		  uint16_t* green = red + gamma_size;
+		  uint16_t* blue = green + gamma_size;
+		  
+		  printf("    CRTC: %i\n", crtc);
+		  printf("    Gamma size: %i\n", gamma_size);
+		  
+		  if (!blueshift_drm_get_gamma_ramps(crtc, gamma_size, red, green, blue))
+		    {
+		      int j;
+		      printf("    Red:");
+		      for (j = 0; j < gamma_size; j++)
+			printf(" %u", *(red + j));
+		      printf("\n    Green:");
+		      for (j = 0; j < gamma_size; j++)
+			printf(" %u", *(green + j));
+		      printf("\n    Blue:");
+		      for (j = 0; j < gamma_size; j++)
+			printf(" %u", *(blue + j));
+		      printf("\n");
+		      
+		      for (j = 0; j < gamma_size; j++)
+			*(red + j) /= 2;
+		      for (j = 0; j < gamma_size; j++)
+			*(green + j) /= 2;
+		      for (j = 0; j < gamma_size; j++)
+			*(blue + j) /= 2;
+		      
+		      drmModeCrtcSetGamma(drm_fd, *(drm_res->crtcs + crtc), gamma_size, red, green, blue);
+		      // TODO what more is required to set gamma ramps?
+		    }
+		}
+	    }
+	  
+	  blueshift_drm_close_connector();
+	}
     }
-  printf("Connector type: %s (%i)\n",
-	 blueshift_drm_get_connector_type_name(),
-	 blueshift_drm_get_connector_type_index());
-  
-  blueshift_drm_close_connector();
   blueshift_drm_close();
   
   return 0;
