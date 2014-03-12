@@ -784,7 +784,7 @@ To support multiple monitors in a dynamic way,
 the function @code{list_screens} can be used.
 @code{list_screens} is parameterless and returns
 the an instance of the class @code{Screens}.
-Instances of @code{Screens} have one varible:
+Instances of @code{Screens} have one variable:
 @code{screens}, a list of instances of the class
 @code{Screen}. The index of each screens is their
 index in @code{screens}.
