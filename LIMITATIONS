@@ -15,6 +15,7 @@ VidMode can only modify the primary monitor.
 Blueshift only support up to 64 monitors (per screen?).
 If you have more please send be a photo of your awesome
 setup and I will make sure to fix this.
+  (This limitation does not exist under TTY using DRM.)
 
 Blueshift requires adjustable gamma ramps. It is
 very rare that video drivers do not support this.

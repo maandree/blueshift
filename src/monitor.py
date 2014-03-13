@@ -197,6 +197,21 @@ def vidmode(*crtcs, screen = 0):
         pass # Happens on exit by TERM signal
 
 
+def drm(*crtcs, card = 0):
+    '''
+    Applies colour curves using DRM
+    
+    @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
+    @param  card:int    The card that the monitors belong to
+    '''
+    connection = drm_manager.open_card(card)
+    (R_curve, G_curve, B_curve) = translate_to_integers()
+    try:
+        drm_set_gamma_ramps(connection, list(crtcs), i_size, R_curve, G_curve, B_curve)
+    except OverflowError:
+        pass # Happens on exit by TERM signal
+
+
 def print_curves(*crtcs, screen = 0, compact = False):
     '''
     Prints the curves to stdout

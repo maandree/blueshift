@@ -157,12 +157,12 @@ def drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size):
         return None
 
 
-def drm_set_gamma_ramps(int connection, int crtc_index, int gamma_size, r_curve, g_curve, b_curve):
+def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g_curve, b_curve):
     '''
     Set the gamma ramps of the of a monitor
     
     @param   connection                        The identifier for the connection to the card
-    @param   crtc_index                        The index of the CRTC to read from
+    @param   crtc_index:list<int>              The index of the CRTC to read from
     @param   gamma_size                        The size a gamma ramp
     @param   r_curve:list<unsigned short int>  The red gamma ramp
     @param   g_curve:list<unsigned short int>  The green gamma ramp
@@ -181,7 +181,9 @@ def drm_set_gamma_ramps(int connection, int crtc_index, int gamma_size, r_curve,
         r[i] = r_curve[i] & 0xFFFF
         g[i] = g_curve[i] & 0xFFFF
         b[i] = b_curve[i] & 0xFFFF
-    rc = blueshift_drm_set_gamma_ramps(connection, crtc_index, gamma_size, r, g, b)
+    rc = 0
+    for crtc_index in crtc_indices:
+        rc |= blueshift_drm_set_gamma_ramps(connection, crtc_index, gamma_size, r, g, b)
     free(r)
     free(g)
     free(b)
