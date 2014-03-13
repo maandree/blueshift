@@ -25,7 +25,7 @@ from argparser import *
 
 
 PROGRAM_NAME = 'blueshift'
-PROGRAM_VERSION = '1.10'
+PROGRAM_VERSION = '1.9'
 
 
 ## Set global variables
@@ -417,10 +417,10 @@ else:
                     else:
                         file = None
                         break
-            if file.startswith('$~'):
-                import pwd
-                file = pwd.getpwuid(os.getuid()).pw_dir + file[2:]
             if file is not None:
+                if file.startswith('$~'):
+                    import pwd
+                    file = pwd.getpwuid(os.getuid()).pw_dir + file[2:]
                 file = file.replace('\0', '$')
                 if os.path.exists(file):
                     config_file = file
