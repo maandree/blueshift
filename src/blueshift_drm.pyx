@@ -270,9 +270,9 @@ def drm_get_connector_type_name(int connection, int connector_index):
     @param   connection       The identifier for the connection to the card
     @param   connector_index  The index of the connector
     @return  :str             The connector type by name, "Unknown" if not identifiable,
-    "Unrecognised" if Blueshift does not recognise it.
+                              "Unrecognised" if Blueshift does not recognise it.
     '''
-    return <bytes>blueshift_drm_get_connector_type_name(connection, connector_index)
+    return (<bytes>blueshift_drm_get_connector_type_name(connection, connector_index)).decode('utf-8', 'replace')
 
 
 def drm_get_edid(int connection, int connector_index):
@@ -303,5 +303,5 @@ def drm_get_edid(int connection, int connector_index):
     edid[got * 2] = 0
     rc = edid
     free(edid)
-    return rc
+    return rc.decode('utf-8', 'replace')
 

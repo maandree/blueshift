@@ -420,9 +420,25 @@ class Output:
         rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
         return rc
 
-def list_screens():
+
+def list_screens(method = 'randr'):
     '''
     Retrieve informantion about all screens, outputs and CRTC:s
+    
+    @param   method:str  The listing method: 'randr' for RandR (under X),
+                                             'drm' for DRM (under TTY)
+    @return  :Screens    An instance of a datastructure with the relevant information
+    '''
+    if method == 'randr':
+        return list_screens_randr()
+    if method == 'drm':
+        return list_screens_drm()
+    return None # Error: invalid method
+
+
+def list_screens_randr():
+    '''
+    Retrieve informantion about all screens, outputs and CRTC:s, using RandR
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
@@ -467,6 +483,48 @@ def list_screens():
     return rc
 
 
+def list_screens_drm():
+    '''
+    Retrieve informantion about all screens, outputs and CRTC:s, using DRM
+    
+    @return  :Screens  An instance of a datastructure with the relevant information
+    '''
+    # This method should not use `drm_manager` because we want to be able to find updates
+    screens = Screens()
+    screens.screens = []
+    for card in range(drm_card_count()):
+        screen = Screen()
+        screens.screens.append(screen)
+        connection = drm_open_card(card)
+        if connection == -1:
+            continue
+        drm_update_card(connection)
+        screen.crtc_count = drm_crtc_count(connection)
+        used_names = {}
+        for connector in range(drm_connector_count(connection)):
+            drm_open_connector(connection, connector)
+            output = Output()
+            screen.outputs.append(output)
+            output.name = drm_get_connector_type_name(connection, connector)
+            if output.name not in used_names:
+                used_names[output.name] = 0
+            count = used_names[output.name]
+            used_names[output.name] += 1
+            output.name = '%s-%i' % (output.name, count)
+            output.connected = drm_is_connected(connection, connector) == 1
+            if output.connected:
+                output.widthmm = drm_get_width(connection, connector)
+                output.heightmm = drm_get_height(connection, connector)
+                if (output.widthmm <= 0) or (output.heightmm <= 0):
+                    output.widthmm, output.heightmm = None, None
+                output.crtc = drm_get_crtc(connection, connector)
+                output.edid = drm_get_edid(connection, connector)
+            output.screen = card
+            drm_close_connector(connection, connector)
+        drm_close_card(connection)
+    return screens
+
+
 class DRMManager:
     '''
     Manager for DRM connections to avoid monitor flicker on unnecessary connections
@@ -492,6 +550,7 @@ class DRMManager:
             self.connectors = [None] * drm_card_count()
         if self.cards[card] == -1:
             self.cards[card] = drm_open_card(card)
+            drm_update_card(drm_open_card(self.cards[card]))
         return self.cards[card]
     
     def open_connector(self, card, connector):
