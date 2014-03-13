@@ -7,9 +7,6 @@
 # The colour temperature to apply.
 temp = 6500
 
-# Check if we are in X or TTY.
-ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
-
 # List all connected outputs.
 outputs = list_screens('drm' if ttymode else 'randr').find_by_connected(True)
 

@@ -74,7 +74,7 @@ def reduce(f, items):
         rc = f(rc, items[i])
     return rc
 output = reduce(lambda x, y : x + y, [a.split(',') for a in output])
-monitor_controller = lambda : randr(*output)
+monitor_controller = lambda : (drm if ttymode else randr)(*output)
 
 def apply(dayness, pureness):
     '''

@@ -7,9 +7,6 @@
 # but `Screen.crtc_count` is much more effective.
 
 
-# Check if we are in X or TTY.
-ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
-
 # We want to use the ad-hoc mode options.
 uses_adhoc_opts = True
 

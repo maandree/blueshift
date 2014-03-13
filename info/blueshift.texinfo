@@ -313,6 +313,7 @@ Disables or enables Blueshift.
 * Backlight::                           Adjusting monitor backlight.
 * Continuous mode::                     Creating continuous mode configurations.
 * Solar time::                          Solar functions, such as elevation calcuation.
+* Running without X::                   Configuration options for running without X.
 @end menu
 
 
@@ -789,12 +790,15 @@ continuous mode.
 
 To support multiple monitors in a dynamic way,
 the function @code{list_screens} can be used.
-@code{list_screens} is parameterless and returns
-the an instance of the class @code{Screens}.
-Instances of @code{Screens} have one variable:
-@code{screens}, a list of instances of the class
-@code{Screen}. The index of each screens is their
-index in @code{screens}.
+@code{list_screens} has one optional parameter
+and returns the an instance of the class
+@code{Screens}. Instances of @code{Screens} have
+one variable: @code{screens}, a list of instances
+of the class @code{Screen}. The index of each
+screens is their index in @code{screens}.
+@code{list_screens}'s parameter, @code{method},
+selects the method and defaults to `randr',
+it also supports the method `drm'.
 
 Instances of the class @code{Screen} have two
 variables: @code{crtc_count}, the number of CRT
@@ -1211,6 +1215,86 @@ nautical twilight, measured in degrees.
 The Sun's lowest and highest elevation during
 astronomical twilight, measured in degrees.
 @end table
+
+
+@node Running without X
+@section Running without X
+
+Blueshift has the capability of operating,
+in fullness, without a display server like X.
+Using Direct Rendering Manager (DRM), in Linux,
+Blueshift is able to get monitor information
+and get and set the colour curves for each
+monitor, just as it is under X using RandR;
+except this only works if the active VT does
+not have a display server.
+
+There are however a few differences:
+@itemize @bullet{}
+@item
+DRM returns more exact physical monitor
+dimensions. For example, my CRT:s have a
+visible area of slightly (off by a millimeter
+or two) larger than 400 mm by 300 mm, but
+RandR returns 364 mm by 291 mm which is an
+aspect ratio of 5:4 rather than 4:3.
+@item
+DRM does not have the concept of primary
+monitors, which RandR has. RandR changes
+the indices of the CRTC:s so that the
+primary monitors have zero as their indices.
+@item
+DRM does not have a concept of screens,
+but it does have the concept of graphic
+cards which is missing from RandR. In
+practice, these are however equivalent,
+and therefore the DRM methods which have
+a RandR version caps the parameters for
+graphic cards for @code{screen} rather
+than @code{card} to maintain API
+compatibility with the RandR versions.
+@end itemize
+
+Blueshift checks for you whether you are
+running in a TTY by checking the @var{DISPLAY}
+environment variable, and sets the variable
+@code{ttymode}. That is Blueshift will set
+the variable @code{ttymode} to @code{True}
+if it thinks that it is not connected to a
+display server, and @code{False} otherwise.
+Not that it is still possible to use the DRM
+functions when connected to a display server:
+nothing will happen because, all requests to
+change the colour curves will be rejected.
+However if you switch VT to a TTY, the requests
+will be accepted and the requests to the
+display server will be ignored until you
+reenter the VT with that display.
+
+The DRM equivalent to the RandR functions
+@code{randr} (applying colour curves) and
+@code{randr_get} (reading current colour
+curves) are @code{drm} and @code{drm_get},
+respectively. The paramers are exactly the
+same for the DRM functions as they are for
+the RandR functions.
+
+The function @code{list_screens}, which
+lists all screens, CRTC:s and outputs,
+runs @code{list_screens_randr} by default.
+By invoking @code{list_screens} with the
+argument `drm' it will instead run
+@code{list_screens_drm}. It will return
+equivalent data, except with it calls
+screens are actually graphics cards,
+and as mentioned, the CRTC:s may have
+different indices and the monitors may
+have different physical sizes. But the
+names of the outputs (which are called
+connectors in DRM contected, but for this
+function it will still be called outputs
+for API compatibility with the RandR
+version) by be different.
 
 
 

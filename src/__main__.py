@@ -89,7 +89,12 @@ wait_period = 60
 :float  The number of seconds to wait before invoking `periodically` again
 '''
 
-monitor_controller = lambda : randr()
+ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
+'''
+:bool  Whether blueshift is running in a TTY, determined by the DISPLAY environment variable
+'''
+
+monitor_controller = (lambda : drm()) if ttymode else (lambda : randr())
 '''
 :()→void  Function used by Blueshift on exit to apply reset colour curves, if using preimplemented `reset`
 '''

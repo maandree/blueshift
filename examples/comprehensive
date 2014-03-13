@@ -43,9 +43,6 @@ def by_time():
     return 1 # Error in `time_alpha` (probably)
 
 
-# Check if we are in X or TTY.
-ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
-
 # Method for applying colour curves.
 apply_curves = randr
 #apply_curves = vidmode
