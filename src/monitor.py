@@ -68,6 +68,27 @@ def close_c_bindings():
     drm_manager.close()
 
 
+def ramps_to_function(r, g, b):
+    '''
+    Convert a three colour curves to a function that applies those adjustments
+    
+    @param   r:int     The red colour curves as [0, 65535] integers
+    @param   g:int     The green colour curves as [0, 65535] integers
+    @param   b:int     The blue colour curves as [0, 65535] integers
+    @return  :()→void  Function to invoke to apply the curves that the parameters [r, g and b] represents
+    '''
+    r = [y / 65535 for y in r]
+    g = [y / 65535 for y in g]
+    b = [y / 65535 for y in b]
+    def fcurve(R_curve, G_curve, B_curve):
+        for curve, cur in curves(R_curve, G_curve, B_curve):
+            for i in range(i_size):
+                y = int(curve[i] * (len(cur) - 1) + 0.5)
+                y = min(max(0, y), len(cur) - 1)
+                curve[i] = cur[y]
+    return lambda : fcurve(r, g, b)
+
+
 def randr_get(crtc = 0, screen = 0):
     '''
     Gets the current colour curves using the X11 extension RandR
@@ -85,17 +106,7 @@ def randr_get(crtc = 0, screen = 0):
             randr_opened = screen
         else:
             sys.exit(1)
-    (r, g, b) = randr_read(crtc)
-    r = [y / 65535 for y in r]
-    g = [y / 65535 for y in g]
-    b = [y / 65535 for y in b]
-    def fcurve(R_curve, G_curve, B_curve):
-        for curve, cur in curves(R_curve, G_curve, B_curve):
-            for i in range(i_size):
-                y = int(curve[i] * (len(cur) - 1) + 0.5)
-                y = min(max(0, y), len(cur) - 1)
-                curve[i] = cur[y]
-    return lambda : fcurve(r, g, b)
+    return ramps_to_function(*(randr_read(crtc)))
 
 
 def vidmode_get(crtc = 0, screen = 0):
@@ -115,17 +126,19 @@ def vidmode_get(crtc = 0, screen = 0):
             vidmode_opened = screen
         else:
             sys.exit(1)
-    (r, g, b) = vidmode_read(crtc)
-    r = [y / 65535 for y in r]
-    g = [y / 65535 for y in g]
-    b = [y / 65535 for y in b]
-    def fcurve(R_curve, G_curve, B_curve):
-        for curve, cur in curves(R_curve, G_curve, B_curve):
-            for i in range(i_size):
-                y = int(curve[i] * (len(cur) - 1) + 0.5)
-                y = min(max(0, y), len(cur) - 1)
-                curve[i] = cur[y]
-    return lambda : fcurve(r, g, b)
+    return ramps_to_function(*(vidmode_read(crtc)))
+
+
+def drm_get(crtc = 0, card = 0):
+    '''
+    Gets the current colour curves using DRM
+    
+    @param   crtc:int  The CRTC of the monitor to read from
+    @param   card:int  The graphics card that the monitor belong to
+    @return  :()→void  Function to invoke to apply the curves that was used when this function was invoked
+    '''
+    connection = drm_manager.open_card(card)
+    return ramps_to_function(*(drm_get_gamma_ramps(connection, crtc, i_size)))
 
 
 def randr(*crtcs, screen = 0):
@@ -522,12 +535,15 @@ def list_screens_drm():
             output.screen = card
             drm_close_connector(connection, connector)
         drm_close_card(connection)
+    drm_manager.is_open = True
     return screens
 
 
 class DRMManager:
     '''
     Manager for DRM connections to avoid monitor flicker on unnecessary connections
+    
+    There should only be one instance of this class
     '''
     
     def __init__(self):
@@ -545,6 +561,7 @@ class DRMManager:
         @param   card:int  The index of the card
         @return  :int      -1 on failure, otherwise the identifier for the connection
         '''
+        self.is_open = True
         if self.cards is None:
             self.cards = [-1] * drm_card_count()
             self.connectors = [None] * drm_card_count()
