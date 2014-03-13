@@ -20,6 +20,11 @@ from subprocess import Popen, PIPE
 
 from curve import *
 
+try:
+    from blueshift_drm import *
+except:
+    pass ## Not compiled with DRM support
+
 # /usr/lib
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
@@ -60,6 +65,7 @@ def close_c_bindings():
         from blueshift_vidmode import vidmode_close
         vidmode_opened = None
         vidmode_close()
+    drm_manager.close()
 
 
 def randr_get(crtc = 0, screen = 0):
@@ -459,4 +465,95 @@ def list_screens():
     rc = Screens()
     rc.screens = screens
     return rc
+
+
+class DRMManager:
+    '''
+    Manager for DRM connections to avoid monitor flicker on unnecessary connections
+    '''
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.is_open = False
+        self.cards = None
+        self.connectors = None
+    
+    def open_card(self, card):
+        '''
+        Make sure there is a connection to a specific card
+        
+        @param   card:int  The index of the card
+        @return  :int      -1 on failure, otherwise the identifier for the connection
+        '''
+        if self.cards is None:
+            self.cards = [-1] * drm_card_count()
+            self.connectors = [None] * drm_card_count()
+        if self.cards[card] == -1:
+            self.cards[card] = drm_open_card(card)
+        return self.cards[card]
+    
+    def open_connector(self, card, connector):
+        '''
+        Make sure there is a connection to a specific connector
+        
+        @param  card:int       The index of the card with the connector
+        @param  connector:int  The index of the connector
+        '''
+        connection = self.open_card(card)
+        if self.connectors[card] is None:
+            self.connectors[card] = [False] * drm_connector_count()
+        if not self.connectors[card][connector]:
+            self.connectors[card][connector] = True
+            drm_open_connector(connection, connector)
+    
+    def close_connector(self, card, connector):
+        '''
+        Make sure there is no connection to a specific connector
+        
+        @param  card:int       The index of the card with the connector
+        @param  connector:int  The index of the connector
+        '''
+        if self.cards is None:
+            return
+        connection = self.cards[card]
+        if connection == -1:
+            return
+        if self.connectors[card] is None:
+            return
+        if self.connectors[card][connector]:
+            self.connectors[card][connector] = False
+            drm_close_connector(connection, connector)
+    
+    def close_card(self, card):
+        '''
+        Make sure there is no connection to a specific card
+        
+        @param  card:int  The index of the card
+        '''
+        if self.cards is None:
+            return
+        connection = self.cards[card]
+        self.cards[card] = -1
+        if self.connectors[card] is not None:
+            for i in range(len(self.connectors[card])):
+                if self.connectors[card][i]:
+                    drm_close_connector(connection, i)
+            self.connectors[card] = None
+        drm_close_card(connection)
+    
+    def close(self):
+        '''
+        Close all connections
+        '''
+        if self.is_open:
+            self.is_open = False
+            if self.cards is not None:
+                for card in len(self.cards):
+                    self.close_card(card)
+                self.cards = None
+            blueshift_drm_close()
+
+drm_manager = DRMManager()
 
