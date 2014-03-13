@@ -7,6 +7,9 @@
 # but `Screen.crtc_count` is much more effective.
 
 
+# Check if we are in X or TTY.
+ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
+
 # We want to use the ad-hoc mode options.
 uses_adhoc_opts = True
 
@@ -52,7 +55,7 @@ if parser.opts['--help'] is not None:
 
 
 # Find CRTC:s.
-screens = list_screens()
+screens = list_screens('drm' if ttymode else 'randr')
 outputs = []
 
 # Find CRTC:s by name.
@@ -79,5 +82,5 @@ for output in outputs:
     gamma(*gamma_)
     
     # Apply adjustments.
-    randr(output.crtc, screen = output.screen)
+    (drm if ttymode else randr)(output.crtc, screen = output.screen)
 

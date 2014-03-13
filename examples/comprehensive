@@ -9,6 +9,8 @@
 # nor does it parse options other than -r from ad-hoc settigns, or
 # use monitor identifiation.
 
+import os
+
 
 # Geographical coodinates.
 # (KTH building D computer laboratories in this example.)
@@ -39,6 +41,16 @@ def by_time():
             hh = (hh - a) / (b - a)
             return av * (1 - hh) + bv * hh
     return 1 # Error in `time_alpha` (probably)
+
+
+# Check if we are in X or TTY.
+ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
+
+# Method for applying colour curves.
+apply_curves = randr
+#apply_curves = vidmode
+if ttymode:
+    apply_curves = drm
 
 
 # Keep uncomment to use solar position.
@@ -132,9 +144,13 @@ icc_calibration_profile = [None]
 # -p (--panicgate) is used.
 current_calibration = [None]
 if not panicgate:
-    calib_get = None
-    #calib_get = randr_get
-    #calib_get = vidmode_get
+    if not ttymode:
+        calib_get = None
+        #calib_get = randr_get
+        #calib_get = vidmode_get
+    else:
+        calib_get = None
+        #calib_get = drm_get
     current_calibration = [calib_get]
 
 
@@ -178,7 +194,7 @@ for i in range(len(current_calibration)):
         current_calibration[i] = f(m)
 
 
-monitor_controller = lambda : randr(*monitors)
+monitor_controller = lambda : apply_curves(*monitors)
 '''
 :()→void  Function used by Blueshift on exit to apply reset colour curves, if using preimplemented `reset`
 '''
@@ -335,9 +351,9 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         # Flush settings to monitor.
         if len(monitors) == 0:
-            randr()
+            apply_curves()
         else:
-            randr(monitors[m % len(monitors)])
+            apply_curves(monitors[m % len(monitors)])
     
     # Lets wait only 5 seconds, instead of a minute before running again.
     wait_period = 5
@@ -372,9 +388,9 @@ def reset():
         
         # Flush settings to monitor.
         if len(monitors) == 0:
-            randr()
+            apply_curves()
         else:
-            randr(monitors[m % len(monitors)])
+            apply_curves(monitors[m % len(monitors)])
 
 
 if (get_dayness is not None) and not doreset:

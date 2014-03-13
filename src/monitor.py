@@ -20,11 +20,6 @@ from subprocess import Popen, PIPE
 
 from curve import *
 
-try:
-    from blueshift_drm import *
-except:
-    pass ## Not compiled with DRM support
-
 # /usr/lib
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
@@ -34,6 +29,11 @@ LIBEXECDIR = 'bin'
 
 randr_opened = None
 vidmode_opened = None
+
+try:
+    from blueshift_drm import *
+except:
+    pass ## Not compiled with DRM support
 
 
 def translate_to_integers():
@@ -129,15 +129,15 @@ def vidmode_get(crtc = 0, screen = 0):
     return ramps_to_function(*(vidmode_read(crtc)))
 
 
-def drm_get(crtc = 0, card = 0):
+def drm_get(crtc = 0, screen = 0):
     '''
     Gets the current colour curves using DRM
     
-    @param   crtc:int  The CRTC of the monitor to read from
-    @param   card:int  The graphics card that the monitor belong to
-    @return  :()→void  Function to invoke to apply the curves that was used when this function was invoked
+    @param   crtc:int    The CRTC of the monitor to read from
+    @param   screen:int  The graphics card that the monitor belong to, named `screen` for compatibility with randr_get and vidmode_get
+    @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
     '''
-    connection = drm_manager.open_card(card)
+    connection = drm_manager.open_card(screen)
     return ramps_to_function(*(drm_get_gamma_ramps(connection, crtc, i_size)))
 
 
@@ -197,17 +197,20 @@ def vidmode(*crtcs, screen = 0):
         pass # Happens on exit by TERM signal
 
 
-def drm(*crtcs, card = 0):
+def drm(*crtcs, screen = 0):
     '''
     Applies colour curves using DRM
     
     @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
-    @param  card:int    The card that the monitors belong to
+    @param  screen:int  The card that the monitors belong to, named `screen` for compatibility with randr_get and vidmode_get
     '''
-    connection = drm_manager.open_card(card)
+    connection = drm_manager.open_card(screen)
     (R_curve, G_curve, B_curve) = translate_to_integers()
     try:
-        drm_set_gamma_ramps(connection, list(crtcs), i_size, R_curve, G_curve, B_curve)
+        crtcs = list(crtcs)
+        if len(crtcs) == 0:
+            crtcs = list(range(drm_crtc_count(connection)))
+        drm_set_gamma_ramps(connection, crtcs, i_size, R_curve, G_curve, B_curve)
     except OverflowError:
         pass # Happens on exit by TERM signal
 
@@ -582,7 +585,7 @@ class DRMManager:
             self.connectors = [None] * drm_card_count()
         if self.cards[card] == -1:
             self.cards[card] = drm_open_card(card)
-            drm_update_card(drm_open_card(self.cards[card]))
+            drm_update_card(self.cards[card])
         return self.cards[card]
     
     def open_connector(self, card, connector):
@@ -641,10 +644,10 @@ class DRMManager:
         if self.is_open:
             self.is_open = False
             if self.cards is not None:
-                for card in len(self.cards):
+                for card in range(len(self.cards)):
                     self.close_card(card)
                 self.cards = None
-            blueshift_drm_close()
+            drm_close()
 
 drm_manager = DRMManager()
 

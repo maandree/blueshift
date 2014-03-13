@@ -7,8 +7,11 @@
 # The colour temperature to apply.
 temp = 6500
 
+# Check if we are in X or TTY.
+ttymode = not (('DISPLAY' in os.environ) and (':' in os.environ['DISPLAY']))
+
 # List all connected outputs.
-outputs = list_screens().find_by_connected(True)
+outputs = list_screens('drm' if ttymode else 'randr').find_by_connected(True)
 
 # EDID of the primary monitors
 edid_0 = '00ffffffffffff0010ac00504d5730372f0c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff00364432353232424c3730574d0a00ea'
@@ -29,8 +32,10 @@ for output in outputs:
     monitor_gamma = (1, 1, 1)
     
     # Get the correct gamma settings for the monitor.
-    if   (monitor == ('DVI-0', 364, 291, False)) or (edid == edid_0):  monitor_gamma = gammas[0]
-    elif (monitor == ('VGA-0', 364, 291, False)) or (edid == edid_1):  monitor_gamma = gammas[1]
+    if   (monitor == ('DVI-0',  364, 291, False)) or (edid == edid_0):  monitor_gamma = gammas[0]  # using RandR
+    elif (monitor == ('VGA-0',  364, 291, False)) or (edid == edid_1):  monitor_gamma = gammas[1]  # using RandR
+    elif (monitor == ('DVII-0', 400, 300, False)) or (edid == edid_0):  monitor_gamma = gammas[0]  # using DRM
+    elif (monitor == ('VGA-0',  400, 300, False)) or (edid == edid_1):  monitor_gamma = gammas[1]  # using DRM
     else:
         print('Warning: unknown monitor at %s at size of %i mm by %i mm' % monitor[:3])
     
@@ -40,5 +45,5 @@ for output in outputs:
     gamma(*monitor_gamma)
     
     # Apply adjustments.
-    randr(output.crtc, screen = output.screen)
+    (drm if ttymode else randr)(output.crtc, screen = output.screen)
 

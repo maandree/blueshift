@@ -2,11 +2,11 @@ High priority:
 	Add example that parses text-based conf file
 	Add support for monitor hotplugging
 	Add models for calculating fade and refresh rate parameters
-	Test, demo and document DRM support
+	Document DRM support
 
 Medium priority:
 	Fix errors caused by SIGUSR2
-	Test, demo and document, _ICC_PROFILE
+	Test, demo and document _ICC_PROFILE
 
 Low priority:
 	Add wayland support
