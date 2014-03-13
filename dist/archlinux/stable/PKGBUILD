@@ -13,7 +13,7 @@ optdepends=('adjbacklight: for backlight adjustments without root requirements'
 makedepends=(cython gcc python3 libxcb libxxf86vm libx11 libdrm make coreutils sed zip texinfo auto-auto-complete)
 install=blueshift.install
 source=($url/archive/$pkgver.tar.gz)
-sha256sums=(bb370f6d408cd24f0ed747014fa6302a14bcba2f315f199e94082b62ffc3fcf8)
+sha256sums=(43499e5549ce26c5145a9a8f6bc0302d83d875d38fcea34a063e2c6b5545d65e)
 
 
 build() {
