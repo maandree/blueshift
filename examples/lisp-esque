@@ -25,6 +25,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 
 # Get the name of .conf file
 conf = '%s.conf' % (config_file[:-2] if config_file.endswith('rc') else config_file)
@@ -133,6 +135,10 @@ if isinstance(conf[0], str) and not conf[0].startswith(':'):
     conf = conf[1:]
 
 
+# Available outputs
+screens = list_screens('drm' if ttymode else 'randr')
+
+
 ## For the following functions, the type of args is the type of args
 ## after it has been evaluated, they may be functions inside that
 ## break this until the functions have been evaluated. The type for
@@ -145,7 +151,8 @@ def _monitors(mods, args):
     @param  mods:[]         Not used
     @param  args:list<str>  Indices of outputs, <screen>: or <screen>:<output> or 'nil', empty for all
     '''
-    print('Selected monitors: %s' % ','.join(evaluate_tree(args, True)))
+    args = evaluate_tree(args, True)
+    print('Selected monitors: %s' % ', '.join(args))
 
 
 def _crtc(mods, args):
@@ -156,7 +163,16 @@ def _crtc(mods, args):
     @param   args:list<str>  Names of outputs
     @return  :list<str>      <screen>:<output> encoding of found monitors
     '''
-    pass
+    args = evaluate_tree(args, False)
+    limit = None if len(mods) == 0 else int(mods[0])
+    found = []
+    for name in args:
+        found += screens.find_by_name(name)
+    found = ['%i:%i' % (output.screen, output.crtc) for output in found]
+    if limit is not None:
+        found += ['nil'] * limit
+        found = found[:limit]
+    return found
 
 
 def _size(mods, args):
@@ -167,7 +183,16 @@ def _size(mods, args):
     @param   args:[str, str]|list<[str, str]>  Width–height-pairs, in millimetres
     @return  :list<str>                        <screen>:<output> encoding of found monitors
     '''
-    pass
+    args = evaluate_tree(args, True)
+    limit = None if len(mods) == 0 else int(mods[0])
+    found = []
+    for (width, height) in [args] if len(args) == 2 else args:
+        found += screens.find_by_size(int(width), int(height))
+    found = ['%i:%i' % (output.screen, output.crtc) for output in found]
+    if limit is not None:
+        found += ['nil'] * limit
+        found = found[:limit]
+    return found
 
 
 def _edid(mods, args):
@@ -178,7 +203,16 @@ def _edid(mods, args):
     @param   args:list<str>  EDID of outputs' monitors
     @return  :list<str>      <screen>:<output> encoding of found monitors
     '''
-    pass
+    args = evaluate_tree(args, False)
+    limit = None if len(mods) == 0 else int(mods[0])
+    found = []
+    for edid in args:
+        found += screens.find_by_edid(edid)
+    found = ['%i:%i' % (output.screen, output.crtc) for output in found]
+    if limit is not None:
+        found += ['nil'] * limit
+        found = found[:limit]
+    return found
 
 
 def _coordinates(mods, args):
@@ -188,7 +222,11 @@ def _coordinates(mods, args):
     @param  mods:[]|[str]    Continuously updates if 'cont' is included
     @param  args:[str, str]  The latitude and longitude (northwards and eastwards in degrees)
     '''
-    pass
+    args = evaluate_tree(args, True)
+    if 'cont' in mods:
+        print('Selected continuous location tracking: %s' % repr(args))
+    else:
+        print('Selected location: %f, %f' % (float(args[0]), float(args[1])))
 
 
 def _parse(mods, args):
@@ -199,7 +237,11 @@ def _parse(mods, args):
     @param   args:[str]    The string
     @return  :list<↑|str>  The tree
     '''
-    pass
+    args = evaluate_tree(args, True)
+    if len(args) == 1:
+        return evaluate_tree(parse(args[0]))
+    else:
+        return [evaluate_tree(parse(arg)) for arg in args]
 
 
 def _read(mods, args):
@@ -210,7 +252,12 @@ def _read(mods, args):
     @param   args:[str]  The file
     @return  :[str]      The content of the file
     '''
-    pass
+    args = evaluate_tree(args, False)
+    rc = []
+    for arg in args:
+        with open(arg, 'r') as file:
+            rc.append(file.read().rstrip())
+    return rc
 
 
 def _spawn(mods, args):
@@ -221,7 +268,9 @@ def _spawn(mods, args):
     @param   args:list<str>  The command
     @return  :[str]          The output of the command
     '''
-    pass
+    args = evaluate_tree(args, False)
+    from subprocess import Popen, PIPE
+    return [subprocess.Popen(args, stdout = PIPE, stderr = sys.stderr).proc.communicate()[0]]
 
 
 def _include(mods, args):
@@ -232,7 +281,15 @@ def _include(mods, args):
     @param   args:list<str>  The files
     @return  :list<↑|str>    The content of the file as a tree concatenated
     '''
-    pass
+    args = evaluate_tree(args, False)
+    rc = []
+    for arg in args:
+        with open(arg, 'r') as file:
+            rc.append(file.read().rstrip())
+    if len(rc) == 1:
+        return evaluate_tree(parse(rc[0]))
+    else:
+        return [evaluate_tree(parse(content)) for content in rc]
 
 
 def _source(mods, args):
@@ -242,7 +299,8 @@ def _source(mods, args):
     @param   mods:[]         Not used
     @param   args:list<str>  The files
     '''
-    pass
+    args = evaluate_tree(args, True)
+    pass # TODO (source)
 
 
 def _eval(mods, args):
@@ -253,7 +311,13 @@ def _eval(mods, args):
     @param   args:list<↑|str>  The strings
     @return  :list<↑|str>      The evaluated valus
     '''
-    pass
+    args = evaluate_tree(args, False)
+    def eval_(arg):
+        if isinstance(arg, str):
+            return str(eval(arg, globals()))
+        else:
+            return [eval_(arg) for arg in args]
+    return eval_(args)
 
 
 def _timepoints(mods, args):
@@ -263,10 +327,11 @@ def _timepoints(mods, args):
     not used by default, be can be enabled in the next section.
     
     @param  mods:[]         Not used
-    @param  args:list<str>  The time points in 24-hour colour formated as
+    @param  args:list<str>  The time points in 24-hour colour formatted as
                             H, H:M or H:M:S, leading zeroes are allowed
     '''
-    pass
+    args = evaluate_tree(args, True)
+    print('Selected time points: %s' % ', '.join(args))
 
 
 def _points(mods, args):
@@ -277,7 +342,8 @@ def _points(mods, args):
     @param  args:list<str>  Either 'solar' optionally followed by solar
                             elevation in degrees, 'time' or 'constant'
     '''
-    pass
+    args = evaluate_tree(args, True)
+    print('Selected points: %s' % ', '.join(args))
 
 
 def _dayness(mods, args):
@@ -289,7 +355,8 @@ def _dayness(mods, args):
     @param  mods:[]         Not used
     @param  args:list<str>  Mapping from points (implied by index) to dayness degrees
     '''
-    pass
+    args = evaluate_tree(args, True)
+    print('Selected dayness: %s' % ', '.join(args))
 
 
 def _method(mods, args):
@@ -299,7 +366,10 @@ def _method(mods, args):
     @param  mods:[]         Not used
     @param  args:list<str>  The methods to use: 'randr', 'vidmode', 'print'
     '''
-    pass
+    args = evaluate_tree(args, True)
+    if ttymode:
+        args = ['drm' if arg in ['randr', 'drm'] else arg for arg in args]
+    print('Selected methods: %s' % ', '.join(args))
 
 
 def _transfrom(mods, args):
@@ -309,7 +379,10 @@ def _transfrom(mods, args):
     @param  mods:[]         Not used
     @param  args:list<str>  Method for (optionally) each monitor: 'randr', 'vidmode' or 'nil'
     '''
-    pass
+    args = evaluate_tree(args, True)
+    if ttymode:
+        args = ['drm' if arg in ['randr', 'drm'] else arg for arg in args]
+    print('Selected transition from method: %s' % ', '.join(args))
 
 
 def _negative(mods, args):
