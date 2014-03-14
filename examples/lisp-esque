@@ -145,7 +145,7 @@ def _monitors(mods, args):
     @param  mods:[]         Not used
     @param  args:list<str>  Indices of outputs, <screen>: or <screen>:<output> or 'nil', empty for all
     '''
-    pass
+    print('Selected monitors: %s' % ','.join(evaluate_tree(args, True)))
 
 
 def _crtc(mods, args):
@@ -590,27 +590,33 @@ def evaluate_tree(elements, implied_functions = True):
     if elements[0] == '.':
         elements = elements[1:]
     else:
-        cand = elements[0].split(':')[0]
-        if cand in functions.keys():
-            elements = ['0' + elements[0], elements[1:]]
-    for i in range(len(elements)):
+        if isinstance(elements[0], str):
+            cand = elements[0].split(':')[0]
+            if cand in functions.keys():
+                elements = [':' + elements[0], elements[1:]]
+    i, n = 0, len(elements)
+    while i < n:
         element = elements[i]
-        if element.startswith(':'):
+        if isinstance(element, str) and element.startswith(':'):
             if i + 1 < len(elements):
                 args = elements[i + 1]
                 i += 1
                 if isinstance(args, str):
                     args = [args]
-                element = element[0].split(':')
-                rc += functions[element[0]](element[1:], args)
+                element = element[1:].split(':')
+                ret = functions[element[0]](element[1:], args)
+                if ret is not None:
+                    rc += ret
         else:
-            if not isinstance(args, str):
+            if not isinstance(element, str):
                 element = evaluate_tree(element, implied_functions)
-            rc.append(element)
+            if element is not None:
+                rc.append(element)
+        i += 1
     return rc
 
 
 # Evaluate tree
-parse_tree(conf, True)
+evaluate_tree(conf, True)
 conf = None
 
