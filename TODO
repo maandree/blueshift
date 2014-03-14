@@ -9,7 +9,6 @@ Medium priority:
 Low priority:
 	Add wayland support
 	Add mir support
-	Do less malloc:s and free:s
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result
 
