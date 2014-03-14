@@ -44,14 +44,11 @@ static int curve_size;
  * Start stage of colour curve control
  * 
  * @param   use_screen  The screen to use
- * @return              Zero on success
+ * @return              Zero on error, otherwise the size of colours curves
  */
 int blueshift_vidmode_open(int use_screen)
 {
   int _major, _minor;
-  uint16_t* r_gamma;
-  uint16_t* g_gamma;
-  uint16_t* b_gamma;
   
   
   /* Get X display */
@@ -59,7 +56,7 @@ int blueshift_vidmode_open(int use_screen)
   if ((display = XOpenDisplay(NULL)) == NULL)
     {
       fprintf(stderr, "Cannot open X display\n");
-      return 1;
+      return 0;
     }
   
   
@@ -69,7 +66,7 @@ int blueshift_vidmode_open(int use_screen)
     {
       fprintf(stderr, "VidMode version query failed\n");
       XCloseDisplay(display);
-      return 1;
+      return 0;
     }
   
   
@@ -80,37 +77,17 @@ int blueshift_vidmode_open(int use_screen)
     {
       fprintf(stderr, "VidMode gamma size query failed\n");
       XCloseDisplay(display);
-      return 1;
+      return 0;
     }
   
-  if (curve_size < 1)
+  if (curve_size <= 1)
     {
-      fprintf(stderr, "VidMode gamma size query failed\n");
+      fprintf(stderr, "VidMode gamma size query failed, impossible dimension\n");
       XCloseDisplay(display);
-      return 1;
+      return 0;
     }
   
-  
-  /* Acquire curve control */
-  
-  r_gamma = malloc(3 * curve_size * sizeof(uint16_t));
-  if (r_gamma == NULL)
-    {
-      fprintf(stderr, "Out of memory\n");
-      return 1;
-    }
-  g_gamma = r_gamma + curve_size;
-  b_gamma = g_gamma + curve_size;
-  if (XF86VidModeGetGammaRamp(display, screen, curve_size, r_gamma, g_gamma, b_gamma) == 0)
-    {
-      fprintf(stderr, "VidMode gamma query failed\n");
-      free(r_gamma);
-      XCloseDisplay(display);
-      return 1;
-    }
-  free(r_gamma);
-  
-  return 0;
+  return curve_size;
 }
 
 
@@ -118,40 +95,25 @@ int blueshift_vidmode_open(int use_screen)
  * Gets the current colour curves
  * 
  * @param   use_crtc  The CRTC to use
- * @return            {the size of the red curve, *the red curve,
- *                    the size of the green curve, *the green curve,
- *                    the size of the blue curve, *the blue curve},
- *                    needs to be free:d. `NULL` on error.
+ * @param   r_gamma   Storage location for the red colour curve
+ * @param   g_gamma   Storage location for the green colour curve
+ * @param   b_gamma   Storage location for the blue colour curve
+ * @return            Zero on success
  */
-uint16_t* blueshift_vidmode_read(int use_crtc)
+int blueshift_vidmode_read(int use_crtc, uint16_t* r_gamma, uint16_t* g_gamma, uint16_t* b_gamma)
 {
   (void) use_crtc;
   
   /* Read curves */
   
-  uint16_t* r_gamma = malloc((3 + 3 * curve_size) * sizeof(uint16_t));
-  uint16_t* g_gamma = r_gamma + curve_size + 1;
-  uint16_t* b_gamma = g_gamma + curve_size + 1;
-  if (r_gamma == NULL)
-    {
-      fprintf(stderr, "Out of memory\n");
-      XCloseDisplay(display);
-      return NULL;
-    }
-  
-  *r_gamma++ = curve_size;
-  *g_gamma++ = curve_size;
-  *b_gamma++ = curve_size;
-  
   if (XF86VidModeGetGammaRamp(display, screen, curve_size, r_gamma, g_gamma, b_gamma) == 0)
     {
       fprintf(stderr, "VidMode gamma query failed\n");
-      free(r_gamma);
       XCloseDisplay(display);
-      return NULL;
+      return 1;
     }
   
-  return r_gamma - 1;
+  return 0;
 }
 
 

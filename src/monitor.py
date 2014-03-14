@@ -122,7 +122,7 @@ def vidmode_get(crtc = 0, screen = 0):
     if (vidmode_opened is None) or not (vidmode_opened == screen):
         if vidmode_opened is not None:
             vidmode_close()
-        if vidmode_open(screen) == 0:
+        if vidmode_open(screen):
             vidmode_opened = screen
         else:
             sys.exit(1)
@@ -186,7 +186,7 @@ def vidmode(*crtcs, screen = 0):
     if (vidmode_opened is None) or not (vidmode_opened == screen):
         if vidmode_opened is not None:
             vidmode_close()
-        if vidmode_open(screen) == 0:
+        if vidmode_open(screen):
             vidmode_opened = screen
         else:
             sys.exit(1)

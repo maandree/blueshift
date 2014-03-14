@@ -20,12 +20,30 @@ from libc.stdlib cimport malloc, free
 
 
 cdef extern int blueshift_vidmode_open(int use_screen)
-cdef extern unsigned short int* blueshift_vidmode_read(int use_crtc)
+cdef extern int blueshift_vidmode_read(int use_crtc,
+                                       unsigned short int* r_curve,
+                                       unsigned short int* g_curve,
+                                       unsigned short int* b_curve)
 cdef extern int blueshift_vidmode_apply(unsigned long long int use_crtcs,
-                                      unsigned short int* r_curve,
-                                      unsigned short int* g_curve,
-                                      unsigned short int* b_curve)
+                                        unsigned short int* r_curve,
+                                        unsigned short int* g_curve,
+                                        unsigned short int* b_curve)
 cdef extern void blueshift_vidmode_close()
+
+
+
+cdef int vidmode_gamma_size
+vidmode_gamma_size = 0
+
+cdef unsigned short int* r_c
+cdef unsigned short int* g_c
+cdef unsigned short int* b_c
+r_c = <unsigned short int*>malloc(256 * 2)
+g_c = <unsigned short int*>malloc(256 * 2)
+b_c = <unsigned short int*>malloc(256 * 2)
+if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
+    raise MemoryError()
+
 
 
 def vidmode_open(int use_screen):
@@ -33,9 +51,11 @@ def vidmode_open(int use_screen):
     Start stage of colour curve control
     
     @param   use_screen  The screen to use
-    @return              Zero on success
+    @return  :bool       Whether call was successful
     '''
-    return blueshift_vidmode_open(use_screen)
+    global vidmode_gamma_size
+    vidmode_gamma_size = blueshift_vidmode_open(use_screen)
+    return vidmode_gamma_size > 1
 
 
 def vidmode_read(int use_crtc):
@@ -45,19 +65,14 @@ def vidmode_read(int use_crtc):
     @param   use_crtc                                  The CRTC to use
     @return  :(r:list<int>, g:list<int>, b:list<int>)  The current red, green and blue colour curves
     '''
-    cdef unsigned short int* got
-    got = blueshift_vidmode_read(use_crtc)
-    if got is NULL:
+    if not blueshift_vidmode_read(use_crtc, r_c, g_c, b_c) == 0:
         raise Exception()
-    r, g, b, i = [], [], [], 0
-    for c in (r, g, b):
-        s = got[i]
-        i += 1
-        for j in range(s):
-            c.append(got[i + j])
-        i += s
+    r, g, b = [], [], []
+    for i in range(vidmode_gamma_size):
+        r.append(r_c[i])
+        g.append(g_c[i])
+        b.append(b_c[i])
     return (r, g, b)
-    
 
 
 def vidmode_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
@@ -70,28 +85,19 @@ def vidmode_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
     @param   b_curve:list<unsigned short int>  The blue colour curve
     @return                                    Zero on success
     '''
-    cdef unsigned short int* r
-    cdef unsigned short int* g
-    cdef unsigned short int* b
-    r = <unsigned short int*>malloc(256 * 2)
-    g = <unsigned short int*>malloc(256 * 2)
-    b = <unsigned short int*>malloc(256 * 2)
-    if (r is NULL) or (g is NULL) or (b is NULL):
-        raise MemoryError()
     for i in range(256):
-        r[i] = r_curve[i] & 0xFFFF
-        g[i] = g_curve[i] & 0xFFFF
-        b[i] = b_curve[i] & 0xFFFF
-    rc = blueshift_vidmode_apply(use_crtcs, r, g, b)
-    free(r)
-    free(g)
-    free(b)
-    return rc
+        r_c[i] = r_curve[i] & 0xFFFF
+        g_c[i] = g_curve[i] & 0xFFFF
+        b_c[i] = b_curve[i] & 0xFFFF
+    return blueshift_vidmode_apply(use_crtcs, r_c, g_c, b_c)
 
 
 def vidmode_close():
     '''
     Resource freeing stage of colour curve control
     '''
+    free(r_c)
+    free(g_c)
+    free(b_c)
     blueshift_vidmode_close()
 
