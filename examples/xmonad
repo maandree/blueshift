@@ -51,7 +51,8 @@ _ = 5000
 temperatures = [_, _, _, _, _, _, _, 3000, 6500]
 
 # Additional brightness modifier for monitors there the rat is not located.
-non_rat_brightness = 0.8
+_ = 0.8
+non_rat_brightness = [_, _, _, _, _, _, _, _, 1]
 
 
 wait_period = 0.2 # TODO it is better to wait for updates
@@ -173,7 +174,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         monitor += 1
         start_over()
         
-        cie_brightness(brightnesses[workspace] * (1 if rat == monitor else non_rat_brightness))
+        cie_brightness(brightnesses[workspace] * (1 if rat == monitor else non_rat_brightness[workspace]))
         temperature(temperatures[workspace], lambda t : divide_by_maximum(cmf_10deg(t)))
         gamma(*gammas[monitor])
         
