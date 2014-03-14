@@ -47,10 +47,30 @@ cdef extern long int blueshift_drm_get_edid(int connection, int connector_index,
                                             long int size, int hexadecimal)
 
 
+
+cdef unsigned short int* r_shared
+cdef unsigned short int* g_shared
+cdef unsigned short int* b_shared
+r_shared = NULL
+g_shared = NULL
+b_shared = NULL
+
+
+
 def drm_close():
     '''
     Free all resources, but you need to close all connections first
     '''
+    global r_shared, g_shared, b_shared
+    if r_shared is not NULL:
+        free(r_shared)
+        r_shared = NULL
+    if g_shared is not NULL:
+        free(g_shared)
+        g_shared = NULL
+    if b_shared is not NULL:
+        free(b_shared)
+        b_shared = NULL
     blueshift_drm_close()
 
 
@@ -122,21 +142,31 @@ def drm_gamma_size(int connection, int crtc_index):
     return blueshift_drm_gamma_size(connection, crtc_index)
 
 
-def drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size):
+def drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size, threadsafe = False):
     '''
     Get the gamma ramps of the of a monitor
     
     @param   connection                                 The identifier for the connection to the card
     @param   crtc_index                                 The index of the CRTC to read from
     @param   gamma_size                                 The size a gamma ramp
+    @param   threadsafe:bool                            Whether to decrease memory efficiency and performace so
+                                                        multiple threads can use DRM concurrently
     @return  :(r:list<int>, g:list<int>, b:list<int>)?  The current red, green and blue colour curves
     '''
+    global r_shared, g_shared, b_shared
     cdef unsigned short int* r
     cdef unsigned short int* g
     cdef unsigned short int* b
-    r = <unsigned short int*>malloc(gamma_size * 2)
-    g = <unsigned short int*>malloc(gamma_size * 2)
-    b = <unsigned short int*>malloc(gamma_size * 2)
+    if not threadsafe:
+        if r_shared is NULL:
+            r_shared = <unsigned short int*>malloc(gamma_size * 2)
+        if g_shared is NULL:
+            g_shared = <unsigned short int*>malloc(gamma_size * 2)
+        if b_shared is NULL:
+            b_shared = <unsigned short int*>malloc(gamma_size * 2)
+    r = <unsigned short int*>malloc(gamma_size * 2) if threadsafe else r_shared
+    g = <unsigned short int*>malloc(gamma_size * 2) if threadsafe else g_shared
+    b = <unsigned short int*>malloc(gamma_size * 2) if threadsafe else b_shared
     if (r is NULL) or (g is NULL) or (b is NULL):
         raise MemoryError()
     rc = blueshift_drm_get_gamma_ramps(connection, crtc_index, gamma_size, r, g, b)
@@ -146,18 +176,20 @@ def drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size):
             rc_r.append(r[i])
             rc_g.append(g[i])
             rc_b.append(b[i])
-        free(r)
-        free(g)
-        free(b)
+        if threadsafe:
+            free(r)
+            free(g)
+            free(b)
         return (rc_r, rc_g, rc_b)
     else:
-        free(r)
-        free(g)
-        free(b)
+        if threadsafe:
+            free(r)
+            free(g)
+            free(b)
         return None
 
 
-def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g_curve, b_curve):
+def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g_curve, b_curve, threadsafe = False):
     '''
     Set the gamma ramps of the of a monitor
     
@@ -167,14 +199,24 @@ def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g
     @param   r_curve:list<unsigned short int>  The red gamma ramp
     @param   g_curve:list<unsigned short int>  The green gamma ramp
     @param   b_curve:list<unsigned short int>  The blue gamma ramp
+    @param   threadsafe:bool                   Whether to decrease memory efficiency and performace so
+                                               multiple threads can use DRM concurrently
     @return  :int                              Zero on success
     '''
+    global r_shared, g_shared, b_shared
     cdef unsigned short int* r
     cdef unsigned short int* g
     cdef unsigned short int* b
-    r = <unsigned short int*>malloc(gamma_size * 2)
-    g = <unsigned short int*>malloc(gamma_size * 2)
-    b = <unsigned short int*>malloc(gamma_size * 2)
+    if not threadsafe:
+        if r_shared is NULL:
+            r_shared = <unsigned short int*>malloc(gamma_size * 2)
+        if g_shared is NULL:
+            g_shared = <unsigned short int*>malloc(gamma_size * 2)
+        if b_shared is NULL:
+            b_shared = <unsigned short int*>malloc(gamma_size * 2)
+    r = <unsigned short int*>malloc(gamma_size * 2) if threadsafe else r_shared
+    g = <unsigned short int*>malloc(gamma_size * 2) if threadsafe else g_shared
+    b = <unsigned short int*>malloc(gamma_size * 2) if threadsafe else b_shared
     if (r is NULL) or (g is NULL) or (b is NULL):
         raise MemoryError()
     for i in range(gamma_size):
@@ -184,9 +226,10 @@ def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g
     rc = 0
     for crtc_index in crtc_indices:
         rc |= blueshift_drm_set_gamma_ramps(connection, crtc_index, gamma_size, r, g, b)
-    free(r)
-    free(g)
-    free(b)
+    if threadsafe:
+        free(r)
+        free(g)
+        free(b)
     return rc
 
 
@@ -285,6 +328,7 @@ def drm_get_edid(int connection, int connector_index):
     @param   connector_index   The index of the connector
     @return  :str?             The extended display identification data for the monitor
     '''
+    global edid_shared
     cdef long int size
     cdef long int got
     cdef char* edid
@@ -292,6 +336,8 @@ def drm_get_edid(int connection, int connector_index):
     
     size = 256
     edid = <char*>malloc(size + 1)
+    if edid is NULL:
+        raise MemoryError()
     got = blueshift_drm_get_edid(connection, connector_index, edid, size, 1)
     
     if got == 0:
