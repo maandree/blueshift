@@ -113,7 +113,7 @@ def get_workspaces():
             if c in ']>':
                 if c == ']':
                     rat = len(visible)
-                visible.append(int(buf.split('-')[0]))
+                visible.append(int(buf[:-1].split('-')[0]))
                 buf = None
         elif c in '[<':
             buf = ''
