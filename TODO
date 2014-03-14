@@ -4,7 +4,6 @@ High priority:
 	Add models for calculating fade and refresh rate parameters
 
 Medium priority:
-	Fix errors caused by SIGUSR2
 	Test, demo and document _ICC_PROFILE
 
 Low priority:

@@ -20,6 +20,7 @@ import sys
 import time
 import signal
 import datetime
+import threading
 
 from argparser import *
 
@@ -152,6 +153,12 @@ conf_storage = {}
              a configuration reload
 '''
 
+sleep_condition = threading.Condition()
+'''
+:Condition  Condition used to make interruptable sleeps
+'''
+
+
 
 def reset():
     '''
@@ -162,6 +169,17 @@ def reset():
 
 
 
+def signal_SIGALRM(signum, frame):
+    '''
+    Signal handler for SIGALRM
+    
+    @param  signum  The signal number, 0 if called from the program itself
+    @param  frame   Ignore, it will probably be `None`
+    '''
+    with sleep_condition:
+        sleep_condition.notify()
+
+
 def signal_SIGTERM(signum, frame):
     '''
     Signal handler for SIGTERM
@@ -169,11 +187,13 @@ def signal_SIGTERM(signum, frame):
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
-    global running, panic
-    if not running:
-        panic = True
+    global trans_delta, panic, running
     running = False
-
+    if trans_delta > 0:
+        panic = True
+    trans_delta = 1
+    with sleep_condition:
+        sleep_condition.notify()
 
 
 _globals_, _locals_ = globals(), dict(locals())
@@ -194,9 +214,7 @@ def signal_SIGUSR1(signum, frame):
     exec(code, _globals_)
 
 
-ftime = 0
-paused = False
-sigusr2 = 0
+trans_delta = -1
 def signal_SIGUSR2(signum, frame):
     '''
     Signal handler for SIGUSR2
@@ -204,51 +222,21 @@ def signal_SIGUSR2(signum, frame):
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
-    global ftime, paused, sigusr2
-    sigusr2 += 1
-    index = sigusr2
-    
-    paused = not paused
-    if paused:
-        ## Fade out
-        if fadeout_time is not None:
-            dtime = fadeout_time / fadeout_steps
-            df = 1 / fadeout_steps
-            ftime = -abs(ftime)
-            while not panic:
-                ftime += df
-                if ftime >= 0:
-                    ftime = 0
-                    break
-                if not sigusr2 == index:
-                    return
-                p(datetime.datetime.now(), ftime)
-                sleep(dtime)
-        reset()
+    global trans_delta, panicgate
+    panicgate = False
+    if trans_delta == 0:
+        trans_delta = 1
     else:
-        ## Fade in
-        if fadein_time is not None:
-            dtime = fadein_time / fadein_steps
-            df = 1 / fadein_steps
-            while running:
-                ftime += df
-                if ftime > 1:
-                    ftime = 1
-                    break
-                if not sigusr2 == index:
-                    return
-                p(datetime.datetime.now(), ftime)
-                sleep(dtime)
-        p(datetime.datetime.now(), None)
-    
-    signal.pause()
+        trans_delta = -trans_delta
+    with sleep_condition:
+        sleep_condition.notify()
 
 
 def continuous_run():
     '''
     Invoked to run continuously if `periodically` is not `None`
     '''
-    global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps, ftime, p, sleep
+    global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps, trans_delta, p, sleep, panic
     def p(t, fade = None):
         try:
             wd = t.isocalendar()[2]
@@ -257,53 +245,83 @@ def continuous_run():
             signal_SIGTERM(0, None)
     def sleep(seconds):
         try:
-            time.sleep(seconds)
+            with sleep_condition:
+                signal.setitimer(signal.ITIMER_REAL, seconds)
+                sleep_condition.wait()
         except KeyboardInterrupt:
             signal_SIGTERM(0, None)
+        except:
+            try:
+                time.sleep(seconds) # setitimer may not be supported
+            except KeyboardInterrupt:
+                signal_SIGTERM(0, None)
     
     ## Catch signals
-    signal.signal(signal.SIGTERM, signal_SIGTERM)
-    signal.signal(signal.SIGUSR1, signal_SIGUSR1)
-    signal.signal(signal.SIGUSR2, signal_SIGUSR2)
+    def signal_(sig, fun):
+        try:
+            signal.signal(sig, fun)
+        except ValueError:
+            pass # not supported by the operating system
+    signal_(signal.SIGTERM, signal_SIGTERM)
+    signal_(signal.SIGUSR1, signal_SIGUSR1)
+    signal_(signal.SIGUSR2, signal_SIGUSR2)
+    signal_(signal.SIGALRM, signal_SIGALRM)
     
-    ## Fade in
-    early_exit = False
-    if fadein_steps <= 0:
-        fadein_time = None
-    if (fadein_time is not None) and not panicgate:
-        dtime = fadein_time / fadein_steps
-        df = 1 / fadein_steps
-        while running:
-            ftime += df
-            if ftime > 1:
-                break
-            p(datetime.datetime.now(), ftime)
-            sleep(dtime)
-        if ftime <= 1:
-            early_exit = True
+    ## Create initial transition
+    trans_delta = -1
+    trans_alpha = 1
     
-    ## Run periodically
-    if not early_exit:
-        while running:
+    while running:
+        if trans_delta == 0:
+            ## Run periodically
             p(datetime.datetime.now(), None)
             if running:
                 sleep(wait_period)
+        elif trans_delta < 0:
+            ## Fade in
+            if fadein_steps <= 0:
+                fadein_time = None
+            if not ((fadein_time is None) or panicgate):
+                if trans_alpha == 0:
+                    p(datetime.datetime.now(), 1 - trans_alpha)
+                    sleep(fadein_time / fadein_steps)
+                trans_alpha -= 1 / fadein_steps
+            if (trans_alpha <= 0) or (fadein_time is None) or panicgate:
+                trans_alpha = 0
+                trans_delta = 0
+            p(datetime.datetime.now(), 1 - trans_alpha)
+            if fadein_time is not None:
+                sleep(fadein_time / fadein_steps)
+        else:
+            ## Fade out
+            if fadeout_steps <= 0:
+                fadeout_time = None
+            if not (fadeout_time is None):
+                trans_alpha += 1 / fadeout_steps
+            if (trans_alpha >= 1) or (fadeout_time is None):
+                trans_alpha = 1
+            p(datetime.datetime.now(), -1 + trans_alpha)
+            if trans_alpha == 1:
+                try:
+                    with sleep_condition:
+                        sleep_condition.wait()
+                except KeyboardInterrupt:
+                    signal_SIGTERM(0, None)
+            else:
+                if fadeout_time is not None:
+                    sleep(fadeout_time / fadeout_steps)
     
     ## Fade out
     if fadeout_steps <= 0:
         fadeout_time = None
-    if fadeout_time is not None:
-        dtime = fadeout_time / fadeout_steps
-        df = 1 / fadeout_steps
-        if not early_exit:
-            ftime = 1
-        ftime = -ftime
+    if not (fadeout_time is None):
         while not panic:
-            ftime += df
-            if ftime >= 0:
-                break
-            p(datetime.datetime.now(), ftime)
-            sleep(dtime)
+            trans_alpha += 1 / fadeout_steps
+            if (trans_alpha >= 1) or (fadeout_time is None):
+                trans_alpha = 1
+                panic = True
+            p(datetime.datetime.now(), -1 + trans_alpha)
+            sleep(fadeout_time / fadeout_steps)
     
     ## Reset
     reset()
