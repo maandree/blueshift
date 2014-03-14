@@ -70,7 +70,8 @@ interpol, purify = None, None
 fade_ = None
 
 # randr is not threadsafe, and absolutely not if you have multiple screens.
-# This semaphore is used to make sure that two threads are not accessing randr at the same time.
+# drm can be threadsafe but is by default not.
+# This semaphore is used to make sure that two threads are not accessing randr or drm at the same time.
 flush_semaphore = threading.Semaphore()
 
 
@@ -103,7 +104,7 @@ def adjust(m):
         
         # Flush settings to monitor.
         flush_semaphore.acquire()
-        randr(m)
+        (drm if ttymode else randr)(m)
         flush_semaphore.release()
         
         # Signal thread completion.
@@ -185,7 +186,7 @@ def reset():
         gamma(gamma_red[m], gamma_green[m], gamma_blue[m])
         
         # Flush settings to monitor.
-        randr(m)
+        (drm if ttymode else randr)(m)
 
 
 # Set transition time, 0 on high day and 5 seconds on high night.

@@ -123,9 +123,9 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         # Flush settings to monitor.
         if len(monitors) == 0:
-            randr()
+            (drm if ttymode else randr)()
         else:
-            randr(monitors[m % len(monitors)])
+            (drm if ttymode else randr)(monitors[m % len(monitors)])
 
 
 def reset():
@@ -144,7 +144,7 @@ def reset():
         
         # Flush settings to monitor.
         if len(monitors) == 0:
-            randr()
+            (drm if ttymode else randr)()
         else:
-            randr(monitors[m % len(monitors)])
+            (drm if ttymode else randr)(monitors[m % len(monitors)])
 

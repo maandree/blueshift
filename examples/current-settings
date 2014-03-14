@@ -15,7 +15,7 @@ temperature_to = int(parser.opts['--temperature'][0])
 
 
 # Get current colour curves
-randr_get(0)()
+(drm_get if ttymode else randr_get)(0)()
 r_, g_, b_ = r_curve[:], g_curve[:], b_curve[:]
 start_over()
 
@@ -41,7 +41,7 @@ def adjust(alpha):
     ccc = [(out, list(map(f, zip(old, new)))) for out, (old, new) in ccc]
     for out, curve in ccc:
         out[:] = curve
-    randr(0)
+    (drm if ttymode else randr)(0)
 
 # Perform transition
 if divergence and not panicgate:

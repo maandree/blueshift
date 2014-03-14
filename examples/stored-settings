@@ -18,7 +18,14 @@ temperature_to = int(parser.opts['--temperature'][0])
 
 # Get old temperature setting
 temperature_from = 6500
-storage_file = '/dev/shm/.blueshift-conf-%s-%s' % (os.environ['DISPLAY'], os.environ['USER'])
+def env_(var, default):
+    if var not in os.environ:
+        return default
+    rc = os.environ[var]
+    if rc == '':
+        rc = default
+    return rc
+storage_file = '/dev/shm/.blueshift-conf-%s-%s' % (env_('DISPLAY', 'tty'), os.environ['USER'])
 if os.path.exists(storage_file):
     with open(storage_file, 'rb') as file:
         temperature_from = int(file.read().decode('utf-8', 'replace').split('\n')[0])
@@ -37,7 +44,7 @@ def adjust(alpha):
     temp = temperature_to * alpha + temperature_from * (1 - alpha)
     start_over()
     temperature(temp, lambda t : divide_by_maximum(cmf_10deg(t)))
-    randr(0)
+    (drm if ttymode else randr)(0)
 
 # Perform transition
 if not (panicgate or temperature_to == temperature_from):

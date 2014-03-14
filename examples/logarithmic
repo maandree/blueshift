@@ -19,6 +19,6 @@ manipulate(lambda x : math.log(x + 1, 2))
 standardise()
 
 # Apply settings, using vidmode.
-vidmode()
-#randr()
+(drm if ttymode else vidmode)()
+#(drm if ttymode else randr)()
 
