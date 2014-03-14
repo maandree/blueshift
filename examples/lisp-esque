@@ -368,7 +368,7 @@ def _method(mods, args):
     '''
     args = evaluate_tree(args, True)
     if ttymode:
-        args = ['drm' if arg in ['randr', 'drm'] else arg for arg in args]
+        args = ['drm' if arg in ['randr', 'vidmode'] else arg for arg in args]
     print('Selected methods: %s' % ', '.join(args))
 
 
@@ -381,7 +381,7 @@ def _transfrom(mods, args):
     '''
     args = evaluate_tree(args, True)
     if ttymode:
-        args = ['drm' if arg in ['randr', 'drm'] else arg for arg in args]
+        args = ['drm' if arg in ['randr', 'vidmode'] else arg for arg in args]
     print('Selected transition from method: %s' % ', '.join(args))
 
 
