@@ -7,8 +7,10 @@ Medium priority:
 	Test, demo and document _ICC_PROFILE
 
 Low priority:
-	Add wayland support
-	Add mir support
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result
+
+Future stuff:
+	Add wayland support (could not find an API for it, but xwayland works)
+	Add mir support
 
