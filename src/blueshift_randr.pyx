@@ -28,6 +28,18 @@ cdef extern int blueshift_randr_apply(unsigned long long int use_crtcs,
 cdef extern void blueshift_randr_close()
 
 
+
+cdef unsigned short int* r_c
+cdef unsigned short int* g_c
+cdef unsigned short int* b_c
+r_c = <unsigned short int*>malloc(256 * 2)
+g_c = <unsigned short int*>malloc(256 * 2)
+b_c = <unsigned short int*>malloc(256 * 2)
+if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
+    raise MemoryError()
+
+
+
 def randr_open(int use_screen):
     '''
     Start stage of colour curve control
@@ -56,6 +68,7 @@ def randr_read(int use_crtc):
         for j in range(s):
             c.append(got[i + j])
         i += s
+    free(got)
     return (r, g, b)
 
 
@@ -69,28 +82,19 @@ def randr_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
     @param   b_curve:list<unsigned short int>  The blue colour curve
     @return                                    Zero on success
     '''
-    cdef unsigned short int* r
-    cdef unsigned short int* g
-    cdef unsigned short int* b
-    r = <unsigned short int*>malloc(256 * 2)
-    g = <unsigned short int*>malloc(256 * 2)
-    b = <unsigned short int*>malloc(256 * 2)
-    if (r is NULL) or (g is NULL) or (b is NULL):
-        raise MemoryError()
     for i in range(256):
-        r[i] = r_curve[i] & 0xFFFF
-        g[i] = g_curve[i] & 0xFFFF
-        b[i] = b_curve[i] & 0xFFFF
-    rc = blueshift_randr_apply(use_crtcs, r, g, b)
-    free(r)
-    free(g)
-    free(b)
-    return rc
+        r_c[i] = r_curve[i] & 0xFFFF
+        g_c[i] = g_curve[i] & 0xFFFF
+        b_c[i] = b_curve[i] & 0xFFFF
+    return blueshift_randr_apply(use_crtcs, r_c, g_c, b_c)
 
 
 def randr_close():
     '''
     Resource freeing stage of colour curve control
     '''
+    free(r_c)
+    free(g_c)
+    free(b_c)
     blueshift_randr_close()
 
