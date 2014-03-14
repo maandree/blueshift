@@ -1255,6 +1255,11 @@ than @code{card} to maintain API
 compatibility with the RandR versions.
 @end itemize
 
+Unless your system administator have change
+the requires permissions of devices in
+@file{/dev/dri}, you need to be a member of
+the group @code{video}.
+
 Blueshift checks for you whether you are
 running in a TTY by checking the @var{DISPLAY}
 environment variable, and sets the variable
