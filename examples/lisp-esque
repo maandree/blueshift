@@ -398,6 +398,7 @@ def _compose(mods, args):
                                       'no' for contradiction, and functions names for functions, or
                                       a composition
     '''
+    args = evaluate_tree(args, False)
     new_function = args[0]
     old_function = composed[args[1]] if args[1] in composed else eval(args[1])
     arguments = [[arg] if isinstance(arg, str) else arg for arg in args[2:]]
@@ -443,6 +444,7 @@ def _negative(mods, args):
                                             monitor (or all of them) on whether to apply negative image,
                                             'yes' implied for all monitors if empty
     '''
+    args = evaluate_tree(args, True)
     else
 
 
@@ -457,6 +459,7 @@ def _invert(mods, args):
                                             monitor (or all of them) on whether to apply colour invertion,
                                             'yes' implied for all monitors if empty
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -468,6 +471,7 @@ def _temperature(mods, args):
     @param  args:list<[str]|list<str>  Temperature to apply all day long or depending
                                        on time, or either of those depending on monitor
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -479,6 +483,7 @@ def _current(mods, args):
     @param  args:list<str>  Method used to get the current adjustments, options for all monitors:
                             'randr' for `randr_get`, 'vidmode' for `vidmode_get` or 'nil' for none
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -494,6 +499,7 @@ def _brightness(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -509,6 +515,7 @@ def _contrast(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -525,6 +532,7 @@ def _resolution(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -539,6 +547,7 @@ def _gamma(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -553,6 +562,7 @@ def _pgamma(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -565,6 +575,7 @@ def _clip(mods, args):
                                             monitor (or all of them) on whether to clip the curve,
                                             'yes' implied for all monitors if empty
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -580,6 +591,7 @@ def _sigmoid(mods, args):
                      |list<[str, str, str]>>  optionally with individual colour curve control;
                                               'nil' for nothing
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -596,6 +608,7 @@ def _limits(mods, args):
                  list<list<str>         optionally for each monitor (all if just one specified) (outer/middle),
                      |list<list<str>>   optionally at each time point (outer)
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -608,6 +621,7 @@ def _linearise(mods, args):
                                             monitor (or all of them) on whether to convert the curve,
                                             'yes' implied for all monitors if empty
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -620,6 +634,7 @@ def _icc(mods, args):
     @param  args:list<str|list<str>>  The ICC profile pathname for each time point (all day long if one),
                                       and optionally (inner) for each monitor.
     '''
+    args = evaluate_tree(args, False)
     pass
 
 
@@ -633,6 +648,7 @@ def _manipulate(mods, args):
     @param  args:list<[str, str, str]|str>  Function for each monitor (for all if just one specified), and
                                             optionally one per colour curve (red, green and blue)
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
@@ -645,6 +661,7 @@ def _standardise(mods, args):
                                             monitor (or all of them) on whether to convert the curve,
                                             'yes' implied for all monitors if empty
     '''
+    args = evaluate_tree(args, True)
     pass
 
 
