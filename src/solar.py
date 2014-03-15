@@ -93,7 +93,7 @@ def julian_day_to_epoch(t):
     @param   t:float  The time in Julian Days
     @return  :float   The time in POSIX time
     '''
-    return (jd - 2440587.5) * 86400.0
+    return (t - 2440587.5) * 86400.0
 
 def epoch_to_julian_day(t):
     '''
