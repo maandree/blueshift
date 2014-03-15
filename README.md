@@ -81,7 +81,7 @@ additional installation options.
 
 On error make sure you do not have `--as-needed` in `LDFLAGS`.
 
-#### Arch Linux, Parabola
+#### Arch Linux, Parabola GNU/Linux
 
 Blueshift is available in the Arch User Repository,
 under the name `blueshift`.
