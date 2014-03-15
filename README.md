@@ -27,20 +27,17 @@ Python 3) where all the policies are implemented,
 Blueshift is only meant to provide the mechanism for
 modifying the colour curves.
 
-Blueshift neither provides any means of automatically
-getting your geographical location; the intention is
-that you should implement that in the policy yourself
-using library which can do that. Additionally Blueshift
-provides not safe guards from making your screen
-unreadable or otherwise miscoloured; and Blueshift will
-never, officially, add support specifically for any
-proprietary operating system. Blueshift is fully
-extensible so it is possible to make extensions that
-make it usable under unsupported systems, the base code
-is written in Python 3 without calls to any system
-dependent functions (with exception for fallbacks.)
-This is not necessarily true for configuration script
-examples and optional features.
+provides no safe guards from making your screen
+unreadable (this feature [the lack of a feature] is
+used in the sleepmode example) or otherwise miscoloured;
+and Blueshift will never, officially, add support
+specifically for any proprietary operating system.
+Blueshift is fully extensible so it is possible to
+make extensions that make it usable under unsupported
+systems, the base code is written in Python 3 without
+calls to any system dependent functions (with exception
+for fallbacks.) This is not necessarily true for
+configuration script examples and optional features.
 
 If Blueshift does not work for you for any of these
 reasons, you should take a look at Redshift. The mean
@@ -84,7 +81,8 @@ additional installation options.
 
 On error make sure you do not have `--as-needed` in `LDFLAGS`.
 
-#### Arch Linux
+#### Arch Linux, Parabola
 
 Blueshift is available in the Arch User Repository,
 under the name `blueshift`.
+
