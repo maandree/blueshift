@@ -100,10 +100,12 @@ def get_workspaces():
     '''
     Get the currently visible workspaces
     
-    @return  :(list<int>, int)  The indices of the visible workspaces, in the order of the outputs,
-                                and the index of the outout that the rat cursor is over
+    @return  :(list<int>, int, str)  The indices of the visible workspaces, in the order of the outputs,
+                                     the index of the active monitor, and the raw log message
+                                     and the index of the outout that the rat cursor is over
     '''
     log = x_root.get_full_property(xmonad, x_utf8).value
+    raw = log
     log = log.split(' : ')[0]
     buf = None
     rat = 0
@@ -118,10 +120,10 @@ def get_workspaces():
                 buf = None
         elif c in '[<':
             buf = ''
-    return ([w - 1 for w in visible], rat)
+    return ([w - 1 for w in visible], rat, raw)
 
 
-last = -1
+last = (-1, '')
 def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     :(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
@@ -159,14 +161,15 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     global last
     
     # Get active workspaces and check if something changed
-    (visible, rat) = get_workspaces()
+    (visible, rat, raw) = get_workspaces()
     summary = 0
     for w in visible:
         summary = summary * 9 + w
     summary = summary * 9 + rat
-    if summary == last:
+    last_part = raw.split(' : ')[-1]
+    if summary == last[0] and last_part == last[1]:
         return
-    last = summary
+    last = (summary, last_part)
     
     # Update adjustments
     monitor = -1
@@ -174,9 +177,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         monitor += 1
         start_over()
         
-        cie_brightness(brightnesses[workspace] * (1 if rat == monitor else non_rat_brightness[workspace]))
-        temperature(temperatures[workspace], lambda t : divide_by_maximum(cmf_10deg(t)))
-        gamma(*gammas[monitor])
+        if (not rat == monitor) or not any(map(lambda end : raw.endswith(end), [' – GIMP', ' - Inkscape'])):
+            cie_brightness(brightnesses[workspace] * (1 if rat == monitor else non_rat_brightness[workspace]))
+            temperature(temperatures[workspace], lambda t : divide_by_maximum(cmf_10deg(t)))
+            gamma(*gammas[monitor])
         
         randr(monitor)
 
