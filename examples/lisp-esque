@@ -138,6 +138,9 @@ if isinstance(conf[0], str) and not conf[0].startswith(':'):
 # Available outputs
 screens = list_screens('drm' if ttymode else 'randr')
 
+# Map of composed function
+composed = {}
+
 
 ## For the following functions, the type of args is the type of args
 ## after it has been evaluated, they may be functions inside that
@@ -385,6 +388,50 @@ def _transfrom(mods, args):
     print('Selected transition from method: %s' % ', '.join(args))
 
 
+def _compose(mods, args):
+    '''
+    Compose a function
+    
+    @param  mods:[]                   Not used
+    @param  args:list<str|list<str>>  The name of the function follow by the wrapped function and
+                                      parameters wrappers: 'as-is' for identity, 'yes' for tautology,
+                                      'no' for contradiction, and functions names for functions, or
+                                      a composition
+    '''
+    new_function = args[0]
+    old_function = composed[args[1]] if args[1] in composed else eval(args[1])
+    arguments = [[arg] if isinstance(arg, str) else arg for arg in args[2:]]
+    
+    wrapping = []
+    for arg in arguments:
+        composite = lambda x : x()
+        for f_ in arg:
+            if f_ == 'as-is':
+                continue
+            elif f_ == 'yes':
+                composite = lambda x : True
+            elif f_ == 'no':
+                composite = lambda x : False
+            else:
+                composite_ = composite
+                f = composed[f_] if f_ in composed else eval(f_)
+                composite = lambda x : f(composite_(x))
+        wrapping.append(composite)
+    
+    def F_new(*args):
+        arg_ptr = -1
+        def arg_itr():
+            nonlocal arg_ptr
+            arg_ptr += 1
+            return args[arg_ptr]
+        evaled = []
+        for wrap in wrapping:
+            evaled.append(wrap(arg_itr))
+        return old_function(*evaled)
+    
+    composed[new_function] = F_new
+
+
 def _negative(mods, args):
     '''
     Add negative image adjustment
@@ -396,7 +443,7 @@ def _negative(mods, args):
                                             monitor (or all of them) on whether to apply negative image,
                                             'yes' implied for all monitors if empty
     '''
-    pass
+    else
 
 
 def _invert(mods, args):
@@ -420,18 +467,6 @@ def _temperature(mods, args):
     @param  mods:[]|[str]              'default' for using before and after Blueshift is running
     @param  args:list<[str]|list<str>  Temperature to apply all day long or depending
                                        on time, or either of those depending on monitor
-    '''
-    pass
-
-
-def _compose(mods, args):
-    '''
-    Compose a function
-    
-    @param  mods:[]                   Not used
-    @param  args:list<str|list<str>>  The name of the function follow by parameters wrappers:
-                                      'as-is' for unmodified, 'yes' for tautology, 'no' for contradiction,
-                                      and functions names for functions, or a composition
     '''
     pass
 
