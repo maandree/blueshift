@@ -1,0 +1,85 @@
+# -*- python -*-
+
+# This example inverts the colours and then makes the monitors
+# red and dim. It is exited by running again with Blueshift's
+# -r (--reset) option.
+
+
+# Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# The (zero-based) index of the monitors (CRTC:s) to apply
+# settings to. An empty list means that all monitors are used,
+# but all monitors will have the same settings.
+monitors = []
+
+
+# These settings are lists. This is to allow you to use different
+# settings on different monitors. For example, `gamma_red = [1]`,
+# this means that the red gamma is 1 on all monitors. But if we
+# change this to `gamma_red = [1.0, 1.1]`, the first monitor will
+# have the red gamma set to 1,0 and the second monitor will have
+# the red gamma set to 1,1. If you have more monitors than used
+# in the settings modulo division will be used. For instance, if
+# you have four monitors, the third monitor will have the same
+# settings as the first monitor, and the fourth monitor will have
+# the same settings as the second monitor.
+
+# Gamma correction for the red, green and blue components, respectively.
+gamma_red, gamma_green, gamma_blue = [1], [1], [1]
+
+
+# Do not fade in or out
+fadein_time = None
+fadein_steps = None
+fadeout_time = None
+fadeout_steps = None
+
+
+uses_adhoc_opts = True
+'''
+:bool  `True` if the configuration script parses the ad-hoc settings
+'''
+
+# Get --reset from Blueshift ad-hoc settigns
+doreset = parser.opts['--reset']
+
+
+for m in range(max(1, len(monitors))):
+    # Remove settings from last run.
+    start_over()
+    
+    if not doreset:
+        # Invert colours.
+        cie_invert()
+    
+    # Apply gamma correction to monitor.
+    r = gamma_red  [m % len(gamma_red)]
+    g = gamma_green[m % len(gamma_green)]
+    b = gamma_blue [m % len(gamma_blue)]
+    gamma(r, g, b)
+    
+    if not doreset:
+        # Make the screen red by removing other colours
+        rgb_brightness(1, 0, 0)
+        cie_brightness(0.25)
+    
+    # Flush settings to monitor.
+    if len(monitors) == 0:
+        (drm if ttymode else randr)()
+    else:
+        (drm if ttymode else randr)(monitors[m % len(monitors)])
+
