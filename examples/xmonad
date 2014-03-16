@@ -187,5 +187,6 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         randr(monitor)
     
+    # Wait for next update
     x_display.next_event()
 
