@@ -65,17 +65,16 @@ for m in range(max(1, len(monitors))):
     if not doreset:
         # Invert colours.
         cie_invert()
+        # Make the screen red by removing other colours.
+        rgb_brightness(1, 0, 0)
+        # Dim the screen.
+        cie_brightness(0.25)
     
     # Apply gamma correction to monitor.
     r = gamma_red  [m % len(gamma_red)]
     g = gamma_green[m % len(gamma_green)]
     b = gamma_blue [m % len(gamma_blue)]
     gamma(r, g, b)
-    
-    if not doreset:
-        # Make the screen red by removing other colours
-        rgb_brightness(1, 0, 0)
-        cie_brightness(0.25)
     
     # Flush settings to monitor.
     if len(monitors) == 0:
