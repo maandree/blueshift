@@ -258,16 +258,28 @@ def rgb_contrast(r, g = None, b = None):
                 curve[i] = (curve[i] - 0.5) * level + 0.5
 
 
-def cie_contrast(level):
+def cie_contrast(r, g = None, b = None):
     '''
     Apply contrast correction on the colour curves using CIE xyY
     
-    @param  level:float  The brightness parameter
+    @param  r:float   The contrast parameter for the red curve
+    @param  g:float?  The contrast parameter for the green curve, defaults to `r` if `None`
+    @param  b:float?  The contrast parameter for the blue curve, defaults to `r` if `None`
     '''
-    if not level == 1.0:
-        for i in range(i_size):
-            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, (Y - 0.5) * level + 0.5)
+    if g is None:  g = r
+    if b is None:  b = r
+    same = r == g == b
+    if any([not level == 1.0 for level in (r, g, b)]):
+        if same:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, (Y - 0.5) * r + 0.5)
+        else:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, (Y - 0.5) * r + 0.5)
+                (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, (Y - 0.5) * g + 0.5)
+                (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, (Y - 0.5) * b + 0.5)
 
 
 def rgb_brightness(r, g = None, b = None):
@@ -286,16 +298,26 @@ def rgb_brightness(r, g = None, b = None):
                 curve[i] *= level
 
 
-def cie_brightness(level):
+def cie_brightness(r, g = None, b = None):
     '''
     Apply brightness correction on the colour curves using CIE xyY
     
     @param  level:float  The brightness parameter
     '''
-    if not level == 1.0:
-        for i in range(i_size):
-            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y * level)
+    if g is None:  g = r
+    if b is None:  b = r
+    same = r == g == b
+    if any([not level == 1.0 for level in (r, g, b)]):
+        if same:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, t * level)
+        else:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, Y * r)
+                (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, Y * g)
+                (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, Y * b)
 
 
 def linearise(r = True, g = None, b = None):
@@ -389,12 +411,13 @@ def cie_invert(r = True, g = None, b = None):
     '''
     if g is None:  g = r
     if b is None:  b = r
-    for i in range(i_size):
-        (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-        (r_, g_, b_) = ciexyy_to_srgb(x, y, 1 - Y)
-        if r:  r_curve[i] = r_
-        if g:  g_curve[i] = g_
-        if b:  b_curve[i] = b_
+    if r or g or b:
+        for i in range(i_size):
+            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            (r_, g_, b_) = ciexyy_to_srgb(x, y, 1 - Y)
+            if r:  r_curve[i] = r_
+            if g:  g_curve[i] = g_
+            if b:  b_curve[i] = b_
 
     
 def sigmoid(r, g, b):
@@ -441,25 +464,44 @@ def rgb_limits(r_min, r_max, g_min = None, g_max = None, b_min = None, b_max = N
                 curve[i] = curve[i] * (level_max - level_min) + level_min
 
 
-def cie_limits(level_min, level_max):
+def cie_limits(r_min, r_max, g_min = None, g_max = None, b_min = None, b_max = None):
     '''
     Changes the black point and the white point, using CIE xyY
     
-    @param  level_min:float   The brightness of the black point
-    @param  level_max:float   The brightness of the white point
+    @param  r_min:float   The red component value of the black point
+    @param  r_max:float   The red component value of the white point
+    @param  g_min:float?  The green component value of the black point, defaults to `r_min`
+    @param  g_max:float?  The green component value of the white point, defaults to `r_max`
+    @param  b_min:float?  The blue component value of the black point, defaults to `r_min`
+    @param  b_max:float?  The blue component value of the white point, defaults to `r_max`
     '''
-    if (level_min != 0) or (level_max != 1):
-        for i in range(i_size):
-            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            Y = Y * (level_max - level_min) + level_min
-            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y)
+    if g_min is None:  g_min = r_min
+    if g_max is None:  g_max = r_max
+    if b_min is None:  b_min = r_min
+    if b_max is None:  b_max = r_max
+    same = (r_min == g_min == b_min) and (r_max == g_max == b_max)
+    if any([lvl != 0 for lvl in (r_min, g_min, b_min)]) or any([lvl != 1 for lvl in (r_max, g_max, b_max)]):
+        if same:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                Y = Y * (r_max - r_min) + r_min
+                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y)
+        else:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                rY = Y * (r_max - r_min) + r_min
+                gY = Y * (g_max - g_min) + g_min
+                bY = Y * (b_max - b_min) + b_min
+                (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, rY)
+                (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, gY)
+                (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, bY)
 
 
 def manipulate(r, g = None, b = None):
     '''
     Manipulate the colour curves using a lambda function
     
-    @param  r:(float)→float   Lambda function to manipulate the red colour curve
+    @param  r:(float)?→float  Lambda function to manipulate the red colour curve, nothing is done if `None`
     @param  g:(float)?→float  Lambda function to manipulate the green colour curve, defaults to `r` if `None`
     @param  b:(float)?→float  Lambda function to manipulate the blue colour curve, defaults to `r` if `None`
     
@@ -470,24 +512,37 @@ def manipulate(r, g = None, b = None):
     if g is None:  g = r
     if b is None:  b = r
     for (curve, f) in curves(r, g, b):
-        for i in range(i_size):
-            curve[i] = f(curve[i])
+        if f is not None:
+            for i in range(i_size):
+                curve[i] = f(curve[i])
 
 
-def cie_manipulate(f):
+def cie_manipulate(r, g = None, b = None):
     '''
     Manipulate the colour curves using a lambda function on the CIE xyY colour space
     
-    @param  f:(float)?→float   Lambda function to manipulate the Y component, nothing is done if `f` is `None`
+    @param  r:(float)?→float  Lambda function to manipulate the red colour curve, nothing is done if `None`
+    @param  g:(float)?→float  Lambda function to manipulate the green colour curve, defaults to `r` if `None`
+    @param  b:(float)?→float  Lambda function to manipulate the blue colour curve, defaults to `r` if `None`
     
     The lambda functions thats a colour value and maps it to a new illumination value.
     For example, if the value 0.5 is already mapped to 0.25, then if the function
     maps 0.25 to 0.5, the value 0.5 will revert back to being mapped to 0.5.
     '''
-    if f is not None:
-        for i in range(i_size):
-            (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-            (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, f(Y))
+    if g is None:  g = r
+    if b is None:  b = r
+    same = (r is g) and (g is b)
+    if r is not None:
+        if same:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, r(Y))
+        else:
+            for i in range(i_size):
+                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, r(Y))
+                (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, g(Y))
+                (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, b(Y))
 
 
 def lower_resolution(rx_colours = None, ry_colours = None, gx_colours = None, gy_colours = None, bx_colours = None, by_colours = None):

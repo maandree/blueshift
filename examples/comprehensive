@@ -2,12 +2,12 @@
 
 # This example is complete with exceptions for less normal colour
 # curve modifiers: nothing else than CIE 1964 10 degree CMF for
-# colour temperature, not use of temporarly linear RGB curves,
-# sigmoid correction, or free function modifier. Neither does it
-# support multiple screens, this is normally not an issue because
-# Xinerama is normally used to put all monitors on the same screen;
-# nor does it parse options other than -r from ad-hoc settigns, or
-# use monitor identifiation.
+# colour temperature, nor use of temporarly linear RGB curves,
+# sigmoid correction, or free function modifier, work on individual
+# subpixels in CIE xyY colour space. Neither does it # support multiple
+# screens, this is normally not an issue because Xinerama is normally
+# used to put all monitors on the same screen; # nor does it parse
+# options other than -r from ad-hoc settigns, or use monitor identifiation.
 
 
 # This file is dual-licensed under GNU General Public License
