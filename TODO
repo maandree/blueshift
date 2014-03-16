@@ -8,7 +8,7 @@ Medium priority:
 
 Low priority:
 	Demo cie_{brigtness,contrast,manipulate} with 3 arguments and
-	  cie_limits with 6 3 arguments.
+	  cie_limits with 6 arguments.
 	Demo `None` and `...` in sigmoid, manipulate, cie_manipulate
 	  and lower_resolution.
 	Add a section in manual for information on which order
