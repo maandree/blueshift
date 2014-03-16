@@ -244,7 +244,7 @@ def continuous_run():
         except KeyboardInterrupt:
             signal_SIGTERM(0, None)
     def sleep(seconds):
-        if not sleep == 0:
+        if not seconds == 0:
             try:
                 with sleep_condition:
                     signal.setitimer(signal.ITIMER_REAL, seconds)
