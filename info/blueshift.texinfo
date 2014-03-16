@@ -510,10 +510,16 @@ are @code{True}, respectively.
 Inverts the all values on the colour curves
 using the CIE xyY colour space instead of sRGB.
 
-@item cie_invert(y)
+@item cie_invert(rgb)
 Inverts the all values on the colour curves
 using the CIE xyY colour space instead of sRGB,
-if @code{y} is @code{true}.
+if @code{rgb} is @code{true}.
+
+@item cie_invert(r, g, b)
+Inverts the all values on the red, green and
+blue curves using the CIE xyY colour space
+instead of sRGB if @code{r}, @code{g} and
+@code{b} are @code{True}, respectively.
 
 @item sigmoid(r, g, b)
 An inverted sigmoid curve function is applied

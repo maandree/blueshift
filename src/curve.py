@@ -389,11 +389,12 @@ def cie_invert(r = True, g = None, b = None):
     '''
     if g is None:  g = r
     if b is None:  b = r
-    for (curve, setting) in curves(r, g, b):
-        if setting:
-            for i in range(i_size):
-                (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, 1 - Y)
+    for i in range(i_size):
+        (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+        (r_, g_, b_) = ciexyy_to_srgb(x, y, 1 - Y)
+        if r:  r_curve[i] = r_
+        if g:  g_curve[i] = g_
+        if b:  b_curve[i] = b_
 
     
 def sigmoid(r, g, b):
