@@ -496,7 +496,7 @@ class CIEInvert:
     def __init__(self):
         self.monitors = [(False, False, False, False, False, False)]
     def __call__(self, monitor, alpha):
-        cie_invert(*(self.monitors[monitor][3 if alpha == 0 else 0:][:3]))
+        cie_invert(self.monitors[monitor][3 if alpha == 0 else 0])
 
 def _invert(mods, args):
     '''
