@@ -35,7 +35,7 @@
 # Additionally python3-xlib is required to be installed.
 
 
-import Xlib.display
+import Xlib.display, Xlib.X
 
 
 # Gamma (red, green and blue), per monitor.
@@ -55,7 +55,7 @@ _ = 0.8
 non_rat_brightness = [_, _, _, _, _, _, _, _, 1]
 
 
-wait_period = 0.2 # TODO it is better to wait for updates
+wait_period = 0
 '''
 :float  The number of seconds to wait before invoking `periodically` again
 '''
@@ -78,6 +78,9 @@ x_root = x_screen.root
 # Get atoms used by xmonad's log
 x_utf8 = x_display.intern_atom('UTF8_STRING')
 xmonad = x_display.get_atom('_XMONAD_LOG')
+
+# We want to list on events from the root window
+x_root.change_attributes(event_mask = Xlib.X.PropertyChangeMask)
 
 # Close X connection on exit
 close_c_bindings_ = close_c_bindings
@@ -183,4 +186,6 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
             gamma(*gammas[monitor])
         
         randr(monitor)
+    
+    x_display.next_event()
 

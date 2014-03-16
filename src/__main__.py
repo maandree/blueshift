@@ -244,17 +244,18 @@ def continuous_run():
         except KeyboardInterrupt:
             signal_SIGTERM(0, None)
     def sleep(seconds):
-        try:
-            with sleep_condition:
-                signal.setitimer(signal.ITIMER_REAL, seconds)
-                sleep_condition.wait()
-        except KeyboardInterrupt:
-            signal_SIGTERM(0, None)
-        except:
+        if not sleep == 0:
             try:
-                time.sleep(seconds) # setitimer may not be supported
+                with sleep_condition:
+                    signal.setitimer(signal.ITIMER_REAL, seconds)
+                    sleep_condition.wait()
             except KeyboardInterrupt:
                 signal_SIGTERM(0, None)
+            except:
+                try:
+                    time.sleep(seconds) # setitimer may not be supported
+                except KeyboardInterrupt:
+                    signal_SIGTERM(0, None)
     
     ## Catch signals
     def signal_(sig, fun):
