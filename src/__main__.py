@@ -42,6 +42,7 @@ from curve import *
 from colour import *
 from monitor import *
 from backlight import *
+from blackbody import *
 
 
 config_file = None
