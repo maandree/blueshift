@@ -383,10 +383,10 @@ the white point.
 
 @item rgb_contrast(r, g, b)
 Adjusts the contrast to @code{r}, @code{g}
-and @code{b} on the red, green and blue curves,
-respectively. This function assumes the black is
-0, and white is 1, so you should apply this
-before brightness.
+and @code{b} on the red, green and blue colour
+curves, respectively. This function assumes the
+black is 0, and white is 1, so you should apply
+this before brightness.
 
 Note: This does not correspond to the contrast
 on monitors control panels used to calibrate
@@ -432,8 +432,8 @@ used to calibrate white point.
 
 @item rgb_brightness(r, g, b)
 Adjusts the brightness to @code{r}, @code{g}
-and @code{b} on the red, green and blue curves,
-respectively.
+and @code{b} on the red, green and blue colour
+curves, respectively.
 
 Note: This does not correspond to the brightness
 on monitors control panels used to calibrate
@@ -504,9 +504,9 @@ the red, green and blue colour curves if
 Adjusts the gamma to @code{rgb}.
 
 @item gamma(r, g, b)
-Adjusts the gamma to @code{r}, @code{g}
-and @code{b} on the red, green and blue curves,
-respectively.
+Adjusts the gamma to @code{r}, @code{g} and
+@code{b} on the red, green and blue colour
+curves, respectively.
 
 @item negative()
 Reverse the colour curves on the encoding axis.
@@ -517,9 +517,9 @@ Reverse the colour curves on the encoding axis
 if @code{rgb} is @code{True}.
 
 @item negative(r, g, b)
-Reverse the red, green and blue curves on the
-encoding axis if @code{r}, @code{g} and @code{b}
-are @code{True}, respectively.
+Reverse the red, green and blue colour curves
+on the encoding axis if @code{r}, @code{g} and
+@code{b} are @code{True}, respectively.
 
 @item rgb_invert()
 Inverts the all values on the colour curves.
@@ -531,8 +531,8 @@ if @code{rgb} is @code{True}.
 
 @item rgb_invert(r, g, b)
 Inverts the all values on the red, green and
-blue curves if @code{r}, @code{g} and @code{b}
-are @code{True}, respectively.
+blue colour curves if @code{r}, @code{g} and
+@code{b} are @code{True}, respectively.
 
 @item cie_invert()
 Inverts the all values on the colour curves
@@ -545,18 +545,24 @@ if @code{rgb} is @code{true}.
 
 @item cie_invert(r, g, b)
 Inverts the all values on the red, green and
-blue curves using the CIE xyY colour space
-instead of sRGB if @code{r}, @code{g} and
+blue colour  curves using the CIE xyY colour
+space instead of sRGB if @code{r}, @code{g} and
 @code{b} are @code{True}, respectively.
+
+@item sigmoid(rgb)
+An inverted sigmoid curve function is applied
+to the values of in colour curves if @code{rgb}
+is not @code{None}, @code{rgb} is the sigmoid
+curve multiplier.
 
 @item sigmoid(r, g, b)
 An inverted sigmoid curve function is applied
-to the values of in red, green and blue curves
-if @code{r}, @code{g} and @code{b} are not
-@code{None}, respectively. @code{r}, @code{g}
-and @code{b} are the curve sigmoid curve
-multipliers for the red, green and blue curves,
-respectively.
+to the values of in the red, green and blue
+colour curves if @code{r}, @code{g} and @code{b}
+are not @code{None}, respectively. @code{r},
+@code{g} and @code{b} are the sigmoid curve
+multipliers for the red, green and blue colour
+curves, respectively.
 
 @item rgb_limits(rgb_min, rgb_max)
 Changes the black point to @code{rgb_min}, and
@@ -588,22 +594,30 @@ instead of sRGB.
 @item manipulate(rgb)
 Applies the function @code{rgb} : float
 @click{} float to the colour curves.
+Nothing is done if @code{rgb} is @code{None}.
 
 @item manipulate(r, g, b)
 Applies the functions @code{r}, @code{g} and
 @code{b} : float @click{} float to the red, green
 and blue colour curves, respectively.
+Nothing is done for the red, green and blue
+colour curves if @code{red}, @code{green} and
+@code{blue} are @code{None}, respectively.
 
 @item cie_manipulate(rgb)
 Applies the function @code{rgb} : float @click{}
 float to Y component (illumination) of the colour
 curves when converted to CIE xyY.
+Nothing is done if @code{rgb} is @code{None}.
 
 @item cie_manipulate(r, g, b)
 Applies the function @code{r}, @code{g} and
 @code{b} : float @click{} float to Y component
 (illumination) of the red, green and blue colour
 curves, respectively, when converted to CIE xyY.
+Nothing is done for the red, green and blue
+colour curves if @code{red}, @code{green} and
+@code{blue} are @code{None}, respectively.
 
 @item temperature(temperature, algorithm)
 Applies the a blackbody colour temperature of
@@ -666,6 +680,8 @@ Emulate low resolution. @code{x} is the number of
 colours to emulate that each subpixel can have.
 @code{y} does the same thing as @code{x}, except
 on the output axis rather than the encoding axis.
+For arguments taht are set to @code{None}, the
+default value will be used.
 
 @item lower_resolution(rx, ry, gx, gy, bx, by)
 This works the same way as @code{lower_resolution(x, y)},
@@ -673,7 +689,8 @@ except the subpixels are controlled individually.
 @code{rx} and @code{ry} are @code{x} and @code{y}
 for the red subpixel, and analogously for @code{gx}
 and @code{gy} for green, and @code{bx} and @code{by}
-for blue.
+for blue. For arguments taht are set to @code{None},
+the default value will be used.
 @end table
 
 Keep in mind that the order your call the
