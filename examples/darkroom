@@ -74,6 +74,7 @@ for m in range(max(1, len(monitors))):
     r = gamma_red  [m % len(gamma_red)]
     g = gamma_green[m % len(gamma_green)]
     b = gamma_blue [m % len(gamma_blue)]
+    clip()
     gamma(r, g, b)
     
     # Flush settings to monitor.
