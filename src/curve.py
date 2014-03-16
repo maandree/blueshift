@@ -211,7 +211,7 @@ def temperature(temperature, algorithm):
     Change colour temperature according to the CIE illuminant series D
     
     @param  temperature:float                        The blackbody temperature in kelvins
-    @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `series_d` or `simple_whitepoint`
+    @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
     if temperature == 6500:
         return
