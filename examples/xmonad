@@ -81,6 +81,7 @@ xmonad = x_display.get_atom('_XMONAD_LOG')
 
 # We want to list on events from the root window
 x_root.change_attributes(event_mask = Xlib.X.PropertyChangeMask)
+x_display.flush()
 
 # Close X connection on exit
 close_c_bindings_ = close_c_bindings
@@ -170,22 +171,21 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         summary = summary * 9 + w
     summary = summary * 9 + rat
     last_part = raw.split(' : ')[-1]
-    if summary == last[0] and last_part == last[1]:
-        return
-    last = (summary, last_part)
-    
-    # Update adjustments
-    monitor = -1
-    for workspace in visible:
-        monitor += 1
-        start_over()
+    if not (summary == last[0] and last_part == last[1]):
+        last = (summary, last_part)
         
-        if (not rat == monitor) or not any(map(lambda end : raw.endswith(end), [' – GIMP', ' - Inkscape'])):
-            cie_brightness(brightnesses[workspace] * (1 if rat == monitor else non_rat_brightness[workspace]))
-            temperature(temperatures[workspace], lambda t : divide_by_maximum(cmf_10deg(t)))
-            gamma(*gammas[monitor])
-        
-        randr(monitor)
+        # Update adjustments
+        monitor = -1
+        for workspace in visible:
+            monitor += 1
+            start_over()
+            
+            if (not rat == monitor) or not any(map(lambda end : raw.endswith(end), [' – GIMP', ' - Inkscape'])):
+                cie_brightness(brightnesses[workspace] * (1 if rat == monitor else non_rat_brightness[workspace]))
+                temperature(temperatures[workspace], lambda t : divide_by_maximum(cmf_10deg(t)))
+                gamma(*gammas[monitor])
+            
+            randr(monitor)
     
     # Wait for next update
     x_display.next_event()
