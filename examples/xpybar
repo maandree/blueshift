@@ -15,8 +15,11 @@
 
 
 # Geographical coodinates.
-# (KTH building D computer laboratories in this example.)
-latitude, longitude = 59.3472, 18.0728
+# ("Kristall, vertikal accent i glas och stål" (Crystal, vertical accent
+# i glass and steal) in this example. An glas obelisk, lit from the inside
+# with adjustable colours and a default colour of 5600 K, in the middle
+# of a hyperelliptic roundabout.)
+latitude, longitude = 59.3326, 18.0652
 
 # The colour temperature at day and at night.
 temperature_day, temperature_night = 6500, 3700
