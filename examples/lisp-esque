@@ -141,6 +141,9 @@ screens = list_screens('drm' if ttymode else 'randr')
 # Map of composed function
 composed = {}
 
+# List of adjustments
+adjustments = []
+
 
 ## For the following functions, the type of args is the type of args
 ## after it has been evaluated, they may be functions inside that
@@ -433,6 +436,15 @@ def _compose(mods, args):
     composed[new_function] = F_new
 
 
+class Negative:
+    '''
+    Negative image adjustment
+    '''
+    def __init__(self):
+        self.monitors = [(False, False, False, False, False, False)]
+    def __call__(self, monitor, alpha):
+        negative(*(self.monitors[monitor][3 if alpha == 0 else 0:][:3]))
+
 def _negative(mods, args):
     '''
     Add negative image adjustment
@@ -444,13 +456,51 @@ def _negative(mods, args):
                                             monitor (or all of them) on whether to apply negative image,
                                             'yes' implied for all monitors if empty
     '''
+    red     = 'red'     in mods
+    green   = 'green'   in mods
+    blue    = 'blue'    in mods
+    default = 'default' in mods
     args = evaluate_tree(args, True)
-    else
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    if (prev is None) or not isinstance(prev, Negative):
+        prev = Negative()
+        adjustments.append(prev)
+    if not len(prev.monitors) == len(args):
+        prev.monitors *= len(args)
+        args *= len(prev.monitors) // len(args)
+    if not any(red, green, blue):
+        red = green = blue = True
+    for monitor in range(len(args)):
+        adj = args[monitor]
+        if isinstance(adj, str):
+            adj = [adj, adj, adj]
+        adj = [(a == 'yes') && p for a, p in zip(adj, (red, green, blue))]
+        adj = ([False] * 3 if default else []) + adj + ([] if default else [False] * 3)
+        adj = [a ^ b for a, b in zip(adj, prev.monitors[monitor])]
+        prev.monitors[monitor] = tuple(adj)
 
+
+class RGBInvert:
+    '''
+    Colour inversion adjustment in sRBG
+    '''
+    def __init__(self):
+        self.monitors = [(False, False, False, False, False, False)]
+    def __call__(self, monitor, alpha):
+        rgb_invert(*(self.monitors[monitor][3 if alpha == 0 else 0:][:3]))
+
+class CIEInvert:
+    '''
+    Colour inversion adjustment in CIE xyY
+    '''
+    def __init__(self):
+        self.monitors = [(False, False, False, False, False, False)]
+    def __call__(self, monitor, alpha):
+        cie_invert(*(self.monitors[monitor][3 if alpha == 0 else 0:][:3]))
 
 def _invert(mods, args):
     '''
-    Add colour invertion adjustment
+    Add colour inversion adjustment
     
     @param  mods:list<str>                  'red', 'green' and 'blue' for restricting to those colour
                                             curves, 'cie' for using CIE xyY and 'default' for using
@@ -459,8 +509,29 @@ def _invert(mods, args):
                                             monitor (or all of them) on whether to apply colour invertion,
                                             'yes' implied for all monitors if empty
     '''
+    cie     = 'cie'     in mods
+    red     = 'red'     in mods
+    green   = 'green'   in mods
+    blue    = 'blue'    in mods
+    default = 'default' in mods
     args = evaluate_tree(args, True)
-    pass
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    if (prev is None) or not isinstance(prev, CIEInvert if cie else RGBInvert):
+        prev = CIEInvert() if cie else RGBInvert()
+        adjustments.append(prev)
+    if not len(prev.monitors) == len(args):
+        prev.monitors *= len(args)
+        args *= len(prev.monitors) // len(args)
+    if not any(red, green, blue):
+        red = green = blue = True
+    for monitor in range(len(args)):
+        adj = args[monitor]
+        if isinstance(adj, str):
+            adj = [adj, adj, adj]
+        adj = [(a == 'yes') && p for a, p in zip(adj, (red, green, blue))]
+        adj = ([False] * 3 if default else []) + adj + ([] if default else [False] * 3)
+        adj = [a ^ b for a, b in zip(adj, prev.monitors[monitor])]
+        prev.monitors[monitor] = tuple(adj)
 
 
 def _temperature(mods, args):
