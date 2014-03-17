@@ -7,6 +7,7 @@ Medium priority:
 	Test, demo and document _ICC_PROFILE
 	Add functions to store and restore curves so that we do not need
 	  to recalculate all filters before withs that are output specific.
+	Make an example that loads a configuration script from a direcory
 
 Low priority:
 	Demo cie_{brigtness,contrast,manipulate} with 3 arguments and
