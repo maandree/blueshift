@@ -646,8 +646,17 @@ def _clip(mods, args):
                                             monitor (or all of them) on whether to clip the curve,
                                             'yes' implied for all monitors if empty
     '''
+    red = 'red' in mods
+    green = 'green' in mods
+    blue = 'blue' in mods
     args = evaluate_tree(args, True)
-    pass
+    if len(args) == 0:
+        args = ['yes']
+    args = [[arg, arg, arg] if isinstance(arg, str) else arg for arg in args]
+    args = [[a == 'yes' for a in arg] for arg in args]
+    if red or green or blue:
+        args = [[arg[0] and red, arg[1] and green, arg[2] and blue] for arg in args]
+    adjustments.append(lambda monitor : clip(*(args[monitor % len(args)])))
 
 
 def _sigmoid(mods, args):
@@ -704,6 +713,8 @@ def _linearise(mods, args):
     green = 'green' in mods
     blue = 'blue' in mods
     args = evaluate_tree(args, True)
+    if len(args) == 0:
+        args = ['yes']
     args = [[arg, arg, arg] if isinstance(arg, str) else arg for arg in args]
     args = [[a == 'yes' for a in arg] for arg in args]
     if red or green or blue:
@@ -760,6 +771,8 @@ def _standardise(mods, args):
     green = 'green' in mods
     blue = 'blue' in mods
     args = evaluate_tree(args, True)
+    if len(args) == 0:
+        args = ['yes']
     args = [[arg, arg, arg] if isinstance(arg, str) else arg for arg in args]
     args = [[a == 'yes' for a in arg] for arg in args]
     if red or green or blue:
