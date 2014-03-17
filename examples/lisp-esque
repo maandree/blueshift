@@ -1,6 +1,6 @@
 # -*- python -*-
 
-# This example reads an lisp-esque syntax configuration
+# This example reads a lisp-esque syntax configuration
 # file to make it easier for non-programmers to use
 # Blueshift. It will read a file with the same pathname
 # just with ‘.conf’ appended (‘lisp-esque.conf’ in this
