@@ -671,6 +671,7 @@ def _sigmoid(mods, args):
     if red or green or blue:
         args = [[arg[0] if red else None, arg[1] if green else None, arg[2] if blue else None] for arg in args]
     adjustments.append(lambda monitor : sigmoid(*(args[monitor % len(args)])))
+    # TODO default
 
 
 def _limits(mods, args):
@@ -736,12 +737,14 @@ def _manipulate(mods, args):
     red = 'red' in mods
     green = 'green' in mods
     blue = 'blue' in mods
+    cie = 'cie' in mods
     args = evaluate_tree(args, False)
     args = [[arg, arg, arg] if isinstance(arg, str) else arg for arg in args]
     args = [[None if a == 'nil' else eval(a) for a in arg] for arg in args]
     if red or green or blue:
         args = [[arg[0] if red else None, arg[1] if green else None, arg[2] if blue else None] for arg in args]
-    adjustments.append(lambda monitor : manipulate(*(args[monitor % len(args)])))
+    adjustments.append(lambda monitor : (cie_manipulate if cie else manipulate)(*(args[monitor % len(args)])))
+    # TODO default
 
 
 def _standardise(mods, args):
