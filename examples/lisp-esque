@@ -681,6 +681,7 @@ def _sigmoid(mods, args):
         args = [[arg[0] if red else None, arg[1] if green else None, arg[2] if blue else None] for arg in args]
     adjustments.append(lambda monitor : sigmoid(*(args[monitor % len(args)])))
     # TODO default
+    # TODO timepoints
 
 
 def _limits(mods, args):
