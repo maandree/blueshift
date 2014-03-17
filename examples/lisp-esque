@@ -442,7 +442,7 @@ class Negative:
     '''
     def __init__(self):
         self.monitors = [(False, False, False, False, False, False)]
-    def __call__(self, monitor, alpha):
+    def __call__(self, monitor, _timepoint, alpha):
         negative(*(self.monitors[monitor % len(self.monitors)][3 if alpha == 0 else 0:][:3]))
 
 def _negative(mods, args):
@@ -486,7 +486,7 @@ class RGBInvert:
     '''
     def __init__(self):
         self.monitors = [(False, False, False, False, False, False)]
-    def __call__(self, monitor, alpha):
+    def __call__(self, monitor, _timepoint, alpha):
         rgb_invert(*(self.monitors[monitor % len(self.monitors)][3 if alpha == 0 else 0:][:3]))
 
 class CIEInvert:
@@ -495,7 +495,7 @@ class CIEInvert:
     '''
     def __init__(self):
         self.monitors = [(False, False, False, False, False, False)]
-    def __call__(self, monitor, alpha):
+    def __call__(self, monitor, _timepoint, alpha):
         cie_invert(*(self.monitors[monitor % len(self.monitors)][3 if alpha == 0 else 0:][:3]))
 
 def _invert(mods, args):
@@ -543,7 +543,7 @@ def _temperature(mods, args):
                                        on time, or either of those depending on monitor
     '''
     args = evaluate_tree(args, True)
-    pass
+    pass # TODO (temperature)
 
 
 def _current(mods, args):
@@ -555,7 +555,98 @@ def _current(mods, args):
                             'randr' for `randr_get`, 'vidmode' for `vidmode_get` or 'nil' for none
     '''
     args = evaluate_tree(args, True)
-    pass
+    pass # TODO (current)
+
+
+class TimeDependent:
+    '''
+    Time and monitor dependent adjustment with red, green and blue parameters
+    
+    @variable  fid:str                                Function identifier
+    @variable  f:(red:¿V?, green:¿V?, blue:¿V?)→void  Applying function
+    @variable  monitors:list<list<[¿V?]*6>>           Red, green, blue values as applied and default,
+                                                      for each timepoint for each monitor
+    '''
+    
+    def __init__(self, fid, monitors):
+        '''
+        Constructor
+        
+        @param  fid:str                       Function identifier
+        @param  monitors:list<list<[¿V?]*6>>  Red, green, blue values as applied and default,
+                                              for each timepoint for each monitor
+        '''
+        self.fid = fid
+        self.monitors = monitors
+        self.f = None
+    
+    def __call__(self, monitor, timepoint, alpha):
+        '''
+        Apply adjustment
+        
+        @param  monitor    The monitor to adjust
+        @param  timepoint  The timepoint
+        @param  alpha      The degree to which the adjustment should be visible
+        '''
+        mon = self.monitors[monitor % len(self.monitors)]
+        rgb0_def0 = mon[(int(timepoint) + 0) % len(mon)]
+        rgb1_def1 = mon[(int(timepoint) + 1) % len(mon)]
+        rgb0 = [c * alpha + d * (1 - alpha) for c, d in zip(rgb0_def0[:3], rgb0_def0[3:])]
+        rgb1 = [c * alpha + d * (1 - alpha) for c, d in zip(rgb1_def1[:3], rgb1_def1[3:])]
+        talpha = timepoint % 1
+        self.f(*[c0 * (1 - talpha) + c1 * talpha for c0, c1 in zip(rgb0, rgb1)])
+    
+    @staticmethod
+    def parse(self, mods, args, d):
+        '''
+        Parse configurations into a simple and evaluated format
+        
+        @param   mods:list<str>                    'red', 'green' and 'blue' for restricting to those
+                                                   colour curves and 'default' for using before and
+                                                   after Blueshift is running
+        @param   args:list<str|[str]               The adjustment at each time point, or all day long,
+                          |[str, str, str]         optionally with individual colour curve control; or
+                          |list<[str]>             the adjustment at each time point (outer) for each monitor,
+                          |list<[str, str, str]>>  optionally with individual colour curve control
+        @param   d:float?                          The default value
+        @return  args:list<list<[float?]*6>>       Red, green, blue values as applied and default,
+                                                   for each timepoint for each monitor
+        '''
+        args = []
+        red = 'red' in mods
+        green = 'green' in mods
+        blue = 'blue' in mods
+        default = 'default' in mods
+        args = evaluate_tree(args, True)
+        if default:
+            args_ = [args_]
+        for arg in args_:
+            if isinstance(arg, str):
+                arg = [arg]
+            if isinstance(arg[0], str):
+                arg = [arg]
+            arg = [[None if v == 'nil' else float(v) for v in (3 * a)[:3]] for a in arg]
+            arg = [[a[0] if red else d, a[1] if green else d, a[2] if blue else d] for a in arg]
+            arg = [a + [d, d, d] for a in arg]
+            args.append(arg)
+        return args
+    
+    def merge(self, addition, merger):
+        '''
+        Merge in new adjustments
+        
+        @param  addition:list<list<[float?]*6>>  New adjustments
+        @param  merger:(float?, float?)→float?   Subpixel value merger function
+        '''
+        if not len(self.monitors) == len(addition):
+            self.monitors *= len(addition)
+            addition *= len(self.monitors) // len(addition)
+        for i in range(len(self.monitors)):
+            if not len(self.monitors[i]) == len(addition[i]):
+                self.monitors[i] *= len(addition[i])
+                addition[i] *= len(self.monitors[i]) // len(addition[i])
+            for j in range(len(self.monitors[i])):
+                self.monitors[i][j] = [merger(self.monitors[i][j][k], addition[i][j][k]) for k in range(6)]
 
 
 def _brightness(mods, args):
@@ -570,8 +661,17 @@ def _brightness(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
-    args = evaluate_tree(args, True)
-    pass
+    cie = 'cie' in mods
+    args = TimeDependent.parse(mods, args, 1)
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    fid = 'brightness' + (':cie' if cie else '')
+    if not (isinstance(prev, TimeDependent) and (prev.fid == fid)):
+        f = cie_brightness if cie else rgb_brightness
+        td = TimeDependent(fid, args)
+        td.f = lambda *c : f(*c)
+        adjustments.append(td)
+    else:
+        prev.merge(args, lambda a, b : a * b)
 
 
 def _contrast(mods, args):
@@ -586,8 +686,17 @@ def _contrast(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
-    args = evaluate_tree(args, True)
-    pass
+    cie = 'cie' in mods
+    args = TimeDependent.parse(mods, args, 1)
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    fid = 'contrast' + (':cie' if cie else '')
+    if not (isinstance(prev, TimeDependent) and (prev.fid == fid)):
+        f = cie_contrast if cie else rgb_contrast
+        td = TimeDependent(fid, args)
+        td.f = lambda *c : f(*c)
+        adjustments.append(td)
+    else:
+        prev.merge(args, lambda a, b : a * b)
 
 
 def _resolution(mods, args):
@@ -604,7 +713,7 @@ def _resolution(mods, args):
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
     args = evaluate_tree(args, True)
-    pass
+    pass # TODO (resolution)
 
 
 def _gamma(mods, args):
@@ -618,8 +727,18 @@ def _gamma(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
-    args = evaluate_tree(args, True)
-    pass
+    args = TimeDependent.parse(mods, args, 1)
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    fid = 'gamma'
+    if not (isinstance(prev, TimeDependent) and (prev.fid == fid)):
+        def f(c):
+            clip()
+            gamma(*c)
+        td = TimeDependent(fid, args)
+        td.f = lambda *c : f(c)
+        adjustments.append(td)
+    else:
+        prev.merge(args, lambda a, b : a * b)
 
 
 def _pgamma(mods, args):
@@ -633,8 +752,15 @@ def _pgamma(mods, args):
                      |list<[str]>             the adjustment at each time point (outer) for each monitor,
                      |list<[str, str, str]>>  optionally with individual colour curve control
     '''
-    args = evaluate_tree(args, True)
-    pass
+    args = TimeDependent.parse(mods, args, 1)
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    fid = 'pgamma'
+    if not (isinstance(prev, TimeDependent) and (prev.fid == fid)):
+        td = TimeDependent(fid, args)
+        td.f = lambda *c : gamma(*c)
+        adjustments.append(td)
+    else:
+        prev.merge(args, lambda a, b : a * b)
 
 
 def _clip(mods, args):
@@ -656,7 +782,7 @@ def _clip(mods, args):
     args = [[a == 'yes' for a in arg] for arg in args]
     if red or green or blue:
         args = [[arg[0] and red, arg[1] and green, arg[2] and blue] for arg in args]
-    adjustments.append(lambda monitor : clip(*(args[monitor % len(args)])))
+    adjustments.append(lambda monitor, _timepoint, _alpha : clip(*(args[monitor % len(args)])))
 
 
 def _sigmoid(mods, args):
@@ -671,17 +797,24 @@ def _sigmoid(mods, args):
                      |list<[str, str, str]>>  optionally with individual colour curve control;
                                               'nil' for nothing
     '''
-    red = 'red' in mods
-    green = 'green' in mods
-    blue = 'blue' in mods
-    args = evaluate_tree(args, True)
-    args = [[arg, arg, arg] if isinstance(arg, str) else arg for arg in args]
-    args = [[None if a == 'nil' else float(a) for a in arg] for arg in args]
-    if red or green or blue:
-        args = [[arg[0] if red else None, arg[1] if green else None, arg[2] if blue else None] for arg in args]
-    adjustments.append(lambda monitor : sigmoid(*(args[monitor % len(args)])))
-    # TODO default
-    # TODO timepoints
+    args = TimeDependent.parse(mods, args, 1)
+    prev = None if len(adjustments) == 0 else adjustments[-1]
+    fid = 'sigmoid'
+    if not (isinstance(prev, TimeDependent) and (prev.fid == fid)):
+        td = TimeDependent(fid, args)
+        td.f = lambda *c : sigmoid(*c)
+        adjustments.append(td)
+    else:
+        try:
+            def merger(a, b):
+                if a is None:  return b
+                if b is None:  return a
+                raise Exception()
+            prev.merge(args, merger)
+        except:
+            td = TimeDependent(fid, args)
+            td.f = lambda *c : sigmoid(*c)
+            adjustments.append(td)
 
 
 def _limits(mods, args):
@@ -720,7 +853,7 @@ def _linearise(mods, args):
     args = [[a == 'yes' for a in arg] for arg in args]
     if red or green or blue:
         args = [[arg[0] and red, arg[1] and green, arg[2] and blue] for arg in args]
-    adjustments.append(lambda monitor : linearise(*(args[monitor % len(args)])))
+    adjustments.append(lambda monitor, _timepoint, _alpha : linearise(*(args[monitor % len(args)])))
 
 
 def _icc(mods, args):
@@ -755,7 +888,8 @@ def _manipulate(mods, args):
     args = [[None if a == 'nil' else eval(a) for a in arg] for arg in args]
     if red or green or blue:
         args = [[arg[0] if red else None, arg[1] if green else None, arg[2] if blue else None] for arg in args]
-    adjustments.append(lambda monitor : (cie_manipulate if cie else manipulate)(*(args[monitor % len(args)])))
+    f = cie_manipulate if cie else manipulate
+    adjustments.append(lambda monitor, _timepoint, _alpha : f(*(args[monitor % len(args)])))
     # TODO default
 
 
@@ -778,7 +912,7 @@ def _standardise(mods, args):
     args = [[a == 'yes' for a in arg] for arg in args]
     if red or green or blue:
         args = [[arg[0] and red, arg[1] and green, arg[2] and blue] for arg in args]
-    adjustments.append(lambda monitor : standardise(*(args[monitor % len(args)])))
+    adjustments.append(lambda monitor, _timepoint, _alpha : standardise(*(args[monitor % len(args)])))
 
 
 # Map function names to functions
