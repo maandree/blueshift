@@ -791,6 +791,25 @@ that apply the profiles when invoked.
 
 @end table
 
+If you have multiple profiles you want to interpolate
+or want to, possible with an interpolation, apply a
+profile partially, that is, interpolate between it an
+an identity profile, you can use the function
+@code{make_icc_interpolation}. It takes your profiles
+as one argument, as a list, and outputs a function
+that applies an interpolation of the profiles,
+it takes to arguments: the timepoint and the filter
+alpha. The timepoint is normally a [0, 1] floating point
+of the dayness level, this means that you only have two
+ICC profiles, but you have multiple profiles, in such
+case profile the floor of the timepoint value is takes
+as the index of the first profile to use in the
+interpolation as well as  the following profile (first
+profile if the last profile was select). They are
+interpolated linearly. The filter alpha is a [0, 1]
+floating point of the degree to which the profile should
+be applied.
+
 If you want to apply your adjustments on top of the
 current colour adjustments, you can use the functions
 @code{randr_get} or @code{vidmode_get}. @code{randr_get}

@@ -1,5 +1,4 @@
 High priority:
-	Add example that parses text-based conf file
 	Add support for monitor hotplugging
 	Add models for calculating fade and refresh rate parameters
 

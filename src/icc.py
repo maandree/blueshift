@@ -25,7 +25,7 @@ def load_icc(pathname):
     Load ICC profile from a file
     
     @param   pathname:str  The ICC profile file
-    @return  :()→void       Function to invoke, parameterless, to apply the ICC profile to the colour curves
+    @return  :()→void      Function to invoke, parameterless, to apply the ICC profile to the colour curves
     '''
     content = None
     with open(pathname, 'rb') as file:
@@ -141,4 +141,54 @@ def parse_icc(content):
             break
     
     raise Exception("Unsupported ICC profile file")
+
+
+def make_icc_interpolation(profiles):
+    '''
+    An interpolation function for ICC profiles
+    
+    @param   profiles:list<()→void>                  Profile applying functions
+    @return  :(timepoint:float, alpha:float)→void()  A function that applies an interpolation of the profiles,
+                                                     it takes to arguments: the timepoint and the filter
+                                                     alpha. The timepoint is normally a [0, 1] floating point
+                                                     of the dayness level, this means that you only have two
+                                                     ICC profiles, but you have multiple profiles, in such
+                                                     case profile #⌊timepoint⌋ and profile #(⌊timepoint⌋ + 1)
+                                                     (modulus the number of profiles) are interpolated with
+                                                     (timepoint - ⌊timepoint⌋) weight to the second profile.
+                                                     The filter alpha is a [0, 1] floating point of the degree
+                                                     to which the profile should be applied.
+    '''
+    def f(t, a):
+        pro0 = profiles[(int(t) + 0) % len(profiles)]
+        pro1 = profiles[(int(t) + 1) % len(profiles)]
+        t %= 1
+        if (pro0 is pro1) and (a == 1):
+            pro0()
+            return
+        r_, g_, b_ = r_curve[:], g_curve[:], b_curve[:]
+        start_over()
+        pro0()
+        r0, g0, b0 = r_curve[:], g_curve[:], b_curve[:]
+        n = len(r0) - 1
+        r, g, b = None, None, None
+        if pro0 is pro1:
+            r = [v * a + i * (1 - a) / n for i, v in enumerate(r0)]
+            g = [v * a + i * (1 - a) / n for i, v in enumerate(g0)]
+            b = [v * a + i * (1 - a) / n for i, v in enumerate(b0)]
+        else:
+            start_over()
+            pro1()
+            r1, g1, b1 = r_curve[:], g_curve[:], b_curve[:]
+            interpol = lambda i, v0, v1 : (v0 * (1 - t) + v1 * t) * a + i * (1 - a) / n
+            r = [interpol(i, v0, v1) for i, (v0, v1) in enumerate(zip(r0, r1))]
+            g = [interpol(i, v0, v1) for i, (v0, v1) in enumerate(zip(g0, g1))]
+            b = [interpol(i, v0, v1) for i, (v0, v1) in enumerate(zip(b0, b1))]
+        r_curve[:], g_curve[:], b_curve[:] = r_, g_, b_
+        for curve, icc in curves(r, g, b):
+            for i in range(i_size):
+                y = int(curve[i] * (len(icc) - 1) + 0.5)
+                y = min(max(0, y), len(icc) - 1)
+                curve[i] = icc[y]
+    return f
 
