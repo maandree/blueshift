@@ -31,13 +31,14 @@ provides no safe guards from making your screen
 unreadable (this feature [the lack of a feature] is
 used in the sleepmode example) or otherwise miscoloured;
 and Blueshift will never, officially, add support
-specifically for any proprietary operating system.
-Blueshift is fully extensible so it is possible to
-make extensions that make it usable under unsupported
-systems, the base code is written in Python 3 without
-calls to any system dependent functions (with exception
-for fallbacks.) This is not necessarily true for
-configuration script examples and optional features.
+specifically for any proprietary operating system,
+Free Software clones (for example ReactOS) may however
+get support. Blueshift is fully extensible so it is
+possible to make extensions that make it usable under
+unsupported systems, the base code is written in Python
+3 without calls to any system dependent functions (with
+exception for fallbacks.) This is not necessarily true
+for configuration script examples and optional features.
 
 If Blueshift does not work for you for any of these
 reasons, you should take a look at Redshift. The mean
