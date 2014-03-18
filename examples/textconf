@@ -46,7 +46,7 @@ section = []
 sections['blueshift'].append(section)
 for line in conf.split('\n'):
     line = line.strip()
-    if line.startswith('[') and line.startswith(']'):
+    if line.startswith('[') and line.endswith(']'):
         section_name = line[1 : -1].strip().lower()
         if section_name not in sections:
             sections[section_name] = []
@@ -58,9 +58,9 @@ for line in conf.split('\n'):
         eq = len(line) if '=' not in line else line.find('=')
         cl = len(line) if ':' not in line else line.find(':')
         eq = min(eq, cl)
-        section.append((line[:eq].strip().lower(), line[:eq + 1].strip()))
+        section.append((line[:eq].strip().lower(), line[eq + 1:].strip()))
     elif len(line.strip()) > 0:
-        sys.stderr.buffer.write(('Malformated line: %s' % line).encode('utf-8'))
+        sys.stderr.buffer.write(('Malformated line: %s\n' % line).encode('utf-8'))
 sys.stderr.buffer.flush()
 
 
@@ -125,7 +125,9 @@ def parse_value(value):
             cmd = ''
         else:
             buf += c
-    return ([w in w for words if w not in ['linear', 'cie', 'default']],
+    if not buf == '':
+        words.append(buf)
+    return ([w for w in words if w not in ['linear', 'cie', 'default']],
             'linear' in words, 'cie' in words, 'default' in words)
 
 
@@ -142,7 +144,7 @@ def make_f(f, value, default):
     value_ = []
     for val in value:
         value_ += val
-    if any(map(lambda v : v if None, value_)) or (default is None):
+    if any(map(lambda v : v is None, value_ + default)):
         def ff(t, a):
             val0 = value[(int(t) + 0) % len(value)]
             val1 = value[(int(t) + 1) % len(value)]
@@ -198,15 +200,15 @@ def float6(value):
         value.append(q)
     return value
 
-def add_adjustments(section_name, adjustments):
+def add_adjustments(adjsections, adjustments):
     '''
     Add adjustions from a section to a list
     
-    @param  sections:list<list<(str, str)>>        The sections
+    @param  adjsections:list<list<(str, str)>>     The sections
     @param  adjustments:list<(float, float)→void>  The list to fill with adjustments
     '''
     global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen
-    for section in sections:
+    for section in adjsections:
         for (setting, value) in section:
             (value, linear, cie, default) = parse_value(value)
             new_adjustment = None
@@ -252,9 +254,9 @@ def add_adjustments(section_name, adjustments):
                 profiles = [noop if val == 'none' else load_load(val) for val in value]
                 new_adjustment = make_icc_interpolation(profiles)
             elif setting == 'monitor':
-                add_adjustments(' '.join([monitor] + value), adjustments)
+                add_adjustments(sections[' '.join(['monitor'] + value)], adjustments)
             else:
-                sys.stderr.buffer.write(('Setting not recognised: %s' % setting).encode('utf-8'))
+                sys.stderr.buffer.write(('Setting not recognised: %s\n' % setting).encode('utf-8'))
                 sys.stderr.buffer.flush()
             if new_adjustment is not None:
                 if default:
@@ -281,13 +283,15 @@ for section in sections[adjustment_method]:
         screen_list = list_screens(list_method)
     if screen is None:
         screen = list(range(len(screen_list)))
+    else:
+        screen = [int(s) for s in screen]
     crtcs = {}
     for s in screen:
         if crtc is not None:
-            crtcs[s] = crtc
+            crtcs[s] = [int(c) for c in crtc]
         else:
             crtcs[s] = list(range(screen_list[s].crtc_count))
-    monitors.append(crtcs, screen, output_adjustments)
+    monitors.append((crtcs, screen, output_adjustments))
 
 
 # Get gamma adjustment/reader functions
@@ -301,7 +305,7 @@ set_method = set_method[adjustment_method]
 saved = {}
 for crtcs, screens, _ in monitors:
     for screen in screens:
-        if screen not in saved[screen]:
+        if screen not in saved:
             saved[screen] = {}
         saved_ = saved[screen]
         for crtc in crtcs[screen]:
@@ -312,7 +316,7 @@ for crtcs, screens, _ in monitors:
 latitude, longitude = None, None
 if 'solar' in points:
     if (location is None) or (len(location) == 0):
-        sys.stderr.buffer.write(('Location missing').encode('utf-8'))
+        sys.stderr.buffer.write(('Location missing\n').encode('utf-8'))
         sys.stderr.buffer.flush()
         sys.exit(1)
     try:
@@ -320,11 +324,11 @@ if 'solar' in points:
             raise Exception()
         location = [float(c) for c in location]
     except:
-        sys.stderr.buffer.write(('Malformation location').encode('utf-8'))
+        sys.stderr.buffer.write(('Malformation location\n').encode('utf-8'))
         sys.stderr.buffer.flush()
         sys.exit(1)
     if not ((-90 <= location[0] <= 90) and (-180 <= location[0] <= 180)):
-        sys.stderr.buffer.write(('Invalid location').encode('utf-8'))
+        sys.stderr.buffer.write(('Invalid location\n').encode('utf-8'))
         sys.stderr.buffer.flush()
         sys.exit(1)
     (latitude, longitude) = location
@@ -332,7 +336,7 @@ if 'solar' in points:
 
 # Evaluate point
 if ('solar' not in points) and ('time' not in points):
-    sys.stderr.buffer.write(('Invalid points settings').encode('utf-8'))
+    sys.stderr.buffer.write(('Invalid points settings\n').encode('utf-8'))
     sys.stderr.buffer.flush()
     sys.exit(1)
 reduce_points = 'reduce' in points
@@ -343,7 +347,7 @@ def t(point):
         point.append(0)
     v = sum([v * 60 ** (2 - i) for i, v in enumerate(point)])
     return v % 24
-points = [float(p) if solar_points else t(p) for p in points if p not in ['solar', 'time', 'point']]
+points = [float(p) if solar_points else t(p) for p in points if p not in ['solar', 'time', 'reduce']]
 points = list(enumerate(points))
 if reduce_points:
     n = len(points) - 1
