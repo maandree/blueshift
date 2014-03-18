@@ -27,6 +27,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import time
 import subprocess
 
 
@@ -75,7 +76,6 @@ adjustments = []
 monitors = []
 crtc = None
 screen = None
-card = None
 
 
 def parse_value(value):
@@ -205,7 +205,7 @@ def add_adjustments(section_name, adjustments):
     @param  sections:list<list<(str, str)>>        The sections
     @param  adjustments:list<(float, float)→void>  The list to fill with adjustments
     '''
-    global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen, card
+    global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen
     for section in sections:
         for (setting, value) in section:
             (value, linear, cie, default) = parse_value(value)
@@ -218,7 +218,7 @@ def add_adjustments(section_name, adjustments):
             elif setting == 'adjustment-method-tty':  adjustment_method_tty = value
             elif setting == 'crtc':                   crtc = value
             elif setting == 'screen':                 screen = value
-            elif setting == 'card':                   card = value
+            elif setting == 'card':                   screen = value
             elif setting == 'temperature':
                 f = lambda x : temperature(x, lambda t : divide_by_maximum(cmf_10deg(t)))
                 new_adjustment = make_f(f, [[float(v)] for v in value], [6500])
@@ -270,12 +270,24 @@ add_adjustments(sections['blueshift'], adjustments)
 
 adjustment_method = adjustment_method_tty if ttymode else adjustment_method_x
 adjustment_method = adjustment_method[0]
+list_method = 'randr' if adjustment_method == 'vidmode' else adjustment_method
+screen_list = None
 
 for section in sections[adjustment_method]:
     output_adjustments = []
-    crtc, screen, card = None, None, None
+    crtc, screen = None, None
     add_adjustments([section], output_adjustments)
-    monitors.append(crtc, screen, card, output_adjustments)
+    if (screen_list is None) and ((crtc is None) or (screen is None)):
+        screen_list = list_screens(list_method)
+    if screen is None:
+        screen = list(range(len(screen_list)))
+    crtcs = {}
+    for s in screen:
+        if crtc is not None:
+            crtcs[s] = crtc
+        else:
+            crtcs[s] = list(range(screen_list[s].crtc_count))
+    monitors.append(crtcs, screen, output_adjustments)
 
 
 # Get gamma adjustment/reader functions
@@ -285,7 +297,19 @@ get_method = get_method[adjustment_method]
 set_method = set_method[adjustment_method]
 
 
+# Save gamma ramps
+saved = {}
+for crtcs, screens, _ in monitors:
+    for screen in screens:
+        if screen not in saved[screen]:
+            saved[screen] = {}
+        saved_ = saved[screen]
+        for crtc in crtcs[screen]:
+            saved_[crtc] = get_method(crtc, screen)
+
+
 # Evaluate location
+latitude, longitude = None, None
 if 'solar' in points:
     if (location is None) or (len(location) == 0):
         sys.stderr.buffer.write(('Location missing').encode('utf-8'))
@@ -303,6 +327,7 @@ if 'solar' in points:
         sys.stderr.buffer.write(('Invalid location').encode('utf-8'))
         sys.stderr.buffer.flush()
         sys.exit(1)
+    (latitude, longitude) = location
 
 
 # Evaluate point
@@ -316,12 +341,53 @@ def t(point):
     point = [float(p) for p in point.split(':')]
     while len(point) > 3:
         point.append(0)
-    return sum([v * 60 ** (2 - i) for i, v in enumerate(point)])
+    v = sum([v * 60 ** (2 - i) for i, v in enumerate(point)])
+    return v % 24
 points = [float(p) if solar_points else t(p) for p in points if p not in ['solar', 'time', 'point']]
 points = list(enumerate(points))
 if reduce_points:
     n = len(points) - 1
     points = [(r / n, v) for r, v in points]
+get_timepoint = None
+points.sort(key = lambda x : x[0])
+if not solar_points:
+    one_day = 24 * 60 * 60
+    points.append((points[0][0], points[0][1] + one_day))
+    points = [(points[-2][0], points[-2][1] - one_day)] + points
+    def get_timepoint():
+        v = time.time() % one_day
+        for i in range(len(points) - 1):
+            a, b = points[i][1], points[i + 1][1]
+            if a <= v <= b:
+                a_, b_ = points[i][0], points[i + 1][0]
+                v = (v - a) / (b - a)
+                if (a_ + 1 == b_) or (b_ == 0):
+                    return v + points[i][0]
+                else:
+                    return points[i][1] - v
+        return 1 # should never happen
+if solar_points:
+    def get_timepoint():
+        v = solar_elevation(latitude, longitude)
+        for i in range(len(points) - 1):
+            a, b = points[i][1], points[i + 1][1]
+            if a <= v <= b:
+                a_, b_ = points[i][0], points[i + 1][0]
+                v = (v - a) / (b - a)
+                if (a_ + 1 == b_) or (b_ == 0):
+                    return v + points[i][0]
+                else:
+                    return points[i][1] - v
+        if v < points[0][1]:
+            return points[0][0]
+        return points[-1][0]
+    
+
+
+wait_period = 5
+'''
+:float  The number of seconds to wait before invoking `periodically` again
+'''
 
 
 def periodically(year, month, day, hour, minute, second, weekday, fade):
@@ -358,12 +424,34 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
-    pass
+    start_over()
+    
+    alpha = 1 if fade is None else abs(fade)
+    timepoint = get_timepoint()
+    
+    for adjustment in adjustments:
+        adjustment(timepoint, alpha)
+    
+    r, g, b = r_curve[:], g_curve[:], b_curve[:]
+    
+    for crtcs, screens, output_adjustments in monitors:
+        r_curve[:], g_curve[:], b_curve[:] = r, g, b
+        for adjustment in output_adjustments:
+            adjustment(timepoint, alpha)
+        
+        for screen in screens:
+            set_method(*(crtcs[screen]), screen = screen)
 
 
 def reset():
     '''
     Invoked to reset the displays
     '''
-    pass
+    for crtcs, screens, _ in monitors:
+        for screen in screens:
+            saved_ = saved[screen]
+            for crtc in crtcs[screen]:
+                start_over()
+                saved_[crtc]()
+                set_method(crtc, screen = screen)
 
