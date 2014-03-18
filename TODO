@@ -22,6 +22,11 @@ Low priority:
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
 	Add mir support
+	Add haiku support (haiku currently does not support gamma ramps)
+	Test on the BSD:s
+	Test on Hurd
+	Add reactos support (this way windows might get supported without my
+	  computer or soul being violated with proprietary software.)
 	Raw ramp applying functions with recalcuated interpolation, linear and
 	  polynomial
 
