@@ -20,4 +20,6 @@ Low priority:
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
 	Add mir support
+	Raw ramp applying functions with recalcuated interpolation, linear and
+	  polynomial
 
