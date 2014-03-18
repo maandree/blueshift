@@ -30,7 +30,7 @@ def load_icc(pathname):
     content = None
     with open(pathname, 'rb') as file:
         content = file.read()
-    return content
+    return parse_icc(content)
 
 
 def get_current_icc():
