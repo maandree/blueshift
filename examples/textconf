@@ -105,7 +105,9 @@ adjustments = []
 monitors = []
 crtc = None
 screen = None
-bldev = None
+name = None
+edid = None
+bldev = 'none'
 blmin = 0
 
 
@@ -244,7 +246,7 @@ def add_adjustments(adjsections, adjustments):
     @param  adjsections:list<list<(str, str)>>     The sections
     @param  adjustments:list<(float, float)→void>  The list to fill with adjustments
     '''
-    global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen, bldev, blmin
+    global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen, bldev, blmin, name, edid
     for section in adjsections:
         for (setting, value) in section:
             (value, linear, cie, default) = parse_value(value)
@@ -258,8 +260,10 @@ def add_adjustments(adjsections, adjustments):
             elif setting == 'crtc':                   crtc = value
             elif setting == 'screen':                 screen = value
             elif setting == 'card':                   screen = value
-            elif setting == 'backlight-device':       bldev = value
-            elif setting == 'backlight-minimum':      blmin = int(value[0])
+            elif setting == 'name':                   name = value
+            elif setting == 'edid':                   edid = value
+            elif setting == 'backlight-device':       bldev = value # TODO support multiple
+            elif setting == 'backlight-minimum':      blmin = int(value[0]) # TODO support multiple
             elif setting == 'backlight':
                 def f(x):
                     global backlight_value
@@ -321,9 +325,11 @@ screen_list = None
 
 for section in sections[adjustment_method]:
     output_adjustments = []
-    crtc, screen, bldev, blmin = None, None, None, 0
+    crtc, screen, name, edid, bldev, blmin = None, None, None, None, 'none', 0
     add_adjustments([section], output_adjustments)
-    if (screen_list is None) and ((crtc is None) or (screen is None)):
+    crtc_screen = (crtc is None) or (screen is None)
+    name_edid = (name is not None) or (edid is not None)
+    if (screen_list is None) and (crtc_screen or name_edid):
         screen_list = list_screens(list_method)
     if screen is None:
         screen = list(range(len(screen_list)))
@@ -331,10 +337,17 @@ for section in sections[adjustment_method]:
         screen = [int(s) for s in screen]
     crtcs = {}
     for s in screen:
+        crtcs[s] = []
         if crtc is not None:
-            crtcs[s] = [int(c) for c in crtc]
-        else:
-            crtcs[s] = list(range(screen_list[s].crtc_count))
+            crtcs[s] += [int(c) for c in crtc]
+        elif (name is None) and (edid is None):
+            crtcs[s] += list(range(screen_list[s].crtc_count))
+        if name is not None:
+            s = crtcs[s]
+            crtcs[s] += [(d.crtc for d in screen_list.find_by_name(n) if d.crtc not in s) for n in name]
+        if edid is not None:
+            s = crtcs[s]
+            crtcs[s] += [(d.crtc for d in screen_list.find_by_edid(e) if d.crtc not in s) for e in edid]
     monitors.append((crtcs, screen, bldev, blmin, output_adjustments))
 
 
@@ -446,7 +459,7 @@ if 'PATH' in os.environ:
     for p in path:
         f = p + sep + 'adjbacklight'
         if os.path.exists(f):
-            if os.accsss(f, X_OK):
+            if os.access(f, os.X_OK):
                 adjbl = True
                 break
 makebl = lambda dev, blmin : None if dev == 'none' else Backlight(dev, adjbacklight = adjbl, minimum = blmin)
