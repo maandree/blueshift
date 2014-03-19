@@ -12,7 +12,8 @@
 
 @dircategory Ergonomy
 @direntry
-* blueshift: (blueshift).            Automatically adjust the colour temperature
+@c * blueshift: (blueshift).            Automatically adjust the colour temperature
+* blueshift: (blueshift).            The grand unified dynamic colour adjustment framework
 @end direntry
 
 
@@ -31,7 +32,8 @@ Texts. A copy of the license is included in the section entitled
 
 @ifnottex
 @node Top
-@top blueshift -- Automatically adjust the colour temperature
+@c @top blueshift -- Automatically adjust the colour temperature
+@top blueshift -- The grand unified dynamic colour adjustment framework
 @insertcopying
 @end ifnottex
 
@@ -314,6 +316,7 @@ Disables or enables Blueshift.
 * Continuous mode::                     Creating continuous mode configurations.
 * Solar time::                          Solar functions, such as elevation calcuation.
 * Running without X::                   Configuration options for running without X.
+* Optimising::                          Functions that can be used to optimise performance.
 @end menu
 
 
@@ -1385,6 +1388,47 @@ for API compatibility with the RandR
 version) by be different.
 
 
+@node Optimising
+@section Optimising
+
+If you have adjustments that reused, perhaps
+between adjustments or shared between monitors.
+You can reduce the amount of calculates your
+script needs to do my reusing made adjustments.
+
+To snapshot the current state of the working
+colour curves (those that are not applied yet)
+you can use the function @code{store}. It is
+parameterless and returns a 3-tuple of the
+colour curves. To reset the to curves stored
+by @code{store} you can use the function
+@code{restore}:
+
+@example
+stored = store()
+# To stuff ...
+restore(stored)
+@end example
+
+You can also make a function of the stored
+settings. A function like this will apply the
+adjustments on top of current adjustments.
+To do this input the output of @code{store}
+into the function @code{functionise}:
+
+@example
+brightness(0.75)
+stored = functionise(store())
+stored()
+stored()
+# Now the brightness is 0,75 to the power of 3 = 0,421875.
+@end example
+
+Note that the @code{functionise(stored)()}
+might be heavier than applying the adjustments
+by invoking them.
+
+
 
 @node Related software
 @chapter Related software
@@ -1429,7 +1473,7 @@ does not interfere with another user's adjustments.
 @end table
 
 If you want to extend the capabilities of Blueshift
-for your configuration scripts their are some library
+for your configuration scripts there are some library
 packages that can be of particular interest:
 
 @table @command
@@ -1477,6 +1521,10 @@ Python bindings for D-Bus.
 
 @item python-networkmanager
 Python interface to NetworkManager.
+
+@item locateme
+(Under development)@*
+A command to get your geographical position.
 @end table
 
 
