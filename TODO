@@ -9,7 +9,6 @@ Medium priority:
 	  (I have a GPL3 implmenetion of wheter observation in xpybar.)
 
 Low priority:
-	Demo make_icc_interpolation
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result.
 	Document examples in info manual

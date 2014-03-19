@@ -171,7 +171,8 @@ sigmoid_blue = [...]
 # Replace `None` with the pathname of the profile. It is assume that
 # the calibration profile is already applied and that you want it to
 # still be applied on exit.
-icc_video_filter_profile = [None]
+icc_video_filter_profile_day = [None]
+icc_video_filter_profile_night = [None]
 icc_calibration_profile = [None]
 
 
@@ -252,6 +253,7 @@ doreset = parser.opts['--reset']
 
 last_dayness = None
 sigmoid_ = list(zip(sigmoid_red, sigmoid_green, sigmoid_blue))
+icc_video_filter_profile = [None] * len(icc_video_filter_profile_day)
 def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     :(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
@@ -332,16 +334,12 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         # Apply ICC profile as a video filter.
         i = m % len(icc_video_filter_profile)
-        if icc_video_filter_profile[i] is not None:
-            if isinstance(icc_video_filter_profile[i], str):
-                icc_video_filter_profile[i] = load_icc(icc_video_filter_profile[i])
-            icc_video_filter_profile[i]()
-            # Fade in/out filter
-            if fade is not None:
-                alpha = abs(fade)
-                for curve in (r_curve, g_curve, b_curve):
-                    for i in range(i_size):
-                        curve[i] = purify(curve[i], i / (i_size - 1))
+        if icc_video_filter_profile_day[i] is not None:
+            if icc_video_filter_profile[i] is None:
+                day = load_icc(icc_video_filter_profile_day[i])
+                night = load_icc(icc_video_filter_profile_night[i])
+                icc_video_filter_profile[i] = make_icc_interpolation([night, day])
+            icc_video_filter_profile[i](dayness, 1 if fade is None else abs(fade))
         
         # Apply negative image.
         f = negative_image[m % len(negative_image)]
