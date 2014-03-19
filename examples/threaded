@@ -39,7 +39,7 @@ import threading
 
 # Geographical coodinates.
 # ("Kristall, vertikal accent i glas och stål" (Crystal, vertical accent
-# in glass and steal) in this example. An glas obelisk, lit from the inside
+# in glass and steal) in this example. A glas obelisk, lit from the inside
 # with adjustable colours and a default colour of 5600 K, in the middle
 # of a hyperelliptic roundabout.)
 latitude, longitude = 59.3326, 18.0652
