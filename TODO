@@ -23,6 +23,8 @@ Future stuff:
 	Add haiku support (haiku currently does not support gamma ramps)
 	Test on the BSD:s
 	Test on Hurd
+	Add support for the BSD:s' TTY:s
+	Add support for Hurd TTY
 	Add reactos support (this way windows might get supported without my
 	  computer or soul being violated with proprietary software.)
 	Raw ramp applying functions with recalcuated interpolation, linear and
