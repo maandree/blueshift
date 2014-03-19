@@ -26,6 +26,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import time
 import subprocess
@@ -104,6 +105,8 @@ adjustments = []
 monitors = []
 crtc = None
 screen = None
+bldev = None
+blmin = 0
 
 
 def parse_value(value):
@@ -233,6 +236,7 @@ def float6(value):
         value.append(q)
     return value
 
+backlight_value = 1
 def add_adjustments(adjsections, adjustments):
     '''
     Add adjustions from a section to a list
@@ -240,7 +244,7 @@ def add_adjustments(adjsections, adjustments):
     @param  adjsections:list<list<(str, str)>>     The sections
     @param  adjustments:list<(float, float)→void>  The list to fill with adjustments
     '''
-    global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen
+    global location, points, adjustment_method_x, adjustment_method_tty, crtc, screen, bldev, blmin
     for section in adjsections:
         for (setting, value) in section:
             (value, linear, cie, default) = parse_value(value)
@@ -254,6 +258,13 @@ def add_adjustments(adjsections, adjustments):
             elif setting == 'crtc':                   crtc = value
             elif setting == 'screen':                 screen = value
             elif setting == 'card':                   screen = value
+            elif setting == 'backlight-device':       bldev = value
+            elif setting == 'backlight-minimum':      blmin = int(value[0])
+            elif setting == 'backlight':
+                def f(x):
+                    global backlight_value
+                    backlight_value *= f
+                new_adjustment = make_f(f, [[float(v)] for v in value], [6500])
             elif setting == 'temperature':
                 f = lambda x : temperature(x, lambda t : divide_by_maximum(cmf_10deg(t)))
                 new_adjustment = make_f(f, [[float(v)] for v in value], [6500])
@@ -310,7 +321,7 @@ screen_list = None
 
 for section in sections[adjustment_method]:
     output_adjustments = []
-    crtc, screen = None, None
+    crtc, screen, bldev, blmin = None, None, None, 0
     add_adjustments([section], output_adjustments)
     if (screen_list is None) and ((crtc is None) or (screen is None)):
         screen_list = list_screens(list_method)
@@ -324,7 +335,7 @@ for section in sections[adjustment_method]:
             crtcs[s] = [int(c) for c in crtc]
         else:
             crtcs[s] = list(range(screen_list[s].crtc_count))
-    monitors.append((crtcs, screen, output_adjustments))
+    monitors.append((crtcs, screen, bldev, blmin, output_adjustments))
 
 
 # Get gamma adjustment/reader functions
@@ -336,7 +347,7 @@ set_method = set_method[adjustment_method]
 
 # Save gamma ramps
 saved = {}
-for crtcs, screens, _ in monitors:
+for crtcs, screens, _bldev, _blmin, _adj in monitors:
     for screen in screens:
         if screen not in saved:
             saved[screen] = {}
@@ -427,6 +438,24 @@ wait_period = 5
 '''
 
 
+# Create backlight device connection
+adjbl = False
+if 'PATH' in os.environ:
+    path = os.environ['PATH'].split(os.path.pathsep)
+    sep = os.path.sep
+    for p in path:
+        f = p + sep + 'adjbacklight'
+        if os.path.exists(f):
+            if os.accsss(f, X_OK):
+                adjbl = True
+                break
+makebl = lambda dev, blmin : None if dev == 'none' else Backlight(dev, adjbacklight = adjbl, minimum = blmin)
+monitors = [(crtcs, screens, makebl(dev, blmin), adj) for crtcs, screens, dev, blmin, adj in monitors]
+
+# Save backlight settings
+saved_backlight = [(bl, bl.brightness) for _c, _s, bl, _a in monitors if bl is not None]
+
+
 def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     :(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
@@ -465,29 +494,36 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     
     alpha = 1 if fade is None else abs(fade)
     timepoint = get_timepoint()
+    backlight_value = 1
     
     for adjustment in adjustments:
         adjustment(timepoint, alpha)
     
     stored = store()
-    for crtcs, screens, output_adjustments in monitors:
+    stored_backlight_value = backlight_value
+    for crtcs, screens, bldev, output_adjustments in monitors:
         restore(stored)
+        backlight_value = stored_backlight_value
         for adjustment in output_adjustments:
             adjustment(timepoint, alpha)
         
         for screen in screens:
             set_method(*(crtcs[screen]), screen = screen)
+        if bldev is not None:
+            bldev.brightness = backlight_value
 
 
 def reset():
     '''
     Invoked to reset the displays
     '''
-    for crtcs, screens, _ in monitors:
+    for crtcs, screens, bldev, _adj in monitors:
         for screen in screens:
             saved_ = saved[screen]
             for crtc in crtcs[screen]:
                 start_over()
                 saved_[crtc]()
                 set_method(crtc, screen = screen)
+    for dev, lvl in saved_backlight:
+        dev.brightness = lvl
 
