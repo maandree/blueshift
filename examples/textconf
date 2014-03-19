@@ -353,7 +353,7 @@ if reduce_points:
     n = len(points) - 1
     points = [(r / n, v) for r, v in points]
 get_timepoint = None
-points.sort(key = lambda x : x[0])
+points.sort(key = lambda x : x[1])
 if not solar_points:
     one_day = 24 * 60 * 60
     points.append((points[0][0], points[0][1] + one_day))
