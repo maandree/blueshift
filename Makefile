@@ -116,7 +116,7 @@ obj/%.o: obj/%.c
 
 obj/%.c: src/%.pyx
 	@mkdir -p obj
-	if ! cython -3 -v $<; then src/$*.c ; false ; fi
+	if ! cython -3 -v $<; then rm src/$*.c ; false ; fi
 	mv src/$*.c $@
 
 
