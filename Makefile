@@ -68,7 +68,7 @@ CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 # Configuration script example files
 EXAMPLES = comprehensive sleepmode crtc-detection crtc-searching logarithmic \
            xmobar xpybar stored-settings current-settings xmonad threaded \
-           backlight darkroom textconf textconf.conf
+           backlight darkroom textconf textconf.conf modes
 
 
 # Build rules

@@ -6,7 +6,6 @@ Medium priority:
 	Test, demo and document _ICC_PROFILE
 	Add functions to store and restore curves so that we do not need
 	  to recalculate all filters before withs that are output specific.
-	Make an example that loads a configuration script from a directory
 	Make it possible to have settings depend on sky condicitions.
 	  (I have a GPL3 implmenetion of wheter observation in xpybar.)
 
