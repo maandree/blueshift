@@ -64,3 +64,21 @@ def functionise(rgb):
                 curve[i] = cur[y]
     return lambda : fcurve(*rgb)
 
+
+def store():
+    '''
+    Store the current adjustments
+    
+    @return  :(r:float, g:float, b:float)  The colour curves
+    '''
+    return (r_curve[:], g_curve[:], b_curve[:])
+
+
+def restore(rgb):
+    '''
+    Discard any currently applied adjustments and apply stored adjustments
+    
+    @param  rgb:(r:float, g:float, b:float)  The colour curves to restore
+    '''
+    (r_curve[:], g_curve[:], b_curve[:]) = rgb
+
