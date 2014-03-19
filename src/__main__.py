@@ -36,6 +36,7 @@ global monitor_controller, running, continuous_run, panic, _globals_, conf_stora
 global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2
 
 
+from aux import *
 from icc import *
 from solar import *
 from curve import *
