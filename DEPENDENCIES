@@ -19,6 +19,9 @@ RUNTIME DEPENDENCIES:
 	linux, adjbacklight (optional)
 	    For permission-hasslefree backlight adjustments via sysfs
 
+	wget (optional)
+	    For weather conditions
+
 
 MAKE DEPENDENCIES:
 

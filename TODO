@@ -5,8 +5,7 @@ High priority:
 Medium priority:
 	Test and demo _ICC_PROFILE
 	Demo functionise
-	Make it possible to have settings depend on sky condicitions.
-	  (I have a GPL3 implmenetion of wheter observation in xpybar.)
+	Demo and document weather
 
 Low priority:
 	Add a section in manual for information on which order
