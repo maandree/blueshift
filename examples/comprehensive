@@ -1,13 +1,11 @@
 # -*- python -*-
 
-# This example is complete with exceptions for less normal colour
-# curve modifiers: nothing else than CIE 1964 10 degree CMF for
-# colour temperature, nor use of temporarly linear RGB curves,
-# sigmoid correction, or free function modifier, work on individual
-# subpixels in CIE xyY colour space. Neither does it # support multiple
-# screens, this is normally not an issue because Xinerama is normally
-# used to put all monitors on the same screen; # nor does it parse
-# options other than -r from ad-hoc settigns, or use monitor identifiation.
+# This example covers most of what Blueshift offers. For a complete
+# coverage of Blueshift complement this example with:
+#   backlight, crtc-detection, crtc-searching, logarithmic,
+#   stored-settings, modes, textconf
+# However the are features that are only covered by the info manual:
+#   Methods for calculating correlated colour temperature
 
 
 # This file is dual-licensed under GNU General Public License
@@ -188,10 +186,13 @@ if not panicgate:
 # colour resolution. `red_x_resolution` is the number of colours
 # colours there are one encoding axis of the red curve.
 # `red_y_resolution` is how many colours there are on the
-# output axis of the red curve.
-red_x_resolution, red_y_resolution = [i_size], [o_size]
-green_x_resolution, green_y_resolution = [i_size], [o_size]
-blue_x_resolution, blue_y_resolution = [i_size], [o_size]
+# output axis of the red curve. `None` means that the default
+# resolution should be used, which are `i_size` for *_x_resolution
+# and `o_size` for *_y_resolution. `...` means that the value
+# above should be used.
+red_x_resolution, red_y_resolution = [None], [None]
+green_x_resolution, green_y_resolution = [...], [...]
+blue_x_resolution, blue_y_resolution = [...], [...]
 
 
 # Negative image settings. `None` means that negative image

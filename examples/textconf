@@ -469,10 +469,9 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     for adjustment in adjustments:
         adjustment(timepoint, alpha)
     
-    r, g, b = r_curve[:], g_curve[:], b_curve[:]
-    
+    stored = store()
     for crtcs, screens, output_adjustments in monitors:
-        r_curve[:], g_curve[:], b_curve[:] = r, g, b
+        restore(stored)
         for adjustment in output_adjustments:
             adjustment(timepoint, alpha)
         

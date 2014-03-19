@@ -4,18 +4,15 @@ High priority:
 
 Medium priority:
 	Test, demo and document _ICC_PROFILE
-	Demo functionise, store and restore
+	Demo functionise
+	Demo `None` and `...` in sigmoid
 	Make it possible to have settings depend on sky condicitions.
 	  (I have a GPL3 implmenetion of wheter observation in xpybar.)
 
 Low priority:
-	Demo cie_{brigtness,contrast,manipulate} with 3 arguments and
-	  cie_limits with 6 arguments.
-	Demo `None` and `...` in sigmoid, manipulate, cie_manipulate
-	  and lower_resolution.
+	Demo make_icc_interpolation
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result.
-	Demo make_icc_interpolation
 	Document examples in info manual
 
 Future stuff:

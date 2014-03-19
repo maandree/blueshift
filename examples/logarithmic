@@ -20,13 +20,21 @@ import math
 linearise()
 
 # Make the curves logarithmic. The function applies
-# to all colour curves, but you can change them
-# individually by specifing three functions: red,
-# green and blue.
-manipulate(lambda x : math.log(x + 1, 2))
+# to the red (first argument) and green (second
+# argument) colour curves. `...` is used to use the
+# same value as the argument before it. `None`,
+# which is used for the blue colour curve, means
+# that no adjustment is made, which is the same
+# thing as using `lambda x : x`.
+manipulate(lambda x : math.log(x + 1, 2), ..., None)
 
 # Switch back to sRGB.
 standardise()
+
+# Alternatively you can use `cie_manipulate` instead
+# of `manipulate`. To to the logaritmisation in the
+# CIE xyY colour space. If doing so, do not use
+# `linearise`–`standardise`.
 
 # Apply settings, using vidmode.
 (drm if ttymode else vidmode)()
