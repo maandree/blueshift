@@ -3,7 +3,7 @@ High priority:
 	Add models for calculating fade and refresh rate parameters
 
 Medium priority:
-	Test, demo and document _ICC_PROFILE
+	Test and demo _ICC_PROFILE
 	Demo functionise
 	Make it possible to have settings depend on sky condicitions.
 	  (I have a GPL3 implmenetion of wheter observation in xpybar.)

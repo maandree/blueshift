@@ -786,6 +786,12 @@ stored on the X server. This function returns a list of
 the index of a monitor and the raw data (series of bytes)
 of the ICC profile for indicated monitor on the indicated
 screen. Monitors without profiles are not listed.
+Associated ICC profile is mapped as properties of the
+root window of X screens. The ICC profile of a primary
+monitor in a screen is saved as a property named
+@var{_ICC_PROFILE}, the secondary monitor is stored as
+@var{_ICC_PROFILE_1}, the tertiary monitor is stored as
+@var{_ICC_PROFILE_2}, and so on.
 
 @item get_current_icc()
 This function works like @code{get_current_icc_raw}, except
