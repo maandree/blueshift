@@ -23,14 +23,15 @@ def weather(station):
     Get a brief weather report
     
     @param   station:str    The station's International Civil Aviation Organization airport code
-    @return  :(sky:str, visiblity:(:int, :float)?, weather:list<str>)
+    @return  :(sky:str, visiblity:(:int, :float)?, weather:list<str>)?
                             The sky condition, visiblity and weather. Sky condition values include
                             ‘clear’, ‘mostly clear’, ‘overcast’, ‘partly cloudy’, ‘mostly cloudy’
                             and ‘obscured’. The visibility consists of two parameters: the first
                             on indicates the the visiblity is a upper bound if the value is -1,
                             a lower bound if +1, and approximate if 0; the second parameter is the
                             visibility in kilometers. If the visibility is unknown the value will
-                            be `None`. The weather is a list that can, and often is, empty.
+                            be `None`. The weather is a list that can, and often is, empty. `None`
+                            is return if observation data cannot be downloaded.
     '''
     url = 'http://weather.noaa.gov/pub/data/observations/metar/decoded/%s.TXT'
     url %= station.upper()
