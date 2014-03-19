@@ -158,6 +158,15 @@ gamma_blue_day, gamma_blue_night, gamma_blue_default = [1], [1], [1]
 # the colour temperature is low.
 
 
+# Sigmoid curve (S-curve) correction for the red, green and blue
+# components, respectively, for each monitor. `None` means that
+# no correct is should be applied. `...` means that the value
+# above should be used.
+sigmoid_red = [None]
+sigmoid_green = [...]
+sigmoid_blue = [...]
+
+
 # ICC profile for video filtering and monitor calibration, respectively.
 # Replace `None` with the pathname of the profile. It is assume that
 # the calibration profile is already applied and that you want it to
@@ -242,6 +251,7 @@ doreset = parser.opts['--reset']
 
 
 last_dayness = None
+sigmoid_ = list(zip(sigmoid_red, sigmoid_green, sigmoid_blue))
 def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     :(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
@@ -372,6 +382,9 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         # Apply gamma correction to monitor.
         gamma(gamma_red_, gamma_green_, gamma_blue_)
+        
+        # Apply sigmoid curve correction to monitor.
+        sigmoid(*(sigmoid_[m % len(sigmoid_)]))
         
         # Apply ICC profile as a monitor calibration.
         i = m % len(icc_calibration_profile)
