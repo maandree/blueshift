@@ -107,8 +107,8 @@ crtc = None
 screen = None
 name = None
 edid = None
-bldev = 'none'
-blmin = 0
+bldev = []
+blmin = []
 
 
 def parse_value(value):
@@ -262,8 +262,8 @@ def add_adjustments(adjsections, adjustments):
             elif setting == 'card':                   screen = value
             elif setting == 'name':                   name = value
             elif setting == 'edid':                   edid = value
-            elif setting == 'backlight-device':       bldev = value # TODO support multiple
-            elif setting == 'backlight-minimum':      blmin = int(value[0]) # TODO support multiple
+            elif setting == 'backlight-device':       bldev = value
+            elif setting == 'backlight-minimum':      blmin = [int(v) for v in value]
             elif setting == 'backlight':
                 def f(x):
                     global backlight_value
@@ -325,7 +325,7 @@ screen_list = None
 
 for section in sections[adjustment_method]:
     output_adjustments = []
-    crtc, screen, name, edid, bldev, blmin = None, None, None, None, 'none', 0
+    crtc, screen, name, edid, bldev, blmin = None, None, None, None, [], []
     add_adjustments([section], output_adjustments)
     crtc_screen = (crtc is None) or (screen is None)
     name_edid = (name is not None) or (edid is not None)
@@ -462,11 +462,15 @@ if 'PATH' in os.environ:
             if os.access(f, os.X_OK):
                 adjbl = True
                 break
-makebl = lambda dev, blmin : None if dev == 'none' else Backlight(dev, adjbacklight = adjbl, minimum = blmin)
-monitors = [(crtcs, screens, makebl(dev, blmin), adj) for crtcs, screens, dev, blmin, adj in monitors]
+makebl = lambda dev, blmin : Backlight(dev, adjbacklight = adjbl, minimum = blmin)
+makebls = lambda dev, blmin : [makebl(d, b) for d, b in zip(dev, blmin) if not d == 'None']
+monitors = [(crtcs, screens, makebls(dev, blmin), adj) for crtcs, screens, dev, blmin, adj in monitors]
 
 # Save backlight settings
-saved_backlight = [(bl, bl.brightness) for _c, _s, bl, _a in monitors if bl is not None]
+saved_backlight_ = [[(b, b.brightness) for b in bl] for _c, _s, bl, _a in monitors if bl is not None]
+saved_backlight = []
+for sb in saved_backlight_:
+    saved_backlight += sb
 
 
 def periodically(year, month, day, hour, minute, second, weekday, fade):
@@ -514,7 +518,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     
     stored = store()
     stored_backlight_value = backlight_value
-    for crtcs, screens, bldev, output_adjustments in monitors:
+    for crtcs, screens, bldevs, output_adjustments in monitors:
         restore(stored)
         backlight_value = stored_backlight_value
         for adjustment in output_adjustments:
@@ -522,7 +526,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         for screen in screens:
             set_method(*(crtcs[screen]), screen = screen)
-        if bldev is not None:
+        for bldev in bldevs:
             bldev.brightness = backlight_value
 
 
@@ -530,7 +534,7 @@ def reset():
     '''
     Invoked to reset the displays
     '''
-    for crtcs, screens, bldev, _adj in monitors:
+    for crtcs, screens, _bldevs, _adj in monitors:
         for screen in screens:
             saved_ = saved[screen]
             for crtc in crtcs[screen]:
