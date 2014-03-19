@@ -46,11 +46,21 @@ def ramps_to_function(r, g, b):
     r = [y / 65535 for y in r]
     g = [y / 65535 for y in g]
     b = [y / 65535 for y in b]
+    return functionise((r, g, b))
+
+
+def functionise(rgb):
+    '''
+    Convert a three colour curves to a function that applies those adjustments
+    
+    @param   rgb:(:float, :float, :float)  The colour curves as [0, 1] values
+    @return  :()→void                      Function to invoke to apply the curves that the parameters [r, g and b] represents
+    '''
     def fcurve(R_curve, G_curve, B_curve):
         for curve, cur in curves(R_curve, G_curve, B_curve):
             for i in range(i_size):
                 y = int(curve[i] * (len(cur) - 1) + 0.5)
                 y = min(max(0, y), len(cur) - 1)
                 curve[i] = cur[y]
-    return lambda : fcurve(r, g, b)
+    return lambda : fcurve(*rgb)
 
