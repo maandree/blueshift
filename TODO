@@ -16,6 +16,7 @@ Low priority:
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result.
 	Demo make_icc_interpolation
+	Document examples in info manual
 
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
