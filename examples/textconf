@@ -50,7 +50,7 @@ def remove_comment(text, spawn_aware):
         if not spawn_aware:
             return text[:text.replace('#', ';').find(';')]
         buf, cmd, stack = '', 0, 0
-        for c in buf:
+        for c in text:
             if cmd > 0:
                 if c == '(':
                     stack += 1
@@ -268,7 +268,7 @@ def add_adjustments(adjsections, adjustments):
                 def f(x):
                     global backlight_value
                     backlight_value *= f
-                new_adjustment = make_f(f, [[float(v)] for v in value], [6500])
+                new_adjustment = make_f(f, [[float(v)] for v in value], [1])
             elif setting == 'temperature':
                 f = lambda x : temperature(x, lambda t : divide_by_maximum(cmf_10deg(t)))
                 new_adjustment = make_f(f, [[float(v)] for v in value], [6500])
@@ -507,6 +507,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
+    global backlight_value
     start_over()
     
     alpha = 1 if fade is None else abs(fade)
@@ -527,7 +528,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         for screen in screens:
             set_method(*(crtcs[screen]), screen = screen)
         for bldev in bldevs:
-            bldev.brightness = backlight_value
+            bldev.brightness = backlight_value * bldev.maximum
 
 
 def reset():
