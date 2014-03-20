@@ -3,7 +3,7 @@
 # This example covers most of what Blueshift offers. For a complete
 # coverage of Blueshift complement this example with:
 #   backlight, crtc-detection, crtc-searching, logarithmic,
-#   stored-settings, modes, textconf
+#   stored-settings, modes, textconf, weather
 # However the are features that are only covered by the info manual:
 #   Methods for calculating correlated colour temperature
 

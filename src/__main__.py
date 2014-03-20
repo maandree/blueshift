@@ -42,6 +42,7 @@ from solar import *
 from curve import *
 from colour import *
 from monitor import *
+from weather import *
 from backlight import *
 from blackbody import *
 
