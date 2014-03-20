@@ -63,7 +63,7 @@ FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC 
 DATAFILES = 2deg 10deg redshift redshift_old
 # Python source files
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py \
-          backlight.py blackbody.py aux.py
+          backlight.py blackbody.py aux.py weather.py
 # Library files
 CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 # Configuration script example files
