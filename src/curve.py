@@ -135,7 +135,7 @@ def cie_brightness(r, g = ..., b = ...):
         if same:
             for i in range(i_size):
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, t * level)
+                (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y * r)
         else:
             for i in range(i_size):
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
