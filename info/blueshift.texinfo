@@ -315,6 +315,7 @@ Disables or enables Blueshift.
 * Backlight::                           Adjusting monitor backlight.
 * Continuous mode::                     Creating continuous mode configurations.
 * Solar time::                          Solar functions, such as elevation calcuation.
+* Weather::                             Making weather dependent settings.
 * Running without X::                   Configuration options for running without X.
 * Optimising::                          Functions that can be used to optimise performance.
 @end menu
@@ -1307,6 +1308,44 @@ nautical twilight, measured in degrees.
 The Sun's lowest and highest elevation during
 astronomical twilight, measured in degrees.
 @end table
+
+
+@node Weather
+@section Weather
+
+Blueshift includes the function @code{whether}
+which gives a brief weather report. @code{whether}
+takes one argument: the International Civil Aviation
+Organization (ICAO) code of your closest airport.
+If Blueshift is unable to download the latest METAR
+(Meteorological Aerodrome Report) @code{whether}
+will return @code{None}. If successful it will
+return the sky conditions (assumed clear if not
+included in the report,) the visiblity range and
+the weather. These components are returned as a
+3-tuple with the components in the same order as
+mentioned.
+
+The sky condition is returned as a string. And
+can be either of: `clear', `mostly clear',
+`partly cloudy', `mostly cloudy', `overcast'
+and `obscured'.
+
+If the visibility range is not included in the
+report it will be @code{None}; if it is included
+in the report it will be an int–float-tuple. The
+first element in the tuple will be either
+@code{-1}, @code{0} or @code{1}, and the second
+element will be an approximate visibility range
+measured in kilometers. If the first element is
+@code{-1} this measurement is an upper bound, if
+it it @code{1} the measurement is an lower bound,
+and if it is @code{0} the measurement is
+approximate.
+
+The weather is reported as an string list, that
+can and often is empty.
+
 
 
 @node Running without X

@@ -25,7 +25,7 @@ def weather(station):
     @param   station:str    The station's International Civil Aviation Organization airport code
     @return  :(sky:str, visiblity:(:int, :float)?, weather:list<str>)?
                             The sky condition, visiblity and weather. Sky condition values include
-                            ‘clear’, ‘mostly clear’, ‘overcast’, ‘partly cloudy’, ‘mostly cloudy’
+                            ‘clear’, ‘mostly clear’, ‘partly cloudy’, ‘mostly cloudy’, ‘overcast’
                             and ‘obscured’. The visibility consists of two parameters: the first
                             on indicates the the visiblity is a upper bound if the value is -1,
                             a lower bound if +1, and approximate if 0; the second parameter is the
