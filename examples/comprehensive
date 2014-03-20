@@ -3,7 +3,7 @@
 # This example covers most of what Blueshift offers. For a complete
 # coverage of Blueshift complement this example with:
 #   backlight, crtc-detection, crtc-searching, logarithmic,
-#   stored-settings, modes, textconf, weather
+#   stored-settings, modes, textconf
 # However the are features that are only covered by the info manual:
 #   Methods for calculating correlated colour temperature
 
@@ -47,6 +47,13 @@ import os
 # of a hyperelliptic roundabout.)
 latitude, longitude = 59.3326, 18.0652
 
+# International Civil Aviation Organization (ICAO)
+# code of the nearest airport. Used to get weather
+# report. `None` if you do not want to account for
+# the weather.
+# (Stockholm Bromma Airport in this example.)
+airport = 'ESSB'
+
 # Custom dayness by time settings.
 time_alpha = [['02:00', 0], ['08:00', 1], ['22:00', 1]]
 
@@ -87,6 +94,21 @@ get_dayness = lambda : sun(latitude, longitude)
 #get_dayness = by_time
 # Uncomment if you do not want continuous mode, high night values are used.
 #get_dayness = None
+
+
+# Dayness modifiers based on weather and sky conditions.
+weather_modifiers = { 'clear'         : 1.00
+                    , 'mostly clear'  : 0.95
+                    , 'partly cloudy' : 0.90
+                    , 'mostly cloudy' : 0.85
+                    , 'overcast'      : 0.80
+                    , 'obscured'      : 0.75
+                    }
+
+# The maximum for visibility range for when to
+# account for the visibility range. `None` if
+# you do dont want to account for visibility range.
+visibility_max = 4
 
 
 # The (zero-based) index of the monitors (CRTC:s) to apply
@@ -251,7 +273,7 @@ uses_adhoc_opts = True
 doreset = parser.opts['--reset']
 
 
-last_dayness = None
+last_dayness, last_metar = None, None
 sigmoid_ = list(zip(sigmoid_red, sigmoid_green, sigmoid_blue))
 icc_video_filter_profile = [None] * len(icc_video_filter_profile_day)
 def periodically(year, month, day, hour, minute, second, weekday, fade):
@@ -288,9 +310,29 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
-    global last_dayness, wait_period
+    global last_dayness, last_metar, wait_period
     
     dayness = get_dayness()
+    
+    if airport is not None:
+        # Get weather report.
+        (metar, last_time) = (None, None) if last_metar is None else last_metar
+        now_time = minute
+        if (metar is None) or (now_time < last_time) or (last_time < now_time + 5):
+            metar = weather(airport)
+            last_metar = (metar, now_time)
+        
+        # Account for weather.
+        if metar is not None:
+            conditions = [metar[0]] + metar[2]
+            for condition in conditions:
+                if condition in weather_modifiers:
+                    dayness *= weather_modifiers[condition]
+            _bound, visibility = metar[1]
+            if (visibility_max is not None) and (visibility is not None):
+                if visibility < visibility_max:
+                    dayness *= visibility / visibility_max
+    
     # Do not do unnecessary work.
     if fade is None:
         if dayness == last_dayness:
