@@ -212,7 +212,7 @@ look better.
 Changes the colour tempurature to @code{TEMP}
 Kelvin. The standard colour tempurature is
 6500 K@footnote{Or actually 6504 K using revised
-constants in Plank's law}. If not specified,
+constants in Planck's law}. If not specified,
 the colour temperature will be 3700 K during
 high night and 6500 K during the high day.
 
