@@ -391,13 +391,14 @@ if 'solar' in points:
     (latitude, longitude) = location
 
 
-# Evaluate point
+# Evaluate point ## TODO Make this a standard part of Blueshift
 if ('solar' not in points) and ('time' not in points):
     sys.stderr.buffer.write(('Invalid points settings\n').encode('utf-8'))
     sys.stderr.buffer.flush()
     sys.exit(1)
 reduce_points = 'reduce' in points
 solar_points = 'solar' in points
+# TODO support brackets (see textconf.conf)
 def t(point):
     point = [float(p) for p in point.split(':')]
     while len(point) > 3:
@@ -411,7 +412,7 @@ if reduce_points:
     points = [(r / n, v) for r, v in points]
 get_timepoint = None
 points.sort(key = lambda x : x[1])
-if not solar_points:
+if not solar_points: # TODO does these really handle `reduce` correctly?
     one_day = 24 * 60 * 60
     points.append((points[0][0], points[0][1] + one_day))
     points = [(points[-2][0], points[-2][1] - one_day)] + points
