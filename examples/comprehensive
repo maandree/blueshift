@@ -6,6 +6,7 @@
 #   stored-settings, modes, textconf, icc-profile-atoms
 # However the are features that are only covered by the info manual:
 #   Methods for calculating correlated colour temperature
+#   The `functionise` function
 
 
 # This file is dual-licensed under GNU General Public License
