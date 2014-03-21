@@ -127,17 +127,17 @@ int main(int argc, char** argv)
 	  
 	  /* Check property name pattern */
 	  
-	  if (!strcmp(name, "_icc_profile"))
+	  if (!strcasecmp(name, "_icc_profile"))
 	    monitor = 0;
 	  else if (strcasestr(name, "_icc_profile_") == name)
 	    {
 	      name += strlen("_icc_profile_");
 	      monitor = 0;
-	      if (*name)
+	      if (*name == '\0')
 		continue;
 	      while (*name)
 		{
-		  char c = *name;
+		  char c = *name++;
 		  if (('0' <= c) && (c <= '9'))
 		    monitor = monitor * 10 - (c & 15);
 		  else

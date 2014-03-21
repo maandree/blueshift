@@ -19,6 +19,10 @@ from subprocess import Popen, PIPE
 
 from curve import *
 
+# /usr/libexec
+LIBEXECDIR = 'bin'
+
+
 
 def load_icc(pathname):
     '''
@@ -58,9 +62,9 @@ def get_current_icc_raw():
     for line in lines:
         if len(line) == 0:
             continue
-        (s, m, p) = lines.split(': ')
+        (s, m, p) = line.split(': ')
         p = bytes([int(p[i : i + 2], 16) for i in range(0, len(p), 2)])
-        rc.append((s, m, p))
+        rc.append((int(s), int(m), p))
     return rc
 
 
