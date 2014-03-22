@@ -1,11 +1,11 @@
 # -*- python -*-
 
 # This example can be used to name a mode you want to use,
-# and load the script, without having the use Blueshift's -c
-# option and give a pathname. You will only need to give a
-# filename. In this example, those modes are installed in
-# the directory `$XDG_CONFIG_HOME/blueshift-modes`, and the
-# default mode is named `default`.
+# without having to use Blueshift's -c option and give a
+# pathname. You will only need to give a filename. In this
+# example, those modes are installed in the directory
+# `$XDG_CONFIG_HOME/blueshift-modes`, and the default mode
+# is named `default`.
 
 
 # Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)

@@ -9,6 +9,11 @@
 @finalout
 @c %**end of header
 
+@c --- start of do not touch ---
+@set DOCDIR /usr/share/doc
+@set PKGNAME blueshift
+@c --- end of do not touch ---
+
 
 @dircategory Ergonomy
 @direntry
@@ -57,6 +62,7 @@ Texts. A copy of the license is included in the section entitled
 * Invoking::                        Invocation of @command{blueshift}.
 * Signals::                         Signals handled by @command{blueshift}.
 * Configuration API::               How to write configuration files.
+* Configuration examples::          Example configuration files.
 * Related software::                Software related to @command{blueshift}.
 * Terminology::                     Related terminology.
 * GNU Free Documentation License::  Copying and sharing this manual.
@@ -1472,6 +1478,122 @@ stored()
 Note that the @code{functionise(stored)()}
 might be heavier than applying the adjustments
 by invoking them.
+
+
+
+@node Configuration examples
+@chapter Configuration examples
+
+The Blueshift packages comes with a set of example
+configuration scripts. These are installed to
+@file{@value{DOCDIR}/@value{PKGNAME}/examples}.
+These examples include:
+
+@table @file
+@item backlight
+This example demonstrates how to use adjust backlight
+without interfering to much with manual adjustments.
+The example with oscillate the backlight between 50 %
+and 100 % but include any manual adjustments.
+
+@item battery
+This is a small example that inverts the colours when
+the battery's capacity is low. It includes very little
+from the configuration API but uses Linux's sysfs to
+determine the battery's capacity an charging status.
+
+@item comprehensive
+This example includes most of Blueshift's features and
+lets you use them very generically. It does include all
+basic features of Blueshift.
+
+@item crtc-detection
+This is a small example that identifies which monitors
+you have plugged in to the computer, and applied their
+proper calibration.
+
+@item crtc-searching
+This example uses option parsing and CRTC searching.
+@command{Screens.find_by_crtc} and
+@command{Screen.find_by_crtc}, are not used, those are
+not useful for anything. They can be used for seaching
+the number of connected monitors, but
+@command{Screen.crtc_count} is much more effective.
+
+@item current-settings
+This is a small example demonstrates how the currents
+settings can be read and transitioned from.
+
+@item darkroom
+This is a samll example inverts the colours and then
+makes the monitors red and dim. It is exited by running
+again with Blueshift's @option{-r} (@option{--reset})
+option.
+
+@item icc-profile-atoms
+This is a tiny example that demonstrates how to read
+and use the @var{_ICC_PROFILE(_n)} atoms for X screens.
+
+@c @item lisp-esque
+@c @itemx lisp-esque.conf
+
+@item logarithmic
+A very small example that uses free function modifier
+and temporary curve linearisation to make the colour
+curves logarithmic.
+
+@item modes
+This example can be used to name a mode you want to use,
+without having to use Blueshift's @option{-c} option and
+give a pathname. You will only need to give a filename.
+In this example, those modes are installed in the directory
+@file{$@var{XDG_CONFIG_HOME}/blueshift-modes}, and the
+default mode is named @file{default}.
+
+@item sleepmode
+This example graciously fades out the screen on start and
+in on exit. It is a nice alternative to turning off the
+monitor, just press @kbd{Control+c} when you wake up.
+
+@item stored-settings
+This example demonstrates how settings can be stored
+and be transition from later.
+
+@item textconf
+@itemx textconf.conf
+This example uses a text based configuration file to make
+it easier for non-programmers to use Blueshift. It will
+read a file with the same pathname just with @file{.conf}
+appended (@file{textconf.conf} in this case.) However, if
+the filename of this file ends with with @file{rc}, that
+part will be removed, for example, if you rename this
+script to @file{~/.blueshiftrc} it will read
+@file{~/.blueshift.conf} rather than
+@file{~/.blueshiftrc.conf}.
+
+@item threaded
+This is an example demonstrates how you can make a
+multithreaded configurations script.
+
+@item weather
+This is a samll example demonstrates how to include
+weather conditions in your configuration scripts.
+
+@item xmobar
+This example can be used in @command{xmobar} to display
+the Sun's elevation and to what degree it is day time.
+
+@item xmonad
+This configuration scripts read the @command{xmonad}
+log to detect which workspace you are viewing. It can
+also disable adjustments when you are in selected
+programs such as The GIMP and Inkscape.
+
+@item xpybar
+This example can be used in @command{xpybar} to display
+the Sun's elevation and to what degree it is day time.
+
+@end table
 
 
 

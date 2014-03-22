@@ -1,7 +1,7 @@
 # -*- python -*-
 
 # This is a small example that inverts the colours when the
-# batteries capacity is low.
+# battery's capacity is low.
 
 
 # Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)

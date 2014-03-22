@@ -124,7 +124,7 @@ obj/%.c: src/%.pyx
 # Build rules for Python source files
 
 bin/blueshift: obj/blueshift.zip
-	echo '#!/usr/bin/python3' > $@
+	echo '#!$(SHEBANG)' > $@
 	cat $< >> $@
 	chmod a+x $@
 
@@ -144,29 +144,32 @@ obj/%.py: src/%.py
 .PHONY: doc
 doc: info pdf dvi ps
 
+obj/%.texinfo: info/%.texinfo
+	@mkdir -p obj
+	cp $< $@
+	sed -i 's:@set DOCDIR /usr/share/doc:@set DOCDIR $(DOCDIR):g' $@
+	sed -i 's:@set PKGNAME blueshift:@set PKGNAME $(PKGNAME):g' $@
+
 .PHONY: info
 info: blueshift.info
-%.info: info/%.texinfo
-	makeinfo "$<"
+%.info: obj/%.texinfo obj/fdl.texinfo
+	makeinfo $<
 
 .PHONY: pdf
 pdf: blueshift.pdf
-%.pdf: info/%.texinfo
-	@mkdir -p obj
+%.pdf: obj/%.texinfo obj/fdl.texinfo
 	cd obj ; yes X | texi2pdf ../$<
 	mv obj/$@ $@
 
 .PHONY: dvi
 dvi: blueshift.dvi
-%.dvi: info/%.texinfo
-	@mkdir -p obj
+%.dvi: obj/%.texinfo obj/fdl.texinfo
 	cd obj ; yes X | $(TEXI2DVI) ../$<
 	mv obj/$@ $@
 
 .PHONY: ps
 ps: blueshift.ps
-%.ps: info/%.texinfo
-	@mkdir -p obj
+%.ps: obj/%.texinfo obj/fdl.texinfo
 	cd obj ; yes X | texi2pdf --ps ../$<
 	mv obj/$@ $@
 

@@ -1,6 +1,6 @@
 # -*- python -*-
 
-# This example demonstrates how to use read and
+# This example demonstrates how to read and
 # use the _ICC_PROFILE(_n) atoms for X screens.
 
 

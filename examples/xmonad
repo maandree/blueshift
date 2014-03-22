@@ -1,7 +1,9 @@
 # -*- python -*-
 
 # This configuration scripts read the xmonad log to detect
-# which workspace you are viewing.
+# which workspace you are viewing. It can also disable
+# adjustments when you are in selected programs such as
+# The GIMP and Inkscape.
 
 
 # Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
