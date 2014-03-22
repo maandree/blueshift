@@ -989,8 +989,8 @@ on the backlight controller you may have very
 few backlight levels available.
 
 To list the available backlight controllers, run the
-function @code{list_backlights}, has ho parameters,
-it returns a list of controller names.
+function @code{list_backlights}, it has mo parameters
+and returns a list of controller names.
 
 To use a backlight controller, invoke the contructor
 of the class @code{Backlight}. It takes one manditory
