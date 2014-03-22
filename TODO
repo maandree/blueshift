@@ -3,10 +3,12 @@ High priority:
 	Add models for calculating fade and refresh rate parameters
 
 Medium priority:
-
-Low priority:
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result.
+
+Low priority:
+	Raw ramp applying functions with recalcuated interpolation, linear and
+	  polynomial
 
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
@@ -18,8 +20,6 @@ Future stuff:
 	Add support for Hurd TTY
 	Add reactos support (this way windows might get supported without my
 	  computer or soul being violated with proprietary software.)
-	Raw ramp applying functions with recalcuated interpolation, linear and
-	  polynomial
 	Make an example that warns about UPS states
 	  (not too important, you should have that in /etc/inittab)
 
