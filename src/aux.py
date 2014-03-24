@@ -49,6 +49,19 @@ def ramps_to_function(r, g, b):
     return functionise((r, g, b))
 
 
+def linearly_interpolate_ramp(r, g, b): # TODO demo and document this
+    '''
+    Linearly interpolate ramps to the size of the output axes
+    
+    @param   r:list<int>                               The red colour curves as [0, 65535] integers
+    @param   g:list<int>                               The green colour curves as [0, 65535] integers
+    @param   b:list<int>                               The blue colour curves as [0, 65535] integers
+    @return  :(r:list<int>, g:list<int>, b:list<int>)  The input parameters extended to sizes of `o_size`,
+                                                       or their original size, whatever is larger.
+    '''
+    pass # TODO implement linearly_interpolate_ramp
+
+
 def functionise(rgb):
     '''
     Convert a three colour curves to a function that applies those adjustments

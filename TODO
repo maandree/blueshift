@@ -7,8 +7,7 @@ Medium priority:
 	  to apply settings and how it affects the result.
 
 Low priority:
-	Raw ramp applying functions with recalcuated interpolation, linear and
-	  polynomial
+	Raw ramp applying functions with precalcuated interpolation, polynomial
 
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
