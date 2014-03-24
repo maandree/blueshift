@@ -49,17 +49,32 @@ def ramps_to_function(r, g, b):
     return functionise((r, g, b))
 
 
-def linearly_interpolate_ramp(r, g, b): # TODO demo and document this
+def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
     '''
     Linearly interpolate ramps to the size of the output axes
     
-    @param   r:list<int>                               The red colour curves as [0, 65535] integers
-    @param   g:list<int>                               The green colour curves as [0, 65535] integers
-    @param   b:list<int>                               The blue colour curves as [0, 65535] integers
-    @return  :(r:list<int>, g:list<int>, b:list<int>)  The input parameters extended to sizes of `o_size`,
-                                                       or their original size, whatever is larger.
+    @param   r:list<float>                                   The red colour curves
+    @param   g:list<float>                                   The green colour curves
+    @param   b:list<float>                                   The blue colour curves
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
+                                                             or their original size, whatever is larger.
     '''
-    pass # TODO implement linearly_interpolate_ramp
+    R, G, B = None, None, None
+    R = r[:] if len(r) >= o_size else ([None] * o_size)
+    G = g[:] if len(g) >= o_size else ([None] * o_size)
+    B = b[:] if len(b) >= o_size else ([None] * o_size)
+    for small, large in curves(R, G, B):
+        if len(large) > len(small):
+            small_ = len(small) - 1
+            large_ = len(large) - 1
+            for i in range(len(large)):
+                j = i * small_ / large_
+                j, w = int(j), j % 1
+                k = j + 1
+                if k > small_:
+                    k = small_
+                large[i] = small[j] * (w - 1) + small[k] * w
+    return (R, G, B)
 
 
 def functionise(rgb):
