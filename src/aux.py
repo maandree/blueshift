@@ -31,7 +31,7 @@ def translate_to_integers():
             o_curve[i] = int(i_curve[i] * (o_size - 1) + 0.5)
             if clip_result:
                 o_curve[i] = min(max(0, o_curve[i]), (o_size - 1))
-    return (R_curve, G_curve, B_curve)    
+    return (R_curve, G_curve, B_curve)
 
 
 def ramps_to_function(r, g, b):
