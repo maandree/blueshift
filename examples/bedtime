@@ -23,13 +23,13 @@
 # The time for each weekday you go to bed. The first value is the
 # time to start preparing the for sleep and the second value is the
 # time the monitors should be fully adjusted for sleep.
-time_sleep_monday    = ('22:00', '24:00')
-time_sleep_tuesday   = ('22:00', '24:00')
-time_sleep_wednesday = ('22:00', '24:00')
-time_sleep_thursday  = ('22:00', '24:00')
-time_sleep_friday    = ('22:00', '24:00')
-time_sleep_saturday  = ('24:00', '26:00')
-time_sleep_sunday    = ('24:00', '26:00')
+time_sleep_monday    = ('21:00', '24:00')
+time_sleep_tuesday   = ('21:00', '24:00')
+time_sleep_wednesday = ('21:00', '24:00')
+time_sleep_thursday  = ('21:00', '24:00')
+time_sleep_friday    = ('21:00', '24:00')
+time_sleep_saturday  = ('23:00', '26:00')
+time_sleep_sunday    = ('23:00', '26:00')
 # It is allowed to have values above and including 24:00, these
 # values are interprets as that time (minus 24 hours) the next day.
 
