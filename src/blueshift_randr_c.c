@@ -117,7 +117,7 @@ int blueshift_randr_open(int use_screen)
   
   if (error || (randr_version == NULL))
     {
-      fprintf(stderr, "RandR version query returned %i", error ? error->error_code : -1);
+      fprintf(stderr, "RandR version query returned %i\n", error ? error->error_code : -1);
       xcb_disconnect(connection);
       return 1;
     }
