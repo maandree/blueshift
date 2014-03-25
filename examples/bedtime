@@ -19,10 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+import datetime
+
 
 # Geographical coodinates.
 # ("Kristall, vertikal accent i glas och stål" (Crystal, vertical accent
-# in glass and steal) in this example. A glas obelisk, lit from the inside
+# in glass and steal) in this example. A glass obelisk, lit from the inside
 # with adjustable colours and a default colour of 5600 K, in the middle
 # of a hyperelliptic roundabout.)
 latitude, longitude = 59.3326, 18.0652
@@ -117,6 +120,10 @@ fadeout_steps = 20 * fadeout_time if fadeout_time is not None else None
 '''
 
 
+# Time constants.
+ONE_DAY = 24 * 60 * 60
+ONE_WEEK = 7 * ONE_DAY
+
 
 # Combine the time points into a matrix.
 times = (time_sleep_monday    + time_wakeup_tuesday,
@@ -148,15 +155,47 @@ def monotonic_time(ts):
     @param   ts:list<float>  The time point sequence
     @return  :list<float>    The time point sequence as an increasing sequence
     '''
-    ONE_DAY = 24 * 60 * 60
     rc = [ts[0]]
     for t in ts[1:]:
         if t < rc[-1]:
-            t += rc[-1] - (rc[-1] % ONE_DAY) + ONE_DAY
+            t += rc[-1] - (rc[-1] % ONE_DAY)
+            if t < rc[-1]:
+                t += ONE_DAY
         rc.append(t)
     return rc
 
 times = [monotonic_time([interpret_time(t) for t in ts]) for ts in times]
+
+
+# Convert time point matrix to a vector.
+timepoints = []
+for weekday in range(len(times)):
+    weekday_ = weekday * ONE_DAY
+    ts = times[weekday]
+    for ti in range(len(ts)):
+        t = (ts[ti] + weekday_) % ONE_WEEK
+        timepoints.append((t, ti))
+timepoints.sort(key = lambda x : x[0])
+timepoints.insert(0, (timepoints[-1][0] - ONE_WEEK, timepoints[-1][1]))
+timepoints.append((timepoints[1][0] + ONE_WEEK, timepoints[1][1]))
+
+
+def get_bedness(time):
+    '''
+    Calculate to what degree the adjustments should be tuned to bedtime mode
+    
+    @param   time:float  The number of seconds in the time modulo the a week
+    @return  :float      To what degree the adjustments should be tuned to bedtime mode
+    '''
+    for i in range(len(timepoints) - 1):
+        if timepoints[i][0] <= time <= timepoints[i + 1][0]:
+            break
+    (a, p), (b, _) = timepoints[i], timepoints[i + 1]
+    weight = (time - a) / (b - a)
+    if p == 0:  return weight
+    if p == 1:  return 1
+    if p == 2:  return 1 - weight
+    return 0
 
 
 
@@ -197,13 +236,20 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     global last_dayness, last_bedness
     
+    tzoff = (datetime.datetime.now().hour - datetime.datetime.utcnow().hour) * 60 * 60
+    tzoff += (datetime.datetime.now().minute - datetime.datetime.utcnow().minute) * 60
+    now = time.time() + tzoff
+    h = int((now / (60 * 60)) % 24)
+    if h < hour:
+        weekday += 1
+    
     dayness = get_dayness()
-    bedness = 1 # TODO
+    bedness = get_bedness((weekday - 1) * ONE_DAY + (now % ONE_DAY))
     
     # Do not apply new adjustments if nothing has changed.
     if (fade is None) and (dayness == last_dayness) and (bedness == last_bedness):
         return
-    last_dayness, last_bedness  = dayness, bedness
+    last_dayness, last_bedness = dayness, bedness
     
     # Calculate temperature and brightness.
     temperature_ = temperature_day * dayness + temperature_night * (1 - dayness)
