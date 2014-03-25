@@ -259,6 +259,12 @@ def continuous_run():
                     time.sleep(seconds) # setitimer may not be supported
                 except KeyboardInterrupt:
                     signal_SIGTERM(0, None)
+    def now():
+        while True:
+            try:
+                return datetime.datetime.now()
+            except KeyboardInterrupt:
+                signal_SIGTERM(0, None)
     
     ## Catch signals
     def signal_(sig, fun):
@@ -278,7 +284,7 @@ def continuous_run():
     while running:
         if trans_delta == 0:
             ## Run periodically
-            p(datetime.datetime.now(), None)
+            p(now(), None)
             if running:
                 sleep(wait_period)
         elif trans_delta < 0:
@@ -287,13 +293,13 @@ def continuous_run():
                 fadein_time = None
             if not ((fadein_time is None) or panicgate):
                 if trans_alpha == 0:
-                    p(datetime.datetime.now(), 1 - trans_alpha)
+                    p(now(), 1 - trans_alpha)
                     sleep(fadein_time / fadein_steps)
                 trans_alpha -= 1 / fadein_steps
             if (trans_alpha <= 0) or (fadein_time is None) or panicgate:
                 trans_alpha = 0
                 trans_delta = 0
-            p(datetime.datetime.now(), 1 - trans_alpha)
+            p(now(), 1 - trans_alpha)
             if fadein_time is not None:
                 sleep(fadein_time / fadein_steps)
         else:
@@ -304,7 +310,7 @@ def continuous_run():
                 trans_alpha += 1 / fadeout_steps
             if (trans_alpha >= 1) or (fadeout_time is None):
                 trans_alpha = 1
-            p(datetime.datetime.now(), -1 + trans_alpha)
+            p(now(), -1 + trans_alpha)
             if trans_alpha == 1:
                 try:
                     with sleep_condition:
@@ -324,7 +330,7 @@ def continuous_run():
             if (trans_alpha >= 1) or (fadeout_time is None):
                 trans_alpha = 1
                 panic = True
-            p(datetime.datetime.now(), -1 + trans_alpha)
+            p(now(), -1 + trans_alpha)
             sleep(fadeout_time / fadeout_steps)
     
     ## Reset
