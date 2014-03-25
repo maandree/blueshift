@@ -390,7 +390,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
             f()
         
         # Apply colour temperature using raw CIE 1964 10 degree CMF data with interpolation.
-        temperature(temperature_, lambda t : divide_by_maximum(cmf_10deg(t)))
+        temperature(temperature_, lambda t : clip_whitepoint(divide_by_maximum(cmf_10deg(t))))
         
         # Apply calibration used when started.
         c = current_calibration[m % len(current_calibration)]
