@@ -20,6 +20,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Geographical coodinates.
+# ("Kristall, vertikal accent i glas och stål" (Crystal, vertical accent
+# in glass and steal) in this example. A glas obelisk, lit from the inside
+# with adjustable colours and a default colour of 5600 K, in the middle
+# of a hyperelliptic roundabout.)
+latitude, longitude = 59.3326, 18.0652
+
+
 # The time for each weekday you go to bed. The first value is the
 # time to start preparing the for sleep and the second value is the
 # time the monitors should be fully adjusted for sleep.
@@ -45,15 +53,79 @@ time_wakeup_saturday  = ('13:00', '14:00')
 time_wakeup_sunday    = ('13:00', '14:00')
 
 
+# The (zero-based) index of the monitors (CRTC:s) to apply
+# settings to. An empty list means that all monitors are used,
+# but all monitors will have the same settings.
+monitors = []
+
+
+# Gamma correction for the red, green and blue components,
+# respectively, for each monitor,
+gamma_red   = [1]
+gamma_green = [1]
+gamma_blue  = [1]
+
+# The colour temperature during the day, night, during
+# sleep and the default, respectively.
+temperature_day     = 5500
+temperature_night   = 3500
+temperature_sleep   = 1000
+temperature_default = 6500
+
+# The brightness during the day, night, during sleep
+# and the default respectively.
+brightness_day     = 1
+brightness_night   = 1
+brightness_sleep   = 0.2
+brightness_default = 1
+
+
+# Method for applying colour curves.
+apply_curves = randr
+#apply_curves = vidmode
+if ttymode:
+    apply_curves = drm
+
+# Method used to get the degree to which it is day.
+get_dayness = lambda : sun(latitude, longitude)
+
+
+
+wait_period = 1
+'''
+:float  The number of seconds to wait before invoking `periodically` again
+'''
+
+fadein_time = 20
+'''
+:float?  The number of seconds used to fade in on start, `None` for no fading
+'''
+
+fadeout_time = 10
+'''
+:float?  The number of seconds used to fade out on exit, `None` for no fading
+'''
+
+fadein_steps = 20 * fadein_time if fadein_time is not None else None
+'''
+:int  The number of steps in the fade in phase, if any
+'''
+
+fadeout_steps = 20 * fadeout_time if fadeout_time is not None else None
+'''
+:int  The number of steps in the fade out phase, if any
+'''
+
+
 
 # Combine the time points into a matrix.
 times = (time_sleep_monday    + time_wakeup_tuesday,
-      =  time_sleep_tuesday   + time_wakeup_wednesday,
-      =  time_sleep_wednesday + time_wakeup_thursday,
-      =  time_sleep_thursday  + time_wakeup_friday,
-      =  time_sleep_friday    + time_wakeup_saturday,
-      =  time_sleep_saturday  + time_wakeup_sunday,
-      =  time_sleep_sunday    + time_wakeup_monday)
+         time_sleep_tuesday   + time_wakeup_wednesday,
+         time_sleep_wednesday + time_wakeup_thursday,
+         time_sleep_thursday  + time_wakeup_friday,
+         time_sleep_friday    + time_wakeup_saturday,
+         time_sleep_saturday  + time_wakeup_sunday,
+         time_sleep_sunday    + time_wakeup_monday)
 
 def interpret_time(t):
     '''
@@ -84,10 +156,11 @@ def monotonic_time(ts):
         rc.append(t)
     return rc
 
-times = [monotonic_time([interpret_time(t) for t in ts]) in ts for times]
+times = [monotonic_time([interpret_time(t) for t in ts]) for ts in times]
 
 
 
+last_dayness, last_bedness = -1, -1
 def periodically(year, month, day, hour, minute, second, weekday, fade):
     '''
     :(int, int, int, int, int, int, int, float?)?→void  Place holder for periodically invoked function
@@ -122,5 +195,75 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     (*)  Can be exceeded if the calendar system is changed, like in 1712-(02)Feb-30
     (**) See https://en.wikipedia.org/wiki/Leap_second
     '''
-    pass
+    global last_dayness, last_bedness
+    
+    dayness = get_dayness()
+    bedness = 1 # TODO
+    
+    # Do not apply new adjustments if nothing has changed.
+    if (fade is None) and (dayness == last_dayness) and (bedness == last_bedness):
+        return
+    last_dayness, last_bedness  = dayness, bedness
+    
+    # Calculate temperature and brightness.
+    temperature_ = temperature_day * dayness + temperature_night * (1 - dayness)
+    brightness_  =  brightness_day * dayness +  brightness_night * (1 - dayness)
+    temperature_ = temperature_sleep * bedness + temperature_ * (1 - bedness)
+    brightness_  =  brightness_sleep * bedness +  brightness_ * (1 - bedness)
+    if fade is not None:
+        alpha = abs(fade)
+        temperature_ = temperature_ * alpha + temperature_default * (1 - alpha)
+        brightness_  =  brightness_ * alpha +  brightness_default * (1 - alpha)
+    
+    # Remove settings from last run.
+    start_over()
+    
+    # Apply colour temperature using raw CIE 1964 10 degree CMF data with interpolation.
+    temperature(temperature_, lambda t : clip_whitepoint(divide_by_maximum(cmf_10deg(t))))
+    
+    # Apply colour brightness using the CIE xyY colour space.
+    cie_brightness(brightness_)
+    
+    # Store calculates so that they can be reused for each monitor
+    stored = store()
+    
+    for m in range(max(1, len(monitors))):
+        gamma_red_   = gamma_red  [m % len(gamma_red)]
+        gamma_green_ = gamma_green[m % len(gamma_green)]
+        gamma_blue_  = gamma_blue [m % len(gamma_blue)]
+        
+        # Reuse stored calculations.
+        restore(stored)
+        
+        # Apply gamma correction to monitor.
+        gamma(gamma_red_, gamma_green_, gamma_blue_)
+        
+        # Flush settings to monitor.
+        if len(monitors) == 0:
+            apply_curves()
+        else:
+            apply_curves(monitors[m % len(monitors)])
+
+
+
+def reset():
+    '''
+    Invoked to reset the displays
+    '''
+    for m in range(max(1, len(monitors))):
+        gamma_red_   = gamma_red  [m % len(gamma_red)]
+        gamma_green_ = gamma_green[m % len(gamma_green)]
+        gamma_blue_  = gamma_blue [m % len(gamma_blue)]
+        
+        # Remove settings from last run.
+        start_over()
+        
+        # Apply gamma correction to monitor.
+        gamma(gamma_red_, gamma_green_, gamma_blue_)
+        
+        # Flush settings to monitor.
+        if len(monitors) == 0:
+            apply_curves()
+        else:
+            apply_curves(monitors[m % len(monitors)])
 
