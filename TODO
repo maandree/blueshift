@@ -8,6 +8,7 @@ Medium priority:
 
 Low priority:
 	Raw ramp applying functions with precalcuated interpolation, polynomial
+	Add cie_temperature
 
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
