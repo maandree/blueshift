@@ -20,3 +20,5 @@ setup and I will make sure to fix this.
 Blueshift requires adjustable gamma ramps. It is
 very rare that video drivers do not support this.
 
+X11 cannot be started when DRM is used.
+
