@@ -92,8 +92,8 @@ def cmf_2deg(temperature):
         (x1, y1) = cmf_2deg_cache[int(temp // 100)]
         (x2, y2) = cmf_2deg_cache[int(temp // 100 + 1)]
         temp = (temp % 100) / 100
-        x = x1 * temp + x2 * (1 - temp)
-        y = y1 * temp + y2 * (1 - temp)
+        x = x1 * (1 - temp) + x2 * temp
+        y = y1 * (1 - temp) + y2 * temp
     return ciexyy_to_srgb(x, y, 1.0)
 
 
@@ -123,8 +123,8 @@ def cmf_10deg(temperature):
         (x1, y1) = cmf_10deg_cache[int(temp // 100)]
         (x2, y2) = cmf_10deg_cache[int(temp // 100 + 1)]
         temp = (temp % 100) / 100
-        x = x1 * temp + x2 * (1 - temp)
-        y = y1 * temp + y2 * (1 - temp)
+        x = x1 * (1 - temp) + x2 * temp
+        y = y1 * (1 - temp) + y2 * temp
     return ciexyy_to_srgb(x, y, 1)
 
 
@@ -168,9 +168,9 @@ def redshift(temperature, old_version = False, linear_interpolation = False):
         temp = (temp % 100) / 100
         if linear_interpolation:
             (r, g, b) = standard_to_linear(r, g, b)
-        r = r1 * temp + r2 * (1 - temp)
-        g = g1 * temp + g2 * (1 - temp)
-        b = b1 * temp + b2 * (1 - temp)
+        r = r1 * (1 - temp) + r2 * temp
+        g = g1 * (1 - temp) + g2 * temp
+        b = b1 * (1 - temp) + b2 * temp
         if linear_interpolation:
             (r, g, b) = linear_to_standard(r, g, b)
     return (r, g, b)
