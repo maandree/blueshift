@@ -70,7 +70,7 @@ CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 EXAMPLES = comprehensive sleepmode crtc-detection crtc-searching logarithmic \
            xmobar xpybar stored-settings current-settings xmonad threaded \
            backlight darkroom textconf textconf.conf modes weather battery \
-           icc-profile-atoms
+           icc-profile-atoms bedtime
 
 
 # Build rules
