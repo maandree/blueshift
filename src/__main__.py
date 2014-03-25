@@ -26,7 +26,7 @@ from argparser import *
 
 
 PROGRAM_NAME = 'blueshift'
-PROGRAM_VERSION = '1.14'
+PROGRAM_VERSION = '1.15'
 
 
 ## Set global variables
