@@ -1502,6 +1502,10 @@ the battery's capacity is low. It includes very little
 from the configuration API but uses Linux's sysfs to
 determine the battery's capacity an charging status.
 
+@item bedtime
+This example adjusts the the colours to make it easier
+to go to bed around a scheduled time, for each weekday.
+
 @item comprehensive
 This example includes most of Blueshift's features and
 lets you use them very generically. It does include all
