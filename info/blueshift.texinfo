@@ -693,6 +693,9 @@ This works the same way as @code{temperature},
 except that subpixel brightness adjustment is
 done in CIE xyY colour space rather than sRGB.
 
+You probability do not want to use this variant
+of @code{temperature}.
+
 @item lower_resolution(x, y)
 Emulate low resolution. @code{x} is the number of
 colours to emulate that each subpixel can have.
