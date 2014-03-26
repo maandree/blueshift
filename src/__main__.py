@@ -355,6 +355,7 @@ parser.add_argumented(['-g', '--gamma'], 0, 'RGB|R:G:B', 'Set gamma correction' 
 parser.add_argumented(['-b', '--brightness'], 0, 'RGB|R:G:B', 'Set brightness using sRGB' + dn)
 parser.add_argumented(['+b', '++brightness'], 0, 'Y', 'Set brightness using CIE xyY' + dn)
 parser.add_argumented(['-t', '--temperature'], 0, 'TEMP', 'Set colour temperature' + dn)
+parser.add_argumented(['+t', '++temperature'], 0, 'TEMP', 'Set colour temperature using CIE xyY' + dn)
 parser.add_argumented(['-l', '--location'], 0, 'LAT:LON', 'Select your GPS location\n'
                                                           'Measured in degrees, negative for south or west')
 parser.add_argumentless(['-r', '--reset'], 0, 'Reset to default settings')
@@ -393,11 +394,12 @@ location = a(parser.opts['--location'])
 gammas = parser.opts['--gamma']
 rgb_brightnesses = parser.opts['--brightness']
 cie_brightnesses = parser.opts['++brightness']
-temperatures = parser.opts['--temperature']
+rgb_temperatures = parser.opts['--temperature']
+cie_temperatures = parser.opts['++temperature']
 output = parser.opts['--output']
 if output is None:
     output = []
-used_adhoc = any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, temperatures, output])
+used_adhoc = any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures, output])
 
 ## Verify option correctness
 a = lambda opt : 0 if parser.opts[opt] is None else len(parser.opts[opt])
@@ -413,7 +415,7 @@ for opt in ('--gamma', '--brightness', '++brightness', '--temperature'):
 g, l = globals(), dict(locals())
 for key in l:
     g[key] = l[key]
-settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures]
+settings = [gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures]
 if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
     code, pathname = None, None

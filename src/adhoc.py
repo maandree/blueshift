@@ -34,16 +34,24 @@ d = lambda a, default : [default, default] if a is None else (a * 2 if len(a) ==
 gammas = d(gammas, "1:1:1")
 rgb_brightnesses = d(rgb_brightnesses, "1")
 cie_brightnesses = d(cie_brightnesses, "1")
-if temperatures is None:
-    temperatures = ['3700', '6500']
-elif len(temperatures) == 1:
-    temperatures *= 2
+if (rgb_temperatures is None) and (cie_temperatures is None):
+    rgb_temperatures = ['3700', '6500']
+    cie_temperatures = ['6500', '6500']
+else:
+    if rgb_temperatures is None:
+        rgb_temperatures = ['6500', '6500']
+    elif len(rgb_temperatures) == 1:
+        rgb_temperatures *= 2
+    if cie_temperatures is None:
+        cie_temperatures = ['6500', '6500']
+    elif len(cie_temperatures) == 1:
+        cie_temperatures *= 2
 
 ## Parse string arrays into floating point matrices
-settings = [gammas, rgb_brightnesses, cie_brightnesses, temperatures, [location]]
+settings = [gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures, [location]]
 s = lambda f, v : f(v) if v is not None else None
 settings = [s(lambda c : [s(lambda x : [float(y) for y in x.split(':')], x) for x in c], c) for c in settings]
-[gammas, rgb_brightnesses, cie_brightnesses, temperatures, location] = settings
+[gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures, location] = settings
 location = None if location is None else location[0]
 
 ## Select method for calculating to what degree the adjustments should be applied
@@ -86,7 +94,9 @@ def apply(dayness, pureness):
     start_over()
     interpol_ = lambda d, p, a, r : d * r + (p[0] * a + p[1] * (1 - a)) * (1 - r)
     interpol = lambda d, p : [interpol_(d, [p[0][i], p[1][i]], dayness, pureness) for i in range(len(p[0]))]
-    temperature(*interpol(6500, temperatures), algorithm = lambda t : divide_by_maximum(cmf_10deg(t)))
+    temperature_algorithm = lambda t : clip_whitepoint(divide_by_maximum(cmf_10deg(t)))
+    rgb_temperature(*interpol(6500, rgb_temperatures), algorithm = temperature_algorithm)
+    cie_temperature(*interpol(6500, cie_temperatures), algorithm = temperature_algorithm)
     rgb_brightness(*interpol(1, rgb_brightnesses))
     cie_brightness(*interpol(1, cie_brightnesses))
     clip()
