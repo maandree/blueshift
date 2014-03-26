@@ -682,8 +682,16 @@ Some of these algorithms (including @code{cmf_10deg})
 are not very good by themself and should be wrapped
 with @code{divide_by_maximum} or @code{clip_whitepoint}
 ((red, green, blue) @click{} (red, green, blue) functions.)
-For example, instead of using @code{cmf_10deg}, you
-can use @code{lambda t : divide_by_maximum(cmf_10deg(t))}.
+For example, instead of using @code{cmf_10deg}, you can use
+@code{lambda t : clip_whitepoint(divide_by_maximum(cmf_10deg(t)))}.
+
+@item rgb_temperature(temperature, algorithm)
+This function is a synonym for @code{temperature}.
+
+@item cie_temperature(temperature, algorithm)
+This works the same way as @code{temperature},
+except that subpixel brightness adjustment is
+done in CIE xyY colour space rather than sRGB.
 
 @item lower_resolution(x, y)
 Emulate low resolution. @code{x} is the number of

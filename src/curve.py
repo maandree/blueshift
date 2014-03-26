@@ -53,15 +53,36 @@ def curves(r, g, b):
 
 def temperature(temperature, algorithm):
     '''
-    Change colour temperature according to the CIE illuminant series D
+    Change colour temperature according to the CIE illuminant series D using CIE sRBG
+    
+    @param  temperature:float                        The blackbody temperature in kelvins
+    @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
+    '''
+    rgb_temperature(temperature, algorithm)
+
+
+def rgb_temperature(temperature, algorithm):
+    '''
+    Change colour temperature according to the CIE illuminant series D using CIE sRBG
     
     @param  temperature:float                        The blackbody temperature in kelvins
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
     if temperature == 6500:
         return
-    (r, g, b) = algorithm(temperature)
-    rgb_brightness(r, g, b)
+    rgb_brightness(*(algorithm(temperature)))
+
+
+def cie_temperature(temperature, algorithm):
+    '''
+    Change colour temperature according to the CIE illuminant series D using CIE xyY
+    
+    @param  temperature:float                        The blackbody temperature in kelvins
+    @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
+    '''
+    if temperature == 6500:
+        return
+    cie_brightness(*(algorithm(temperature)))
 
 
 def rgb_contrast(r, g = ..., b = ...):
