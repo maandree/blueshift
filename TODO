@@ -9,7 +9,7 @@ Medium priority:
 Low priority:
 	Raw ramp applying functions with precalcuated interpolation, polynomial
 	Add support for temporarily closing DRM connection so that multiple users can run in DRM
-	Add multi-display support (for example operating on two X display)
+	Add multi-display support (for example operating on two X displays)
 
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
