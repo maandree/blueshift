@@ -270,7 +270,8 @@ def add_adjustments(adjsections, adjustments):
                     backlight_value *= f
                 new_adjustment = make_f(f, [[float(v)] for v in value], [1])
             elif setting == 'temperature':
-                f = lambda x : temperature(x, lambda t : divide_by_maximum(cmf_10deg(t)))
+                f_ = cie_temperature if cie else temperature
+                f = lambda x : f_(x, lambda t : divide_by_maximum(cmf_10deg(t)))
                 new_adjustment = make_f(f, [[float(v)] for v in value], [6500])
             elif setting == 'contrast':
                 f = cie_contrast if cie else rgb_contrast
