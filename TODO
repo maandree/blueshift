@@ -10,6 +10,7 @@ Low priority:
 	Raw ramp applying functions with precalcuated interpolation, polynomial
 	Add support for proxies such as Tor in weather
 	Add support for temporarily closing DRM connection so that multiple users can run in DRM
+	Add multi-display support (for example operating on two X display)
 
 Future stuff:
 	Add wayland support (could not find an API for it, but xwayland works)
