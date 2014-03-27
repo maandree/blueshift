@@ -538,7 +538,8 @@ def _temperature(mods, args):
     '''
     Add colour temperature adjustment
     
-    @param  mods:[]|[str]              'default' for using before and after Blueshift is running
+    @param  mods:list<str>             'cie' for using CIE xyY and 'default' for using
+                                       before and after Blueshift is running
     @param  args:list<[str]|list<str>  Temperature to apply all day long or depending
                                        on time, or either of those depending on monitor
     '''
