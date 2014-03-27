@@ -1332,9 +1332,16 @@ astronomical twilight, measured in degrees.
 
 Blueshift includes the function @code{whether}
 which gives a brief weather report. @code{whether}
-takes one argument: the International Civil Aviation
-Organization (ICAO) code of your closest airport.
-If Blueshift is unable to download the latest METAR
+takes one manditory argument: the International
+Civil Aviation Organization (ICAO) code of your
+closest airport. It also takes one optional argument,
+@code{downloader}: an function that takes an URL
+to download as its only parameter and returns a
+command, as a list of arguments, that downloads
+the file at the given URL to standard output.
+The default @code{downloader} is
+@code{lambda url : ['wget', url, '-O', '-']}. If
+Blueshift is unable to download the latest METAR
 (Meteorological Aerodrome Report) @code{whether}
 will return @code{None}. If successful it will
 return the sky conditions (assumed clear if not
@@ -1362,6 +1369,14 @@ approximate.
 
 The weather is reported as an string list, that
 can and often is empty.
+
+Airports should publish METAR (Meteorological
+Aerodrome Report) reports at XX:20 and XX:50,
+it can presumable take some time before the
+collection server we use (weather.noaa.gov) have
+received it. Additionally some airports do not
+update while closed, and updates while closed
+are less accurate.
 
 
 

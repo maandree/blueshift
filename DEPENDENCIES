@@ -20,7 +20,7 @@ RUNTIME DEPENDENCIES:
 	    For permission-hasslefree backlight adjustments via sysfs
 
 	wget (optional)
-	    For weather conditions
+	    For weather conditions, default command
 
 
 MAKE DEPENDENCIES:

@@ -10,7 +10,7 @@ license=('AGPL3' 'GPL3' 'custom:GFDL1.3')
 depends=(python3 argparser libxcb libxxf86vm libx11 libdrm)
 optdepends=('adjbacklight: for backlight adjustments without root requirements'
             'linux: for backlight support'
-            'wget: for weather support')
+            'wget: for weather support, default command')
 makedepends=(cython gcc python3 libxcb libxxf86vm libx11 libdrm make coreutils sed zip texinfo auto-auto-complete)
 install=blueshift.install
 source=($url/archive/$pkgver.tar.gz)

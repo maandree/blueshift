@@ -82,6 +82,13 @@ def by_time():
     return 1 # Error in `time_alpha` (probably)
 
 
+
+# Command used to download a file at an HTTP URL
+download_command = None
+# This is what if used if `None` is selected:
+# download_command = lambda url : ['wget', url, '-O', '-']
+
+
 # Method for applying colour curves.
 apply_curves = randr
 #apply_curves = vidmode
@@ -318,7 +325,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         (metar, last_time) = (None, None) if last_metar is None else last_metar
         now_time = minute
         if (metar is None) or (now_time < last_time) or (last_time < now_time + 5):
-            metar = weather(airport)
+            metar = weather(airport, download_command)
             last_metar = (metar, now_time)
         
         # Account for weather.

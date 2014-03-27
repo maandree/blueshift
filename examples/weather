@@ -26,6 +26,11 @@ latitude, longitude = 59.3326, 18.0652
 # (Stockholm Bromma Airport in this example.)
 airport = 'ESSB'
 
+# Command used to download a file at an HTTP URL
+download_command = None
+# This is what if used if `None` is selected:
+# download_command = lambda url : ['wget', url, '-O', '-']
+
 # The colour temperature at day and at night.
 temperature_day, temperature_night = 6500, 3700
 
@@ -47,7 +52,7 @@ visibility_max = 4
 dayness = sun(latitude, longitude)
 
 # Get weather report.
-metar = weather(airport)
+metar = weather(airport, download_command)
 
 # Account for weather.
 if metar is not None:
