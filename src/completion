@@ -29,6 +29,7 @@
     ((options -b --brightness)      (complete --brightness)      (arg RGB|R:G:B)  (files -0)  (desc 'Change brightness using sRGB'))
     ((options +b ++brightness)      (complete ++brightness)      (arg Y)          (files -0)  (desc 'Change brightness using CIE xyY'))
     ((options -t --temperature)     (complete --temperature)     (arg KELVIN)     (files -0)  (desc 'Change colour temperature'))
+    ((options +t ++temperature)     (complete ++temperature)     (arg KELVIN)     (files -0)  (desc 'Change colour temperature using CIE xyY instead of sRBG'))
     ((options -l --location)        (complete --location)        (arg LAT:LON)    (files -0)  (desc 'Specify your geographical location'))
     ((options -o --output --crtc)   (complete --output)          (arg CRTC)       (files -0)  (desc 'Select CRTC to apply changes to'))
   )
