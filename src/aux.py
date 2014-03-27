@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# This module contains auxiliary function.
+
 from curve import *
 
 
@@ -22,8 +24,8 @@ def translate_to_integers():
     '''
     Translate the curves from float to integer
     
-    @param  :(r:list<int>, g:list<int>, b:list<int>)  The red curve, the green curve and,
-                                                      the blue curve mapped to integers
+    @return  :(r:list<int>, g:list<int>, b:list<int>)  The red curve, the green curve and,
+                                                       the blue curve mapped to integers
     '''
     R_curve, G_curve, B_curve = [0] * i_size, [0] * i_size, [0] * i_size
     for i_curve, o_curve in ((r_curve, R_curve), (g_curve, G_curve), (b_curve, B_curve)):
@@ -43,10 +45,8 @@ def ramps_to_function(r, g, b):
     @param   b:list<int>  The blue colour curves as [0, 65535] integers
     @return  :()→void     Function to invoke to apply the curves that the parameters [r, g and b] represents
     '''
-    r = [y / 65535 for y in r]
-    g = [y / 65535 for y in g]
-    b = [y / 65535 for y in b]
-    return functionise((r, g, b))
+    fp = lambda c : [y / 65535 for y in c]
+    return functionise((fp(r), fp(g), fp(b)))
 
 
 def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
@@ -59,21 +59,15 @@ def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
     @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
                                                              or their original size, whatever is larger.
     '''
-    R, G, B = None, None, None
-    R = r[:] if len(r) >= o_size else ([None] * o_size)
-    G = g[:] if len(g) >= o_size else ([None] * o_size)
-    B = b[:] if len(b) >= o_size else ([None] * o_size)
+    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
+    R, G, B = C(r), C(g), C(b)
     for small, large in curves(R, G, B):
-        if len(large) > len(small):
-            small_ = len(small) - 1
-            large_ = len(large) - 1
+        small_, large_ = len(small) - 1, len(large) - 1
+        if large_ > small_:
             for i in range(len(large)):
                 j = i * small_ / large_
-                j, w = int(j), j % 1
-                k = j + 1
-                if k > small_:
-                    k = small_
-                large[i] = small[j] * (w - 1) + small[k] * w
+                j, w, k = int(j), j % 1, min(int(j) + 1, small_)
+                large[i] = small[j] * (1 - w) + small[k] * w
     return (R, G, B)
 
 
