@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# This module implements support for backlight control.
+
 import os
 import sys
 from subprocess import Popen

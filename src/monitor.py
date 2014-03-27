@@ -21,6 +21,7 @@ from subprocess import Popen, PIPE
 from aux import *
 from curve import *
 
+
 # /usr/lib
 LIBDIR = 'bin'
 sys.path.append(LIBDIR)
@@ -31,10 +32,12 @@ LIBEXECDIR = 'bin'
 randr_opened = None
 vidmode_opened = None
 
+
 try:
     from blueshift_drm import *
 except:
     pass ## Not compiled with DRM support
+
 
 
 def close_c_bindings():
