@@ -27,7 +27,7 @@ Python 3) where all the policies are implemented,
 Blueshift is only meant to provide the mechanism for
 modifying the colour curves.
 
-provides no safe guards from making your screen
+Blueshift provides no safe guards from making your screen
 unreadable (this feature [the lack of a feature] is
 used in the sleepmode example) or otherwise miscoloured;
 and Blueshift will never, officially, add support
