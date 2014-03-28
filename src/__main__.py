@@ -29,6 +29,29 @@ PROGRAM_NAME = 'blueshift'
 PROGRAM_VERSION = '1.15'
 
 
+## Set process title
+def setproctitle(title):
+    '''
+    Set process title
+    
+    @param  title:str  The title of the process
+    '''
+    import ctypes
+    try:
+        title = title.encode(sys.getdefaultencoding(), 'replace')
+        title = ctypes.create_string_buffer(title)
+        if 'linux' in sys.platform:
+            libc = ctypes.cdll.LoadLibrary("libc.so.6")
+            libc.prctl(15, ctypes.byref(title), 0, 0, 0)
+        elif 'bsd' in sys.platform:
+            libc = ctypes.cdll.LoadLibrary("libc.so.7")
+            libc.setproctitle(ctypes.create_string_buffer(b'-%s'), title)
+    except:
+        pass
+setproctitle(sys.argv[0])
+
+
+
 ## Set global variables
 global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
