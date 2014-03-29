@@ -62,13 +62,16 @@ def close_c_bindings():
     '''
     global randr_opened, vidmode_opened
     if randr_opened is not None:
+        # Close RandR connection if open
         from blueshift_randr import randr_close
         randr_opened = None
         randr_close()
     if vidmode_opened is not None:
+        # Close vidmode connection if open
         from blueshift_vidmode import vidmode_close
         vidmode_opened = None
         vidmode_close()
+    # Close DRM connection if open
     drm_manager.close()
 
 
@@ -82,13 +85,17 @@ def randr_get(crtc = 0, screen = 0):
     '''
     from blueshift_randr import randr_open, randr_read, randr_close
     global randr_opened
+    # Open new RandR connection if non is open or one is open to the wrong screen
     if (randr_opened is None) or not (randr_opened == screen):
+        # Close RandR connection, if any, because its is connected to the wrong screen
         if randr_opened is not None:
             randr_close()
+        # Open RandR connection
         if randr_open(screen) == 0:
             randr_opened = screen
         else:
-            sys.exit(1)
+            raise Exception('Cannot open RandR connection')
+    # Read current curves and create function
     return ramps_to_function(*(randr_read(crtc)))
 
 
@@ -102,13 +109,17 @@ def vidmode_get(crtc = 0, screen = 0):
     '''
     from blueshift_vidmode import vidmode_open, vidmode_read, vidmode_close
     global vidmode_opened
+    # Open new RandR connection if non is open or one is open to the wrong screen
     if (vidmode_opened is None) or not (vidmode_opened == screen):
+        # Close vidmode connection, if any, because its is connected to the wrong screen
         if vidmode_opened is not None:
             vidmode_close()
+        # Open RandR connection
         if vidmode_open(screen):
             vidmode_opened = screen
         else:
-            sys.exit(1)
+            raise Exception('Cannot open vidmode connection')
+    # Read current curves and create function
     return ramps_to_function(*(vidmode_read(crtc)))
 
 
@@ -592,13 +603,10 @@ class DRMManager:
         @param  card:int       The index of the card with the connector
         @param  connector:int  The index of the connector
         '''
-        if self.cards is None:
-            return
+        if self.cards is None:  return
         connection = self.cards[card]
-        if connection == -1:
-            return
-        if self.connectors[card] is None:
-            return
+        if connection == -1:  return
+        if self.connectors[card] is None:  return
         if self.connectors[card][connector]:
             self.connectors[card][connector] = False
             drm_close_connector(connection, connector)
