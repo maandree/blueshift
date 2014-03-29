@@ -65,8 +65,11 @@ def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
         small_, large_ = len(small) - 1, len(large) - 1
         if large_ > small_:
             for i in range(len(large)):
+                # Scaling
                 j = i * small_ / large_
+                # Floor, weight, ceiling
                 j, w, k = int(j), j % 1, min(int(j) + 1, small_)
+                # Interpolation
                 large[i] = small[j] * (1 - w) + small[k] * w
     return (R, G, B)
 
@@ -82,8 +85,11 @@ def functionise(rgb):
     def fcurve(R_curve, G_curve, B_curve):
         for curve, cur in curves(R_curve, G_curve, B_curve):
             for i in range(i_size):
+                # Nearest neighbour
                 y = int(curve[i] * (len(cur) - 1) + 0.5)
+                # Truncation to actual neighbour 
                 y = min(max(0, y), len(cur) - 1)
+                # Remapping
                 curve[i] = cur[y]
     return lambda : fcurve(*rgb)
 
