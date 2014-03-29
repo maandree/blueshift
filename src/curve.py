@@ -14,6 +14,10 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# This module contains the colour curve definitions and functions for
+# manipulating the colour curves
+
 import math
 
 from colour import *
@@ -68,8 +72,9 @@ def rgb_temperature(temperature, algorithm):
     @param  temperature:float                        The blackbody temperature in kelvins
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
-    if temperature == 6500:
-        return
+    # Do nothing if the temperature is neutral
+    if temperature == 6500:  return
+    # Otherwise manipulate the colour curves
     rgb_brightness(*(algorithm(temperature)))
 
 
@@ -80,8 +85,9 @@ def cie_temperature(temperature, algorithm):
     @param  temperature:float                        The blackbody temperature in kelvins
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
-    if temperature == 6500:
-        return
+    # Do nothing if the temperature is neutral
+    if temperature == 6500:  return
+    # Otherwise manipulate the colour curves
     cie_brightness(*(algorithm(temperature)))
 
 
@@ -89,37 +95,54 @@ def rgb_contrast(r, g = ..., b = ...):
     '''
     Apply contrast correction on the colour curves using sRGB
     
+    In this context, contrast is a measure of difference between the whitepoint and blackpoint,
+    if the difference is 0 than they are both grey
+    
     @param  r:float      The contrast parameter for the red curve
     @param  g:float|...  The contrast parameter for the green curve, defaults to `r` if `...`
     @param  b:float|...  The contrast parameter for the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate the colour curves
     for (curve, level) in curves(r, g, b):
+        # But not for the curves with neutral adjustment
         if not level == 1.0:
-            for i in range(i_size):
-                curve[i] = (curve[i] - 0.5) * level + 0.5
+            curve[:] = [(y - 0.5) * level + 0.5 for y in curve]
 
 
 def cie_contrast(r, g = ..., b = ...):
     '''
     Apply contrast correction on the colour curves using CIE xyY
     
+    In this context, contrast is a measure of difference between the whitepoint and blackpoint,
+    if the difference is 0 than they are both grey
+    
     @param  r:float      The contrast parameter for the red curve
     @param  g:float|...  The contrast parameter for the green curve, defaults to `r` if `...`
     @param  b:float|...  The contrast parameter for the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Check if we can reduce the overhead, we can if the adjustments are identical
     same = r == g == b
-    if any([not level == 1.0 for level in (r, g, b)]):
+    # Check we need to do any adjustment
+    if (not same) or (not r == 1.0):
         if same:
+            # Manipulate all curves in one step if their adjustments are identical
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                # Manipulate illumination and convert back to sRGB
                 (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, (Y - 0.5) * r + 0.5)
         else:
+            # Manipulate all curves individually if their adjustments are not identical
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                # Manipulate illumination and convert back to sRGB
                 (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, (Y - 0.5) * r + 0.5)
                 (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, (Y - 0.5) * g + 0.5)
                 (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, (Y - 0.5) * b + 0.5)
@@ -129,37 +152,51 @@ def rgb_brightness(r, g = ..., b = ...):
     '''
     Apply brightness correction on the colour curves using sRGB
     
+    In this context, brightness is a measure of the whiteness of the whitepoint
+    
     @param  r:float      The brightness parameter for the red curve
     @param  g:float|...  The brightness parameter for the green curve, defaults to `r` if `...`
     @param  b:float|...  The brightness parameter for the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = r
+    # Maniumate the colour curves
     for (curve, level) in curves(r, g, b):
+        # But not if the adjustment is neutral
         if not level == 1.0:
-            for i in range(i_size):
-                curve[i] *= level
+            curve[:] = [y * level for y in curve]
 
 
 def cie_brightness(r, g = ..., b = ...):
     '''
     Apply brightness correction on the colour curves using CIE xyY
     
+    In this context, brightness is a measure of the whiteness of the whitepoint
+    
     @param  r:float      The brightness parameter for the red curve
     @param  g:float|...  The brightness parameter for the green curve, defaults to `r` if `...`
     @param  b:float|...  The brightness parameter for the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Check if we can reduce the overhead, we can if the adjustments are identical
     same = r == g == b
-    if any([not level == 1.0 for level in (r, g, b)]):
+    # Check we need to do any adjustment
+    if (not same) or (not r == 1.0):
         if same:
+            # Manipulate all curves in one step if their adjustments are identical
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
                 (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y * r)
         else:
+            # Manipulate all curves individually if their adjustments are not identical
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                # Manipulate illumination and convert back to sRGB
                 (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, Y * r)
                 (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, Y * g)
                 (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, Y * b)
@@ -173,11 +210,16 @@ def linearise(r = True, g = ..., b = ...):
     @param  g:bool|...  Whether to convert the green colour curve, defaults to `r` if `...`
     @param  b:bool|...  Whether to convert the blue colour curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Convert colour space
     for i in range(i_size):
+        # Get values in sRGB
         sr, sg, sb = r_curve[i], g_curve[i], b_curve[i]
+        # Get values in linear RGB
         (lr, lg, lb) = standard_to_linear(sr, sg, sb)
+        # Convert selected components
         r_curve[i], g_curve[i], b_curve[i] = (lr if r else sr), (lg if g else sg), (lb if b else sb)
 
 
@@ -189,11 +231,16 @@ def standardise(r = True, g = ..., b = ...):
     @param  g:bool|...  Whether to convert the green colour curve, defaults to `r` if `...`
     @param  b:bool|...  Whether to convert the blue colour curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Convert colour space
     for i in range(i_size):
+        # Get values in linear RGB
         lr, lg, lb = r_curve[i], g_curve[i], b_curve[i]
+        # Get values in sRGB
         (sr, sg, sb) = linear_to_standard(lr, lg, lb)
+        # Convert selected components
         r_curve[i], g_curve[i], b_curve[i] = (sr if r else lr), (sg if g else lg), (sb if b else lb)
 
 
@@ -205,12 +252,14 @@ def gamma(r, g = ..., b = ...):
     @param  g:float|...  The gamma parameter for the green curve, defaults to `r` if `...`
     @param  b:float|...  The gamma parameter for the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate the colour curves
     for (curve, level) in curves(r, g, b):
+        # But not if the adjustment is neutral
         if not level == 1.0:
-            for i in range(i_size):
-                curve[i] **= 1 / level
+            curve[:] = [y ** (1 / level) for y in curve]
 
     
 def negative(r = True, g = ..., b = ...):
@@ -221,13 +270,14 @@ def negative(r = True, g = ..., b = ...):
     @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
     @param  b:bool|...  Whether to invert the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate the colour curves
     for (curve, setting) in curves(r, g, b):
+        # But not if the adjustment is neutral
         if setting:
-            for i in range(i_size // 2):
-                j = i_size - 1 - i
-                curve[i], curve[j] = curve[j], curve[i]
+            curve[:] = reversed(curve)
 
 
 def rgb_invert(r = True, g = ..., b = ...):
@@ -238,12 +288,14 @@ def rgb_invert(r = True, g = ..., b = ...):
     @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
     @param  b:bool|...  Whether to invert the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate the colour curves
     for (curve, setting) in curves(r, g, b):
+        # But not if the adjustment is neutral
         if setting:
-            for i in range(i_size):
-                curve[i] = 1 - curve[i]
+            curve[:] = [1 - y for y in curve]
 
 
 def cie_invert(r = True, g = ..., b = ...):
@@ -254,12 +306,17 @@ def cie_invert(r = True, g = ..., b = ...):
     @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
     @param  b:bool|...  Whether to invert the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate the colour curves if any curve should be manipulated
     if r or g or b:
         for i in range(i_size):
+            # Convert to CIE xyY
             (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            # Invert illumination and convert to back sRGB
             (r_, g_, b_) = ciexyy_to_srgb(x, y, 1 - Y)
+            # Apply the new values on the selected channels
             if r:  r_curve[i] = r_
             if g:  g_curve[i] = g_
             if b:  b_curve[i] = b_
@@ -279,15 +336,21 @@ def sigmoid(r, g = ..., b = ...):
     @param  g:float|...?  The sigmoid parameter for the green curve, defaults to `r` if `...`
     @param  b:float|...?  The sigmoid parameter for the blue curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate the colour curves
     for (curve, level) in curves(r, g, b):
+        # But only on selected channels
         if level is not None:
             for i in range(i_size):
                 try:
                     curve[i] = 0.5 - math.log(1 / curve[i] - 1) / level
                 except:
-                    curve[i] = curve[i];
+                    # Corner cases:
+                    #   curve[i] = 0 → 0 -- Division by zero
+                    #   curve[i] = 1 → 1 -- Logarithm of zero
+                    pass
 
 
 def rgb_limits(r_min, r_max, g_min = ..., g_max = ..., b_min = ..., b_max = ...):
@@ -301,14 +364,16 @@ def rgb_limits(r_min, r_max, g_min = ..., g_max = ..., b_min = ..., b_max = ...)
     @param  b_min:float|...  The blue component value of the black point, defaults to `g_min`
     @param  b_max:float|...  The blue component value of the white point, defaults to `g_max`
     '''
+    # Handle overloading
     if g_min is ...:  g_min = r_min
     if g_max is ...:  g_max = r_max
     if b_min is ...:  b_min = g_min
     if b_max is ...:  b_max = g_max
+    # Manipulate the colour curves
     for (curve, (level_min, level_max)) in curves((r_min, r_max), (g_min, g_max), (b_min, b_max)):
+        # But not if the adjustments are neutral
         if (level_min != 0) or (level_max != 1):
-            for i in range(i_size):
-                curve[i] = curve[i] * (level_max - level_min) + level_min
+            curve[:] = [y * (level_max - level_min) + level_min for y in curve]
 
 
 def cie_limits(r_min, r_max, g_min = ..., g_max = ..., b_min = ..., b_max = ...):
@@ -322,26 +387,33 @@ def cie_limits(r_min, r_max, g_min = ..., g_max = ..., b_min = ..., b_max = ...)
     @param  b_min:float|...  The blue component value of the black point, defaults to `g_min`
     @param  b_max:float|...  The blue component value of the white point, defaults to `g_max`
     '''
+    # Handle overloading
     if g_min is ...:  g_min = r_min
     if g_max is ...:  g_max = r_max
     if b_min is ...:  b_min = g_min
     if b_max is ...:  b_max = g_max
+    # Check if we can reduce the overhead, we can if the adjustments are identical
     same = (r_min == g_min == b_min) and (r_max == g_max == b_max)
-    if any([lvl != 0 for lvl in (r_min, g_min, b_min)]) or any([lvl != 1 for lvl in (r_max, g_max, b_max)]):
+    # Check we need to do any adjustment
+    if (not same) or (not r_min == 0) or (not r_max == 0):
         if same:
+            # Manipulate all curves in one step if their adjustments are identical
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                # Manipulate illumination
                 Y = Y * (r_max - r_min) + r_min
+                # Convert back to sRGB
                 (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, Y)
         else:
+            # Manipulate all curves individually if their adjustments are not identical
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
-                rY = Y * (r_max - r_min) + r_min
-                gY = Y * (g_max - g_min) + g_min
-                bY = Y * (b_max - b_min) + b_min
-                (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, rY)
-                (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, gY)
-                (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, bY)
+                # Manipulate illumination and convert back to sRGB
+                (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, Y * (r_max - r_min) + r_min)
+                (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, Y * (g_max - g_min) + g_min)
+                (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, Y * (b_max - b_min) + b_min)
 
 
 def manipulate(r, g = ..., b = ...):
@@ -358,12 +430,14 @@ def manipulate(r, g = ..., b = ...):
     For example, if the red value 0.5 is already mapped to 0.25, then if the function
     maps 0.25 to 0.5, the red value 0.5 will revert back to being mapped to 0.5.
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulate colour curves
     for (curve, f) in curves(r, g, b):
+        # But only for selected channels
         if f is not None:
-            for i in range(i_size):
-                curve[i] = f(curve[i])
+            curve[:] = [f(y) for y in curve]
 
 
 def cie_manipulate(r, g = ..., b = ...):
@@ -380,17 +454,27 @@ def cie_manipulate(r, g = ..., b = ...):
     For example, if the value 0.5 is already mapped to 0.25, then if the function
     maps 0.25 to 0.5, the value 0.5 will revert back to being mapped to 0.5.
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Check if we can reduce the overhead, we can if the adjustments are identical
     same = (r is g) and (g is b)
     if same:
+        # Manipulate all curves in one step if their adjustments are identical
         if r is not None:
+            # But not if the we are not given a function
             for i in range(i_size):
+                # Convert to CIE xyY
                 (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+                # Manipulate and convert by to sRGB
                 (r_curve[i], g_curve[i], b_curve[i]) = ciexyy_to_srgb(x, y, r(Y))
     elif any(f is not None for f in (r, g, b)):
+        # Manipulate all curves individually if their adjustments are not identical
+        # if we are given a function for any curve
         for i in range(i_size):
+            # Convert to CIE xyY
             (x, y, Y) = srgb_to_ciexyy(r_curve[i], g_curve[i], b_curve[i])
+            # Manipulate and convert by to sRGB for selected channels individually
             if r is not None:  (r_curve[i], _g, _b) = ciexyy_to_srgb(x, y, r(Y))
             if g is not None:  (_r, g_curve[i], _b) = ciexyy_to_srgb(x, y, g(Y))
             if b is not None:  (_r, _g, b_curve[i]) = ciexyy_to_srgb(x, y, b(Y))
@@ -410,27 +494,34 @@ def lower_resolution(rx_colours = None, ry_colours = None, gx_colours = ..., gy_
     Where `None` is used the default value will be used, for *x_colours:es that is `i_size`,
     and for *y_colours:es that is `o_size`
     '''
+    # Handle overloading
     if gx_colours is ...:  gx_colours = rx_colours
     if gy_colours is ...:  gy_colours = ry_colours
     if bx_colours is ...:  bx_colours = gx_colours
     if by_colours is ...:  by_colours = gy_colours
+    # Select default values where default is requested
     if rx_colours is None:  rx_colours = i_size
     if ry_colours is None:  ry_colours = o_size
     if gx_colours is None:  gx_colours = i_size
     if gy_colours is None:  gy_colours = o_size
     if bx_colours is None:  bx_colours = i_size
     if by_colours is None:  by_colours = o_size
+    # Combine pair X and Y parameters for each channel
     r_colours = (rx_colours, ry_colours)
     g_colours = (gx_colours, gy_colours)
     b_colours = (bx_colours, by_colours)
+    # Manipulate colour curves
     for i_curve, (x_colours, y_colours) in curves(r_colours, g_colours, b_colours):
+        # But not if adjustment is neutral
         if (x_colours == i_size) and (y_colours == o_size):
             continue
         o_curve = [0] * i_size
         x_, y_, i_ = x_colours - 1, y_colours - 1, i_size - 1
         for i in range(i_size):
+            # Scale encoding
             x = int(i * x_colours / i_size)
             x = int(x * i_ / x_)
+            # Scale output
             y = int(i_curve[x] * y_ + 0.5)
             o_curve[i] = y / y_
         i_curve[:] = o_curve
@@ -444,11 +535,9 @@ def start_over():
     calibrated the monitors or you have awesome monitors that support hardware
     gamma correction.
     '''
+    # Reset colour curves
     for i in range(i_size):
-        v = i / (i_size - 1)
-        r_curve[i] = v
-        g_curve[i] = v
-        b_curve[i] = v
+        r_curve[i] = g_curve[i] = b_curve[i] = i / (i_size - 1)
 
 
 def clip(r = True, g = ..., b = ...):
@@ -459,10 +548,12 @@ def clip(r = True, g = ..., b = ...):
     @param  g:bool|...  Whether to clip the green colour curve, defaults to `r` if `...`
     @param  b:bool|...  Whether to clip the blue colour curve, defaults to `g` if `...`
     '''
+    # Handle overloading
     if g is ...:  g = r
     if b is ...:  b = g
+    # Manipulation colour curves
     for curve, action in curves(r, g, b):
+        # But only for selected channels
         if action:
-            for i in range(i_size):
-                curve[i] = min(max(0.0, curve[i]), 1.0)
+            curve[:] = [min(max(0.0, y), 1.0) for y in curve]
 
