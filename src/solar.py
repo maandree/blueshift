@@ -98,6 +98,7 @@ def julian_day_to_epoch(t):
     '''
     return (t - 2440587.5) * 86400.0
 
+
 def epoch_to_julian_day(t):
     '''
     Converts a POSIX time timestamp to a Julian Day timestamp
@@ -106,6 +107,7 @@ def epoch_to_julian_day(t):
     @return  :float   The time in Julian Days
     '''
     return t / 86400.0 + 2440587.5
+
 
 def julian_day_to_julian_centuries(t):
     '''
@@ -116,6 +118,7 @@ def julian_day_to_julian_centuries(t):
     '''
     return (t - 2451545.0) / 36525.0
 
+
 def julian_centuries_to_julian_day(t):
     '''
     Converts a Julian Centuries timestamp to a Julian Day timestamp
@@ -124,6 +127,7 @@ def julian_centuries_to_julian_day(t):
     @return  :float   The time in Julian Days
     '''
     return t * 36525.0 + 2451545.0
+
 
 def epoch_to_julian_centuries(t):
     '''
@@ -134,6 +138,7 @@ def epoch_to_julian_centuries(t):
     '''
     return julian_day_to_julian_centuries(epoch_to_julian_day(t))
 
+
 def julian_centuries_to_epoch(t):
     '''
     Converts a Julian Centuries timestamp to a POSIX time timestamp
@@ -143,6 +148,7 @@ def julian_centuries_to_epoch(t):
     '''
     return julian_day_to_epoch(julian_centuries_to_julian_day(t))
 
+
 def epoch():
     '''
     Get current POSIX time
@@ -150,6 +156,7 @@ def epoch():
     @return  :float  The current POSIX time
     '''
     return time.time()
+
 
 def julian_day():
     '''
@@ -159,6 +166,7 @@ def julian_day():
     '''
     return epoch_to_julian_day(epoch())
 
+
 def julian_centuries():
     '''
     Get current Julian Centuries time (100 Julian days since J2000)
@@ -166,6 +174,7 @@ def julian_centuries():
     @return  :float  The current Julian Centuries time
     '''
     return epoch_to_julian_centuries(epoch())
+
 
 def radians(deg):
     '''
@@ -176,6 +185,7 @@ def radians(deg):
     '''
     return deg * math.pi / 180
 
+
 def degrees(rad):
     '''
     Convert an angle from radians to degrees
@@ -184,6 +194,7 @@ def degrees(rad):
     @return  :float     The angle in degrees
     '''
     return rad * 180 / math.pi
+
 
 def sun_geometric_mean_longitude(t):
     '''
@@ -194,6 +205,7 @@ def sun_geometric_mean_longitude(t):
     '''
     return radians((0.0003032 * t ** 2 + 36000.76983 * t + 280.46646) % 360)
 
+
 def sun_geometric_mean_anomaly(t):
     '''
     Calculates the Sun's geometric mean anomaly
@@ -203,6 +215,7 @@ def sun_geometric_mean_anomaly(t):
     '''
     return radians(-0.0001537 * t ** 2 + 35999.05029 * t + 357.52911)
 
+
 def earth_orbit_eccentricity(t):
     '''
     Calculates the Earth's orbit eccentricity
@@ -211,6 +224,7 @@ def earth_orbit_eccentricity(t):
     @return  :float   The Earth's orbit eccentricity
     '''
     return -0.0000001267 * t ** 2 - 0.000042037 * t + 0.016708634
+
 
 def sun_equation_of_centre(t):
     '''
@@ -226,6 +240,7 @@ def sun_equation_of_centre(t):
     rc += math.sin(3 * a) * 0.000289
     return radians(rc)
 
+
 def sun_real_longitude(t):
     '''
     Calculates the Sun's real longitudinal position
@@ -235,6 +250,7 @@ def sun_real_longitude(t):
     '''
     rc = sun_geometric_mean_longitude(t)
     return rc + sun_equation_of_centre(t)
+
 
 def sun_apparent_longitude(t):
     '''
@@ -246,6 +262,7 @@ def sun_apparent_longitude(t):
     rc = degrees(sun_real_longitude(t)) - 0.00569
     rc -= 0.00478 * math.sin(radians(-1934.136 * t + 125.04))
     return radians(rc)
+
 
 def mean_ecliptic_obliquity(t):
     '''
@@ -259,6 +276,7 @@ def mean_ecliptic_obliquity(t):
     rc = 23 + rc / 60
     return radians(rc)
 
+
 def corrected_mean_ecliptic_obliquity(t):
     '''
     Calculates the mean ecliptic obliquity of the Sun's apparent motion with variation correction
@@ -271,6 +289,7 @@ def corrected_mean_ecliptic_obliquity(t):
     rc += degrees(mean_ecliptic_obliquity(t))
     return radians(rc)
 
+
 def solar_declination(t):
     '''
     Calculates the Sun's declination
@@ -281,6 +300,7 @@ def solar_declination(t):
     rc = math.sin(corrected_mean_ecliptic_obliquity(t))
     rc *= math.sin(sun_apparent_longitude(t))
     return math.asin(rc)
+
 
 def equation_of_time(t):
     '''
@@ -300,6 +320,7 @@ def equation_of_time(t):
     rc -= 1.25 * e ** 2 * math.sin(2 * m)
     return 4 * degrees(rc)
 
+
 def hour_angle_from_elevation(latitude, declination, elevation):
     '''
     Calculates the solar hour angle from the Sun's elevation
@@ -317,6 +338,7 @@ def hour_angle_from_elevation(latitude, declination, elevation):
     rc = math.acos(rc)
     return -rc if (rc < 0) == (elevation < 0) else rc;
 
+
 def elevation_from_hour_angle(latitude, declination, hour_angle):
     '''
     Calculates the Sun's elevation from the solar hour angle
@@ -331,6 +353,7 @@ def elevation_from_hour_angle(latitude, declination, hour_angle):
     rc += math.sin(radians(latitude)) * math.sin(declination)
     return math.asin(rc)
 
+
 def time_of_solar_noon(t, longitude):
     '''
     Calculates the time of the closest solar noon
@@ -344,6 +367,7 @@ def time_of_solar_noon(t, longitude):
         rc = julian_day_to_julian_centuries(t + m + rc / k)
         rc = 720 - 4 * longitude - equation_of_time(rc)
     return rc
+
 
 def time_of_solar_elevation(t, noon, latitude, longitude, elevation):
     '''
@@ -367,6 +391,7 @@ def time_of_solar_elevation(t, noon, latitude, longitude, elevation):
     rc = 720 - 4 * (longitude + degrees(rc)) - et
     return rc
 
+
 def solar_elevation_from_time(t, latitude, longitude):
     '''
     Calculates the Suns elevation as apparent from a geographical position
@@ -382,6 +407,7 @@ def solar_elevation_from_time(t, latitude, longitude):
     rc = 720 - rc - equation_of_time(t)
     rc = radians(rc / 4 - longitude)
     return elevation_from_hour_angle(latitude, solar_declination(t), rc)
+
 
 def solar_elevation(latitude, longitude, t = None):
     '''
