@@ -22,22 +22,38 @@ from aux import *
 from curve import *
 
 
-# /usr/lib
 LIBDIR = 'bin'
+'''
+:str  Path to libraries, '/usr/lib' is standard
+'''
+
+LIBEXECDIR = 'bin'
+'''
+:str  Path to executable libraries, '/usr/libexec' is standard
+'''
+
+
+## Add the path to libraries to the list of paths to Python modules
 sys.path.append(LIBDIR)
 
-# /usr/libexec
-LIBEXECDIR = 'bin'
 
-randr_opened = None
-vidmode_opened = None
-
-
+## Load DRM module
 try:
     from blueshift_drm import *
 except:
-    pass ## Not compiled with DRM support
+    # Not compiled with DRM support
+    pass
 
+
+randr_opened = None
+'''
+:int?  The index of the, with RandR, opened X screen, if any
+'''
+
+vidmode_opened = None
+'''
+:int?  The index of the, with vidmode, opened X screen, if any
+'''
 
 
 def close_c_bindings():

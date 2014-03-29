@@ -26,7 +26,15 @@ from argparser import *
 
 
 PROGRAM_NAME = 'blueshift'
+'''
+:str  The name of the program
+'''
+
 PROGRAM_VERSION = '1.15'
+'''
+:str  The version of the program
+'''
+
 
 
 ## Set process title
@@ -38,13 +46,16 @@ def setproctitle(title):
     '''
     import ctypes
     try:
+        # Create strng buffer with title
         title = title.encode(sys.getdefaultencoding(), 'replace')
         title = ctypes.create_string_buffer(title)
         if 'linux' in sys.platform:
-            libc = ctypes.cdll.LoadLibrary("libc.so.6")
+            # Set process title on Linux
+            libc = ctypes.cdll.LoadLibrary('libc.so.6')
             libc.prctl(15, ctypes.byref(title), 0, 0, 0)
         elif 'bsd' in sys.platform:
-            libc = ctypes.cdll.LoadLibrary("libc.so.7")
+            # Set process title on at least FreeBSD
+            libc = ctypes.cdll.LoadLibrary('libc.so.7')
             libc.setproctitle(ctypes.create_string_buffer(b'-%s'), title)
     except:
         pass
@@ -53,10 +64,10 @@ setproctitle(sys.argv[0])
 
 
 ## Set global variables
-global DATADIR, i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
+global i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
 global monitor_controller, running, continuous_run, panic, _globals_, conf_storage, parser
-global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2
+global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2, DATADIR, LIBDIR, LIBEXECDIR
 
 
 from aux import *
@@ -68,6 +79,7 @@ from monitor import *
 from weather import *
 from backlight import *
 from blackbody import *
+
 
 
 config_file = None

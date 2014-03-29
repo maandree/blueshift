@@ -25,8 +25,10 @@ from colour import *
 
 
 
-# /usr/share/blueshift
 DATADIR = 'res'
+'''
+:str  The path to program resources, '/usr/share/blueshift' is standard
+'''
 
 
 
