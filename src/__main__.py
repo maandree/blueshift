@@ -25,6 +25,7 @@ import threading
 from argparser import *
 
 
+
 PROGRAM_NAME = 'blueshift'
 '''
 :str  The name of the program
@@ -70,6 +71,12 @@ global monitor_controller, running, continuous_run, panic, _globals_, conf_stora
 global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2, DATADIR, LIBDIR, LIBEXECDIR
 
 
+## Open all modules that the configuration
+## scripts may want to use so that they can
+## be used without knowing the name of the
+## module. After all, we may want to move
+## functions are around without scripts
+## breaking on us.
 from aux import *
 from icc import *
 from solar import *
@@ -196,13 +203,26 @@ sleep_condition = threading.Condition()
 :Condition  Condition used to make interruptable sleeps
 '''
 
+trans_delta = -1
+'''
+:int  In what direction are with transitioning?
+'''
+
+
+## Combine our globals and locals for the
+## configuration script to use
+_globals_, _locals_ = globals(), dict(locals())
+for key in _locals_:
+    _globals_[key] = _locals_[key]
 
 
 def reset():
     '''
     Invoked to reset the displays
     '''
+    # Reset colour curves
     start_over()
+    # and flush adjustments
     monitor_controller()
 
 
@@ -211,9 +231,12 @@ def signal_SIGALRM(signum, frame):
     '''
     Signal handler for SIGALRM
     
+    This is to time out interruptable sleeps
+    
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
+    # Break any sleep
     with sleep_condition:
         sleep_condition.notify()
 
@@ -222,50 +245,76 @@ def signal_SIGTERM(signum, frame):
     '''
     Signal handler for SIGTERM
     
+    This is used to exit the program cleanly
+    
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
     global trans_delta, panic, running
+    # Request that the program should exit
     running = False
+    # If we are already fading into clean adjustments,
+    # probably because we have already got a request,
+    # but perhaps because we are beginning to temporarily
+    # disable the program:
     if trans_delta > 0:
+        # Request that the program exit immediate,
+        # but first clear adjustments.
         panic = True
+    # Request fading into clean adjustmetns
     trans_delta = 1
+    # Break any sleep
     with sleep_condition:
         sleep_condition.notify()
 
 
-_globals_, _locals_ = globals(), dict(locals())
-for key in _locals_:
-    _globals_[key] = _locals_[key]
 def signal_SIGUSR1(signum, frame):
     '''
     Signal handler for SIGUSR1
+    
+    This is used to reload configuration scripts
     
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
     code = None
+    # Open the configuration script file,
     with open(config_file, 'rb') as script:
+        # and read it.
         code = script.read()
+    # Decode it, assume it is in UTF-8, and append
+    # an line ending in case the the last line is
+    # not empty, which would give us an exception.
     code = code.decode('utf8', 'error') + '\n'
+    # Compile the script
     code = compile(code, config_file, 'exec')
+    # And run it, with it have the same
+    # globals as this module, so that it can
+    # not only use want we have defined, but
+    # also redefine it for us.
     exec(code, _globals_)
 
 
-trans_delta = -1
 def signal_SIGUSR2(signum, frame):
     '''
     Signal handler for SIGUSR2
+    
+    This is used to temporarily disable, and
+    enable from such disabling of, the program
     
     @param  signum  The signal number, 0 if called from the program itself
     @param  frame   Ignore, it will probably be `None`
     '''
     global trans_delta, panicgate
+    # Do no longer skip fadein transitions
     panicgate = False
     if trans_delta == 0:
+        # Fade out if not already fading
         trans_delta = 1
     else:
+        # Otherwise reverse the direction of the transition
         trans_delta = -trans_delta
+    # Break any sleep
     with sleep_condition:
         sleep_condition.notify()
 
@@ -274,42 +323,90 @@ def continuous_run():
     '''
     Invoked to run continuously if `periodically` is not `None`
     '''
-    global running, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps, trans_delta, p, sleep, panic
+    global running, wait_period, fadein_time, fadeout_time
+    global fadein_steps, fadeout_steps, trans_delta, p, sleep, panic
+    
     def p(t, fade = None):
+        '''
+        Refrest the adjustments
+        
+        @param  :datetime  The current local time
+        @param  :float?    The transition state, see specifications for `periodically`
+        '''
         try:
+            # Extract the current weekday,
             wd = t.isocalendar()[2]
+            # and invoke the function used to refresh adjustments.
             periodically(t.year, t.month, t.day, t.hour, t.minute, t.second, wd, fade)
         except KeyboardInterrupt:
+            # Emulate `kill -TERM` on Control+c
             signal_SIGTERM(0, None)
     def sleep(seconds):
+        '''
+        Delay execution for a given number of seconds,
+        or until it is request that we stop sleeping.
+        
+        @param  seconds:float  The number of seconds to sleep
+        '''
+        # Sleep only if the sleep duration is existent
         if not seconds == 0:
             try:
                 with sleep_condition:
+                    # Set a sleep timer,
                     signal.setitimer(signal.ITIMER_REAL, seconds)
+                    # and with for it or for something else to
+                    # request that we stop sleeping.
                     sleep_condition.wait()
             except KeyboardInterrupt:
+                # Emulate `kill -TERM` on Control+c
                 signal_SIGTERM(0, None)
             except:
                 try:
-                    time.sleep(seconds) # setitimer may not be supported
+                    # setitimer may not be supported,
+                    # in such case, use a regular sleep
+                    time.sleep(seconds)
                 except KeyboardInterrupt:
+                    # Emulate `kill -TERM` on Control+c
                     signal_SIGTERM(0, None)
     def now():
+        '''
+        Get the current local time
+        
+        This wrapping is done because keyboard interruptions
+        affect `datetime.datetime.now`
+        
+        @return  :datetime  The current local time (respects summer time)
+        '''
+        # Retry at any time we get a keyboard interruption
         while True:
             try:
+                # Get the current local time (respects summer time)
                 return datetime.datetime.now()
             except KeyboardInterrupt:
+                # Emulate `kill -TERM` on Control+c
                 signal_SIGTERM(0, None)
     
     ## Catch signals
     def signal_(sig, fun):
+        '''
+        Trap a signal if the signal is supported by the operating system
+        
+        @param  sig:int                             The signal
+        @param  fun:(signal:int, framestack:)→void  The function to run then the signal is trapped
+        '''
         try:
+            # Set up the signal trapping
             signal.signal(sig, fun)
         except ValueError:
-            pass # not supported by the operating system
+            # Not supported by the operating system
+            pass
+    # Signal for stopping the program
     signal_(signal.SIGTERM, signal_SIGTERM)
+    # Signal for reloading the configuration script
     signal_(signal.SIGUSR1, signal_SIGUSR1)
+    # Signal for temporarily disable/enable the program
     signal_(signal.SIGUSR2, signal_SIGUSR2)
+    # Signal used for the interruptable sleeps
     signal_(signal.SIGALRM, signal_SIGALRM)
     
     ## Create initial transition
@@ -378,7 +475,7 @@ parser = ArgParser('Colour temperature controller',
                    'Blueshift adjusts the colour temperature of your\n'
                    'monitor according to brightness outside to reduce\n'
                    'eye strain and make it easier to fall asleep when\n'
-                   'going to bed. IT can also be used to increase the\n'
+                   'going to bed. It can also be used to increase the\n'
                    'colour temperature and make the monitor bluer,\n'
                    'this helps you focus on your work.',
                    None, True, ArgParser.standard_abbreviations())
@@ -466,7 +563,7 @@ if (config_file is None) and any([doreset, location] + settings):
         import zipimport
         importer = zipimport.zipimporter(sys.argv[0])
         code = importer.get_data('adhoc.py')
-        pathname = sys.argv[0] + '/adhoc.py'
+        pathname = sys.argv[0] + os.sep + 'adhoc.py'
     code = code.decode('utf-8', 'error') + '\n'
     code = compile(code, pathname, 'exec')
     exec(code, g)
@@ -474,7 +571,7 @@ else:
     ## Load extension and configurations via blueshiftrc
     if config_file is None:
         for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '$~/.config/%/%rc', '$~/.%c', '/etc/%rc'):
-            file = file.replace('%', 'blueshift')
+            file = file.replace('/', os.sep).replace('%', 'blueshift')
             for arg in ('XDG_CONFIG_HOME', 'HOME'):
                 if '$' + arg in file:
                     if arg in os.environ:
