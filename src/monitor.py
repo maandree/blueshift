@@ -131,7 +131,9 @@ def drm_get(crtc = 0, screen = 0):
     @param   screen:int  The graphics card that the monitor belong to, named `screen` for compatibility with randr_get and vidmode_get
     @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
     '''
+    # Get DRM connection, open if necessary
     connection = drm_manager.open_card(screen)
+    # Read current curves and create function
     return ramps_to_function(*(drm_get_gamma_ramps(connection, crtc, i_size)))
 
 
@@ -155,10 +157,10 @@ def randr(*crtcs, screen = 0):
         if randr_open(screen) == 0:
             randr_opened = screen
         else:
-            sys.exit(1)
+            raise Exception('Cannot open RandR connection')
     try:
         if not randr_apply(crtcs, R_curve, G_curve, B_curve) == 0:
-            sys.exit(1)
+            raise Exception('Cannot use RandR to apply colour adjustments')
     except OverflowError:
         pass # Happens on exit by TERM signal
 
@@ -183,10 +185,10 @@ def vidmode(*crtcs, screen = 0):
         if vidmode_open(screen):
             vidmode_opened = screen
         else:
-            sys.exit(1)
+            raise Exception('Cannot open vidmode connection')
     try:
         if not vidmode_apply(crtcs, R_curve, G_curve, B_curve) == 0:
-            sys.exit(1)
+            raise Exception('Cannot use vidmode to apply colour adjustments')
     except OverflowError:
         pass # Happens on exit by TERM signal
 
@@ -458,7 +460,7 @@ def list_screens(method = 'randr'):
         return list_screens_randr()
     if method == 'drm':
         return list_screens_drm()
-    return None # Error: invalid method
+    raise Exception('Invalid method: %s' % method)
 
 
 def list_screens_randr():
