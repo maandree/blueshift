@@ -410,8 +410,13 @@ def continuous_run():
     signal_(signal.SIGALRM, signal_SIGALRM)
     
     ## Create initial transition
+    # Fade in
     trans_delta = -1
+    # from clean state.
     trans_alpha = 1
+    
+    with_fadein  = lambda : (fadein_steps  > 0) and (fadein_time  is not None)
+    with_fadeout = lambda : (fadeout_steps > 0) and (fadeout_time is not None)
     
     while running:
         if trans_delta == 0:
@@ -421,26 +426,22 @@ def continuous_run():
                 sleep(wait_period)
         elif trans_delta < 0:
             ## Fade in
-            if fadein_steps <= 0:
-                fadein_time = None
-            if not ((fadein_time is None) or panicgate):
+            if with_fadein() and not panicgate:
                 if trans_alpha == 0:
                     p(now(), 1 - trans_alpha)
                     sleep(fadein_time / fadein_steps)
                 trans_alpha -= 1 / fadein_steps
-            if (trans_alpha <= 0) or (fadein_time is None) or panicgate:
+            if not (with_fadein() and not panicgate):
                 trans_alpha = 0
                 trans_delta = 0
             p(now(), 1 - trans_alpha)
-            if fadein_time is not None:
+            if with_fadein():
                 sleep(fadein_time / fadein_steps)
         else:
             ## Fade out
-            if fadeout_steps <= 0:
-                fadeout_time = None
-            if not (fadeout_time is None):
+            if with_fadeout():
                 trans_alpha += 1 / fadeout_steps
-            if (trans_alpha >= 1) or (fadeout_time is None):
+            if (trans_alpha >= 1) or not with_fadeout():
                 trans_alpha = 1
             p(now(), -1 + trans_alpha)
             if trans_alpha == 1:
@@ -450,19 +451,19 @@ def continuous_run():
                 except KeyboardInterrupt:
                     signal_SIGTERM(0, None)
             else:
-                if fadeout_time is not None:
+                if with_fadeout():
                     sleep(fadeout_time / fadeout_steps)
     
     ## Fade out
-    if fadeout_steps <= 0:
-        fadeout_time = None
-    if not (fadeout_time is None):
+    if with_fadeout():
         while not panic:
             trans_alpha += 1 / fadeout_steps
-            if (trans_alpha >= 1) or (fadeout_time is None):
+            if trans_alpha >= 1:
                 trans_alpha = 1
                 panic = True
             p(now(), -1 + trans_alpha)
+            if not with_fadeout():
+                break
             sleep(fadeout_time / fadeout_steps)
     
     ## Reset
