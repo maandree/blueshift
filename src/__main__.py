@@ -415,14 +415,26 @@ def continuous_run():
     # from clean state.
     trans_alpha = 1
     
+    ## Used to test if fading should still be used
     with_fadein  = lambda : (fadein_steps  > 0) and (fadein_time  is not None)
     with_fadeout = lambda : (fadeout_steps > 0) and (fadeout_time is not None)
     
+    ## Run until we get a signal to exit
+    # When the program start we are fading in,
+    # than we run in normal periodical state.
+    # But if we get a SIGUSR2 signal we start
+    # fading out until we get another at which
+    # point we start fading in. When we get a
+    # SIGUSR2 we set `panicgate` to be false.
     while running:
         if trans_delta == 0:
             ## Run periodically
+            # Apply adjustments
             p(now(), None)
+            # and, assuming that we should not exit,
             if running:
+                # sleep for a time interval selected
+                # by the configuration script.
                 sleep(wait_period)
         elif trans_delta < 0:
             ## Fade in
@@ -432,8 +444,7 @@ def continuous_run():
                     sleep(fadein_time / fadein_steps)
                 trans_alpha -= 1 / fadein_steps
             if not (with_fadein() and not panicgate):
-                trans_alpha = 0
-                trans_delta = 0
+                trans_alpha = trans_delta = 0
             p(now(), 1 - trans_alpha)
             if with_fadein():
                 sleep(fadein_time / fadein_steps)
@@ -449,6 +460,7 @@ def continuous_run():
                     with sleep_condition:
                         sleep_condition.wait()
                 except KeyboardInterrupt:
+                    # Emulate `kill -TERM` on Control+c
                     signal_SIGTERM(0, None)
             else:
                 if with_fadeout():
@@ -456,14 +468,27 @@ def continuous_run():
     
     ## Fade out
     if with_fadeout():
+        # If we should fade, fade will we have not got
+        # two SIGTERM signals or keyboard interrupts
         while not panic:
+            # Step towards clean adjustments
             trans_alpha += 1 / fadeout_steps
+            # If we have clean adjustments (or hyperclean),
             if trans_alpha >= 1:
+                # set the adjustments to clean (in case they where hyperclean)
                 trans_alpha = 1
+                # and signal that want should stop after this stop.
                 panic = True
+            # Apply adjustments. If `trans_alpha` is 0, we have `fade = -1`
+            # which means that we are fading away from adjustements but are
+            # still at 100 % adjustments, moving towards `fade = 0` we are
+            # removing the adjustments gradually.
             p(now(), -1 + trans_alpha)
+            # Stop if we should no longer fade,
             if not with_fadeout():
                 break
+            # before we sleep. If we did not break
+            # would would run into errors.
             sleep(fadeout_time / fadeout_steps)
     
     ## Reset
