@@ -109,12 +109,12 @@ def vidmode_get(crtc = 0, screen = 0):
     '''
     from blueshift_vidmode import vidmode_open, vidmode_read, vidmode_close
     global vidmode_opened
-    # Open new RandR connection if non is open or one is open to the wrong screen
+    # Open new vidmode connection if non is open or one is open to the wrong screen
     if (vidmode_opened is None) or not (vidmode_opened == screen):
         # Close vidmode connection, if any, because its is connected to the wrong screen
         if vidmode_opened is not None:
             vidmode_close()
-        # Open RandR connection
+        # Open vidmode connection
         if vidmode_open(screen):
             vidmode_opened = screen
         else:
@@ -146,19 +146,23 @@ def randr(*crtcs, screen = 0):
     '''
     from blueshift_randr import randr_open, randr_apply, randr_close
     global randr_opened
-    crtcs = sum([1 << i for i in list(crtcs)])
-    if crtcs == 0:
-        crtcs = (1 << 64) - 1
+    # Select CRTC:s
+    crtcs = sum([1 << i for i in crtcs]) if len(crtcs) > 0 else ((1 << 64) - 1)
     
+    # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
+    # Open new RandR connection if non is open or one is open to the wrong screen
     if (randr_opened is None) or not (randr_opened == screen):
+        # Close RandR connection, if any, because its is connected to the wrong screen
         if randr_opened is not None:
             randr_close()
+        # Open RandR connection
         if randr_open(screen) == 0:
             randr_opened = screen
         else:
             raise Exception('Cannot open RandR connection')
     try:
+        # Apply adjustments
         if not randr_apply(crtcs, R_curve, G_curve, B_curve) == 0:
             raise Exception('Cannot use RandR to apply colour adjustments')
     except OverflowError:
@@ -174,19 +178,23 @@ def vidmode(*crtcs, screen = 0):
     '''
     from blueshift_vidmode import vidmode_open, vidmode_apply, vidmode_close
     global vidmode_opened
-    crtcs = sum([1 << i for i in list(crtcs)])
-    if crtcs == 0:
-        crtcs = (1 << 64) - 1
+    # Select CRTC:s
+    crtcs = sum([1 << i for i in crtcs]) if len(crtcs) > 0 else ((1 << 64) - 1)
     
+    # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
+    # Open new vidmode connection if non is open or one is open to the wrong screen
     if (vidmode_opened is None) or not (vidmode_opened == screen):
+        # Close vidmode connection, if any, because its is connected to the wrong screen
         if vidmode_opened is not None:
             vidmode_close()
+        # Open vidmode connection
         if vidmode_open(screen):
             vidmode_opened = screen
         else:
             raise Exception('Cannot open vidmode connection')
     try:
+        # Apply adjustments
         if not vidmode_apply(crtcs, R_curve, G_curve, B_curve) == 0:
             raise Exception('Cannot use vidmode to apply colour adjustments')
     except OverflowError:
@@ -200,13 +208,16 @@ def drm(*crtcs, screen = 0):
     @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
     @param  screen:int  The card that the monitors belong to, named `screen` for compatibility with randr_get and vidmode_get
     '''
+    # Get DRM connection, open if necessary
     connection = drm_manager.open_card(screen)
+    # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
     try:
-        crtcs = list(crtcs)
+        # Select all CRTC:s if none have been selected
         if len(crtcs) == 0:
-            crtcs = list(range(drm_crtc_count(connection)))
-        drm_set_gamma_ramps(connection, crtcs, i_size, R_curve, G_curve, B_curve)
+            crtcs = range(drm_crtc_count(connection))
+        # Apply adjustments
+        drm_set_gamma_ramps(connection, list(crtcs), i_size, R_curve, G_curve, B_curve)
     except OverflowError:
         pass # Happens on exit by TERM signal
 
@@ -219,24 +230,34 @@ def print_curves(*crtcs, screen = 0, compact = False):
     @param  screen:int    Dummy parameter
     @param  compact:bool  Whether to print in compact form
     '''
+    # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
     if compact:
+        # Print each colour curve with run-length encoding
         for curve in (R_curve, G_curve, B_curve):
+            # Print beginning
             print('[', end = '')
-            last = None
-            count = 0
+            last, count = None, 0
             for i in range(i_size):
                 if curve[i] == last:
+                    # Count repetition
                     count += 1
                 else:
+                    # Print value
                     if last is not None:
                         print('%i {%i}, ' % (last, count), end = '')
+                    # Store new value
                     last = curve[i]
+                    # Restart counter
                     count = 1
+            # Print last value and ending
             print('%i {%i}]' % (last, count))
     else:
+        # Print the red colour curve
         print(R_curve)
+        # Print the green colour curve
         print(G_curve)
+        # Print the blue colour curve
         print(B_curve)
 
 
@@ -251,6 +272,18 @@ class Screens:
         '''
         self.screens = None
     
+    def __find(self, f):
+        '''
+        Find monitors in each screen
+        
+        @param   f:(Screen)→list<Output>  Function that for one screen find all desired monitors in it
+        @return  :list<Output>            All desired monitors
+        '''
+        rc = []
+        for screen in self.screens:
+            rc += f(screen)
+        return rc
+    
     def find_by_crtc(self, index):
         '''
         Find output by CRTC index
@@ -258,10 +291,7 @@ class Screens:
         @param   index:int?     The CRTC index
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for screen in self.screens:
-            rc += screen.find_by_crtc(index)
-        return rc
+        return self.__find(lambda screen : screen.find_by_crtc(index))
     
     def find_by_name(self, name):
         '''
@@ -270,10 +300,7 @@ class Screens:
         @param   name:str       The name of the output
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for screen in self.screens:
-            rc += screen.find_by_name(name)
-        return rc
+        return self.__find(lambda screen : screen.find_by_name(name))
     
     def find_by_size(self, widthmm, heigthmm):
         '''
@@ -283,10 +310,7 @@ class Screens:
         @param   heightmm:int?  The physical height, measured in millimetres, of the monitor
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for screen in self.screens:
-            rc += screen.find_by_size(widthmm, heigthmm)
-        return rc
+        return self.__find(lambda screen : screen.find_by_size(widthmm, heigthmm))
     
     def find_by_connected(self, status):
         '''
@@ -295,10 +319,7 @@ class Screens:
         @param   status:bool    Whether the output should be connected or not
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for screen in self.screens:
-            rc += screen.find_by_connected(status)
-        return rc
+        return self.__find(lambda screen : screen.find_by_connected(status))
     
     def find_by_edid(self, edid):
         '''
@@ -307,10 +328,7 @@ class Screens:
         @param   edid:str?      The extended display identification data of the monitor
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for screen in self.screens:
-            rc += screen.find_by_edid(edid)
-        return rc
+        return self.__find(lambda screen : screen.find_by_edid(edid))
     
     def __contains__(self, other):
         return other in self.screens
@@ -348,11 +366,7 @@ class Screen:
         @param   index:int?     The CRTC index
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for i in range(len(self.outputs)):
-            if self.outputs[i].crtc == index:
-                rc.append(self.outputs[i])
-        return rc
+        return [output for output in self.outputs if output.crtc == index]
     
     def find_by_name(self, name):
         '''
@@ -361,11 +375,7 @@ class Screen:
         @param   name:str       The name of the output
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for i in range(len(self.outputs)):
-            if self.outputs[i].name == name:
-                rc.append(self.outputs[i])
-        return rc
+        return [output for output in self.outputs if output.name == name]
     
     def find_by_size(self, widthmm, heightmm):
         '''
@@ -375,12 +385,7 @@ class Screen:
         @param   heightmm:int?  The physical height, measured in millimetres, of the monitor
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for i in range(len(self.outputs)):
-            if self.outputs[i].widthmm == widthmm:
-                if self.outputs[i].heightmm == heightmm:
-                    rc.append(self.outputs[i])
-        return rc
+        return [out for out in self.outputs if (out.widthmm == widthmm) and (out.heightmm == heightmm)]
     
     def find_by_connected(self, status):
         '''
@@ -389,11 +394,7 @@ class Screen:
         @param   status:bool    Whether the output should be connected or not
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for i in range(len(self.outputs)):
-            if self.outputs[i].connected == status:
-                rc.append(self.outputs[i])
-        return rc
+        return [output for output in self.outputs if output.connected == status]
     
     def find_by_edid(self, edid):
         '''
@@ -402,11 +403,7 @@ class Screen:
         @param   edid:str?      The extended display identification data of the monitor
         @return  :list<Output>  Matching outputs
         '''
-        rc = []
-        for i in range(len(self.outputs)):
-            if self.outputs[i].edid == edid:
-                rc.append(self.outputs[i])
-        return rc
+        return [output for output in self.outputs if output.edid == edid]
     
     def __repr__(self):
         '''
@@ -430,20 +427,16 @@ class Output:
         '''
         Constructor
         '''
-        self.name = None
         self.connected = False
-        self.widthmm = None
-        self.heightmm = None
-        self.crtc = None
-        self.screen = None
-        self.edid = None
+        self.name, self.widthmm, self.heightmm = None, None, None
+        self.crtc, self.screen, self.edid = None, None, None
     
     def __repr__(self):
         '''
         Return a string representation of the instance
         '''
         rc = [self.name, self.connected, self.widthmm, self.heightmm, self.crtc, self.screen, self.edid]
-        rc = tuple(rc[:1] + list(map(lambda x : repr(x), rc[1 : -1])) + [str(rc[-1])])
+        rc = tuple(rc[:1] + [repr(x) for x in rc[1 : -1]] + [str(rc[-1])])
         rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
         return rc
 
@@ -456,10 +449,8 @@ def list_screens(method = 'randr'):
                                              'drm' for DRM (under TTY)
     @return  :Screens    An instance of a datastructure with the relevant information
     '''
-    if method == 'randr':
-        return list_screens_randr()
-    if method == 'drm':
-        return list_screens_drm()
+    if method == 'randr':  return list_screens_randr()
+    if method == 'drm':    return list_screens_drm()
     raise Exception('Invalid method: %s' % method)
 
 
@@ -643,4 +634,7 @@ class DRMManager:
             drm_close()
 
 drm_manager = DRMManager()
+'''
+:DRMManager  Manager for DRM connections to avoid monitor flicker on unnecessary connections
+'''
 
