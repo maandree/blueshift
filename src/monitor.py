@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 from subprocess import Popen, PIPE
 
@@ -271,6 +272,7 @@ class Screens:
         Constructor
         '''
         self.screens = None
+
     
     def __find(self, f):
         '''
@@ -329,21 +331,67 @@ class Screens:
         @return  :list<Output>  Matching outputs
         '''
         return self.__find(lambda screen : screen.find_by_edid(edid))
+
     
-    def __contains__(self, other):
-        return other in self.screens
+    def __contains__(self, screen):
+        '''
+        Check if a screen is listed
+        
+        @param   screen:Screen  The screen
+        @return  :bool          Whether the screen is listed
+        '''
+        return screen in self.screens
+    
     def __getitem__(self, index):
+        '''
+        Get a screen by its index
+        
+        @param   :int     The screen's index
+        @return  :Screen  The screen
+        '''
         return self.screens[index]
+    
     def __iter__(self):
+        '''
+        Create an interator of the screens
+        
+        @return  :itr<Screen>  An interator of the screens
+        '''
         return iter(self.screens)
+    
     def __len__(self):
+        '''
+        Get the number of screens
+        
+        @return  :int  The number of screens
+        '''
         return len(self.screens)
+    
     def __reversed__(self):
+        '''
+        Get a reversed iterator of the screens
+    
+        @return  :itr<Screen>  An interator of the screens in reversed order
+        '''
         return reversed(self.screens)
+    
     def __setitem__(self, index, item):
+        '''
+        Replace a screen
+        
+        @param  index:int    The index of the screen
+        @param  item:Screen  The screen
+        '''
         self.screens[index] = item
+    
     def __repr__(self):
+        '''
+        Get a string representation of the screens
+        
+        @return  :str  String representation of the screens
+        '''
         return repr(self.screens)
+
 
 class Screen:
     '''
@@ -408,8 +456,11 @@ class Screen:
     def __repr__(self):
         '''
         Return a string representation of the instance
+        
+        @return  :str  String representation of the instance
         '''
         return '[CRTC count: %i, Outputs: %s]' % (self.crtc_count, repr(self.outputs))
+
 
 class Output:
     '''
@@ -428,17 +479,18 @@ class Output:
         Constructor
         '''
         self.connected = False
-        self.name, self.widthmm, self.heightmm = None, None, None
-        self.crtc, self.screen, self.edid = None, None, None
+        self.name, self.widthmm, self.heightmm, self.crtc, self.screen, self.edid = [None] * 6
     
     def __repr__(self):
         '''
         Return a string representation of the instance
         '''
+        # Select the order of the values
         rc = [self.name, self.connected, self.widthmm, self.heightmm, self.crtc, self.screen, self.edid]
+        # Convert the values to strings
         rc = tuple(rc[:1] + [repr(x) for x in rc[1 : -1]] + [str(rc[-1])])
-        rc = '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
-        return rc
+        # Combine the values
+        return '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
 
 
 def list_screens(method = 'randr'):
@@ -460,7 +512,7 @@ def list_screens_randr():
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
-    process = Popen([LIBEXECDIR + "/blueshift_idcrtc"], stdout = PIPE)
+    process = Popen([LIBEXECDIR + os.sep + 'blueshift_idcrtc'], stdout = PIPE)
     lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
     while process.returncode is None:
         process.wait()
@@ -555,9 +607,7 @@ class DRMManager:
         '''
         Constructor
         '''
-        self.is_open = False
-        self.cards = None
-        self.connectors = None
+        self.is_open, self.cards, self.connectors = False, None, None
     
     def open_card(self, card):
         '''
