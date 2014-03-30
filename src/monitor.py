@@ -512,42 +512,65 @@ def list_screens_randr():
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
+    # Spawn the executeable library blueshift_idcrtc
     process = Popen([LIBEXECDIR + os.sep + 'blueshift_idcrtc'], stdout = PIPE)
+    # Wait for the child process to exit and gather its output to stdout
     lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
+    # Ensure that the child process has exited
     while process.returncode is None:
         process.wait()
+    # Raise an exception if the child process failed
     if process.returncode != 0:
         raise Exception('blueshift_idcrtc exited with value %i' % process.returncode)
+    # Trim the beginning of each line, that is, remove the
+    # indention added for human readablility
     lines = [line.strip() for line in lines]
     screens, screen_i, screen, output = None, None, None, None
     for line in lines:
         if line.startswith('Screen count: '):
+            # Prepare the screen table when we know how many screens there are
             screens = [None] * int(line[len('Screen count: '):])
         elif line.startswith('Screen: '):
+            # Get the index of the next screen
             screen_i = int(line[len('Screen: '):])
-            screen = Screen()
-            screens[screen_i] = screen
+            # And add it to the table
+            screens[screen_i] = screen = Screen()
         elif line.startswith('CRTC count: '):
+            # Store the number of CRTC:s
             screen.crtc_count = int(line[len('CRTC count: '):])
         elif line.startswith('Output count: '):
+            # Prepare the current screens output table when we know how many outputs it has
             screen.outputs = [None] * int(line[len('Output count: '):])
         elif line.startswith('Output: '):
+            # Get the index of the next output
             output_i = int(line[len('Output: '):])
+            # Create structure for the output
             output = Output()
+            # Store the screen index for the output so that it is easy
+            # to look it up when iterating over outputs
             output.screen = screen_i
+            # Store the output in the table
             screen.outputs[output_i] = output
         elif line.startswith('Name: '):
+            # Store the name of the output
             output.name = line[len('Name: '):]
         elif line.startswith('Connection: '):
+            # Store the connection status of the output's connector
             output.connected = line[len('Connection: '):] == 'connected'
         elif line.startswith('Size: '):
+            # Store the physical dimensions of the monitor
             output.widthmm, output.heightmm = [int(x) for x in line[len('Size: '):].split(' ')]
+            # But if it is zero or less it is unknown
             if (output.widthmm <= 0) or (output.heightmm <= 0):
                 output.widthmm, output.heightmm = None, None
         elif line.startswith('CRTC: '):
+            # Store the CRTC index of the output
             output.crtc = int(line[len('CRTC: '):])
         elif line.startswith('EDID: '):
+            # Store the output's extended dislay identification data
             output.edid = line[len('EDID: '):]
+    # Store all screens in a special class that
+    # makes it easier to use them collectively
     rc = Screens()
     rc.screens = screens
     return rc
