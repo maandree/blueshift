@@ -582,39 +582,82 @@ def list_screens_drm():
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
-    # This method should not use `drm_manager` because we want to be able to find updates
+    ## This method should not use `drm_manager` because we want to be able to find updates
+    # Create instance of class with all the graphics cards so that it is easy
+    # to use them collectively,
     screens = Screens()
+    # and create the list to fill with graphics cards.
     screens.screens = []
+    ## When using DRM we will often call graphics cards ‘screens’ as
+    ## to keep consisitence with X extension. In real world use, it is
+    ## usally equivalent, except for the order of the CRTC:s.
+    # For each graphics card, by index:
     for card in range(drm_card_count()):
+        # Create an instance which makes it easy to use the
+        # graphics cards, such as searching for monitors,
         screen = Screen()
+        # and append it to the list of graphics cards.
         screens.screens.append(screen)
+        # Acquire resources for the graphics card,
         connection = drm_open_card(card)
+        # but just ignore the card on failure.
         if connection == -1:
-            continue
+            continue # TODO could this fail if the card is already used by Blueshift?
+        # As our DRM module's API dictates, update the resources
         drm_update_card(connection)
+        # Store the number of CRTC:s, so that it can
+        # be easily accessed; all connectors do not have a CRTCs,
+        # because they need to have a monitor connected an unused
+        # connectors are also listed.
         screen.crtc_count = drm_crtc_count(connection)
+        # Create a graphics card local str → int map from the
+        # connector type name of the number of used such connectors
+        # so that we can name the outputs uniquely within the
+        # scope of the card with reason names. These will not be
+        # the same as the named given by RandR or `/sys/class/drm`.
         used_names = {}
+        # For each connector of the graphics card:
         for connector in range(drm_connector_count(connection)):
+            # Open a connection to the connector
             drm_open_connector(connection, connector)
+            # Create an instance of a data structure to store output information inside,
             output = Output()
+            # and add it to the list of outputs for the graphics card.
             screen.outputs.append(output)
+            # The connector type name
             output.name = drm_get_connector_type_name(connection, connector)
+            # and append an index to it and use that as the name of the output.
             if output.name not in used_names:
+                # Start at zero,
                 used_names[output.name] = 0
+            # and count upwards as the type of connector reoccurs.
             count = used_names[output.name]
             used_names[output.name] += 1
             output.name = '%s-%i' % (output.name, count)
+            # Store the connection status of the connector,
+            # but assume it is disconnected if it is unknown.
             output.connected = drm_is_connected(connection, connector) == 1
             if output.connected:
+                # Store the physical dimensions of the monitor
                 output.widthmm = drm_get_width(connection, connector)
                 output.heightmm = drm_get_height(connection, connector)
+                # But if it is zero or less it is unknown
                 if (output.widthmm <= 0) or (output.heightmm <= 0):
                     output.widthmm, output.heightmm = None, None
+                # Store the output's CRTC index
                 output.crtc = drm_get_crtc(connection, connector)
+                # Store the output's extended display identification data
                 output.edid = drm_get_edid(connection, connector)
+            # Store the graphics card index for the output so that
+            # it is easy to look it up when iterating over outputs
             output.screen = card
+            # Now that we are done with the connector, close its resources
             drm_close_connector(connection, connector)
+        # Now that we are done with the graphics card, close its resources
         drm_close_card(connection)
+    # Mark that the DRM module has been used so that
+    # resource as properly freed. This is the only
+    # time in this function `drm_manager` shall be used.
     drm_manager.is_open = True
     return screens
 
@@ -624,6 +667,9 @@ class DRMManager:
     Manager for DRM connections to avoid monitor flicker on unnecessary connections
     
     There should only be one instance of this class
+    
+    @variable  is_open:bool      Whether the DRM module has been used
+    @variable  cards:list<int>?  Map from card index to connection file descriptors, -1 if not connected
     '''
     
     def __init__(self):
@@ -639,12 +685,18 @@ class DRMManager:
         @param   card:int  The index of the card
         @return  :int      -1 on failure, otherwise the identifier for the connection
         '''
+        # Mark that the DRM module has been used
         self.is_open = True
+        # Initialise connection map if not already initialised,
         if self.cards is None:
             self.cards = [-1] * drm_card_count()
+            # and the graphics card layer of the connector map.
             self.connectors = [None] * drm_card_count()
+        # If we are not connected to the desired graphics card
         if self.cards[card] == -1:
+            # connect to it
             self.cards[card] = drm_open_card(card)
+            # and acquire resources.
             drm_update_card(self.cards[card])
         return self.cards[card]
     
@@ -652,14 +704,19 @@ class DRMManager:
         '''
         Make sure there is a connection to a specific connector
         
-        @param  card:int       The index of the card with the connector
+        @param  card:int       The index of the card with the connector, must already be opened
         @param  connector:int  The index of the connector
         '''
+        # The file descriptor of the connection to the graphics card,
         connection = self.open_card(card)
+        # and initialise the connector map if not alreadt initialised.
         if self.connectors[card] is None:
             self.connectors[card] = [False] * drm_connector_count()
+        # Then, if the connector is not already opened,
         if not self.connectors[card][connector]:
+            # mark it as opened,
             self.connectors[card][connector] = True
+            # and open it.
             drm_open_connector(connection, connector)
     
     def close_connector(self, card, connector):
@@ -669,12 +726,19 @@ class DRMManager:
         @param  card:int       The index of the card with the connector
         @param  connector:int  The index of the connector
         '''
+        # If no graphics card has been opened, do nothing
         if self.cards is None:  return
+        # Otherwise get the connection to the graphics card,
         connection = self.cards[card]
+        # but do nothing if is has not been opened.
         if connection == -1:  return
+        # Neither do anything if no connector has been used.
         if self.connectors[card] is None:  return
+        # If the connector has been used,
         if self.connectors[card][connector]:
+            # mark it as unused,
             self.connectors[card][connector] = False
+            # as close it.
             drm_close_connector(connection, connector)
     
     def close_card(self, card):
@@ -683,27 +747,41 @@ class DRMManager:
         
         @param  card:int  The index of the card
         '''
+        # Do nothing is no graphics card has been used
         if self.cards is None:
             return
+        # Otherwise get the file descriptor of the connection to the card.
         connection = self.cards[card]
-        self.cards[card] = -1
-        if self.connectors[card] is not None:
-            for i in range(len(self.connectors[card])):
-                if self.connectors[card][i]:
-                    drm_close_connector(connection, i)
-            self.connectors[card] = None
-        drm_close_card(connection)
+        # If The graphics card has been used
+        if not connection == -1:
+            # Mark it as unused,
+            self.cards[card] = -1
+            # and close the connection to any opened connector
+            if self.connectors[card] is not None:
+                # by iterating over the connectors
+                for i in range(len(self.connectors[card])):
+                    # and close any opened connector
+                    if self.connectors[card][i]:
+                        drm_close_connector(connection, i)
+                # and then mark all connectors as unused.
+                self.connectors[card] = None
+            # Close the connection to the graphics card
+            drm_close_card(connection)
     
     def close(self):
         '''
         Close all connections
         '''
+        # If the DRM module as been used
         if self.is_open:
+            # Makr it as unused
             self.is_open = False
+            # And close all connections to the graphics cards and their connectors
             if self.cards is not None:
                 for card in range(len(self.cards)):
                     self.close_card(card)
                 self.cards = None
+            # And close finally close the connection to DRM
             drm_close()
 
 drm_manager = DRMManager()
