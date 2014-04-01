@@ -286,9 +286,9 @@ def signal_SIGUSR1(signum, frame):
     # an line ending in case the the last line is
     # not empty, which would give us an exception.
     code = code.decode('utf8', 'error') + '\n'
-    # Compile the script
+    # Compile the script,
     code = compile(code, config_file, 'exec')
-    # And run it, with it have the same
+    # and run it, with it have the same
     # globals as this module, so that it can
     # not only use want we have defined, but
     # also redefine it for us.
@@ -522,6 +522,7 @@ def continuous_run():
 
 
 ## Read command line arguments
+# Create parser
 parser = ArgParser('Colour temperature controller',
                    sys.argv[0] + ' [options] [-- configuration-options]',
                    'Blueshift adjusts the colour temperature of your\n'
@@ -532,6 +533,7 @@ parser = ArgParser('Colour temperature controller',
                    'this helps you focus on your work.',
                    None, True, ArgParser.standard_abbreviations())
 
+# Populate parser with possible options
 dn = '\nUse twice or daytime and nighttime respectively'
 parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
 parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
@@ -551,9 +553,11 @@ parser.add_argumentless(['-C', '--copying', '--copyright'], 0, 'Print copyright 
 parser.add_argumentless(['-W', '--warranty'], 0, 'Print non-warranty information')
 parser.add_argumentless(['-v', '--version'], 0, 'Print program name and version')
 
+# Parse options
 parser.parse()
 parser.support_alternatives()
 
+# Check for no-action options
 if parser.opts['--help'] is not None:
     parser.help()
     sys.exit(0)
@@ -570,6 +574,7 @@ elif parser.opts['--version'] is not None:
     print('%s %s' % (PROGRAM_NAME, PROGRAM_VERSION))
     sys.exit(0)
 
+# Get used options
 a = lambda opt : opt[0] if opt is not None else None
 config_file = a(parser.opts['--configurations'])
 panicgate = parser.opts['--panicgate'] is not None
@@ -583,7 +588,9 @@ cie_temperatures = parser.opts['++temperature']
 output = parser.opts['--output']
 if output is None:
     output = []
-used_adhoc = any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures, output])
+# Are ad-hoc mode options used?
+used_adhoc = any([doreset, location, gammas, rgb_brightnesses, cie_brightnesses,
+                  rgb_temperatures, cie_temperatures, output])
 
 ## Verify option correctness
 a = lambda opt : 0 if parser.opts[opt] is None else len(parser.opts[opt])
@@ -603,49 +610,99 @@ settings = [gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_te
 if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
     code, pathname = None, None
+    # Look in all Python modules paths, the program's personal
+    # path should be the first one, unless we add anything
+    # before it ourselfs.
     for p in sys.path:
-        p += '/adhoc.py'
+        # If we can find the python module `adhoc`,
+        p += os.sep + 'adhoc.py'
         if os.path.exists(p):
+            # select it
             pathname = p
-            exit
+            # and stop looking futher, we really
+            # do not want to find something else
+            # by mistake.
+            break
+    # TODO can this be done in a better way?
     if pathname is not None:
         with open(pathname, 'rb') as script:
             code = script.read()
-    else:
+    else: # TODO should we not try this first?
         import zipimport
         importer = zipimport.zipimporter(sys.argv[0])
         code = importer.get_data('adhoc.py')
         pathname = sys.argv[0] + os.sep + 'adhoc.py'
+    # Decode script and add a line break at the
+    # end to ensure that the last line is empty.
+    # If it is not, we will get errors.
     code = code.decode('utf-8', 'error') + '\n'
+    # Compile the script,
     code = compile(code, pathname, 'exec')
+    # and run it, with it have the same
+    # globals as this module, so that it can
+    # not only use want we have defined, but
+    # also redefine it for us.
     exec(code, g)
 else:
     ## Load extension and configurations via blueshiftrc
+    # No configuration script has been selected explicitly,
+    # so select one automatically if the we are not running
+    # in ad-hoc mode.
     if config_file is None:
+        # Possible auto-selected configuration scripts,
+        # earlier ones have precedence, we can only select one.
         for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '$~/.config/%/%rc', '$~/.%c', '/etc/%rc'):
+            # Expand short-hands
             file = file.replace('/', os.sep).replace('%', 'blueshift')
+            # Expand environment variables
             for arg in ('XDG_CONFIG_HOME', 'HOME'):
+                # Environment variables are prefixed with $
                 if '$' + arg in file:
                     if arg in os.environ:
+                        # To be sure that do so no treat a $ as a variable prefix
+                        # incorrectly we replace any $ in the value of the variable
+                        # with NUL which is not a value pathname character.
                         file = file.replace('$' + arg, os.environ[arg].replace('$', '\0'))
                     else:
                         file = None
                         break
+            # Proceed if there where no errors
             if file is not None:
+                # With use $~ (instead of ~) for the user's proper home
+                # directroy. HOME should be defined, but it could be missing.
+                # It could also be set to another directory.
                 if file.startswith('$~'):
                     import pwd
+                    # Get the home (also known as initial) directory
+                    # of the real user, and the rest of the path
                     file = pwd.getpwuid(os.getuid()).pw_dir + file[2:]
+                # Now that we are done we can change back any NUL to $:s
                 file = file.replace('\0', '$')
+                # If the file we exists,
                 if os.path.exists(file):
+                    # select it,
                     config_file = file
+                    # and stop trying files with lower precedence.
                     break
+    # As the zeroth argument for the configuration script,
+    # add the configurion script file. Just like the zeroth
+    # command line argument is the invoked command.
     conf_opts = [config_file] + parser.files
     if config_file is not None:
         code = None
+        # Read configuration script file
         with open(config_file, 'rb') as script:
             code = script.read()
+        # Decode configurion script file and add a line break
+        # at the end to ensure that the last line is empty.
+        # If it is not, we will get errors.
         code = code.decode('utf-8', 'error') + '\n'
+        # Compile the configuration script,
         code = compile(code, config_file, 'exec')
+        # and run it, with it have the same
+        # globals as this module, so that it can
+        # not only use want we have defined, but
+        # also redefine it for us.
         exec(code, g)
     else:
         print('No configuration file found')
