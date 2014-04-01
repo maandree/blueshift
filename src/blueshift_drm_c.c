@@ -76,14 +76,13 @@ void blueshift_drm_close(void)
  */
 int blueshift_drm_card_count(void)
 {
-  long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
-  char* pathname = alloca(maxlen * sizeof(char));
+  char pathname[4096];
   int count = 0;
   struct stat _attr;
   
   for (;;)
     {
-      sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, count);
+      snprintf(pathname, 4096, DRM_DEV_NAME, DRM_DIR_NAME, count);
       if (stat(pathname, &_attr))
 	break;
       count++;
@@ -101,12 +100,11 @@ int blueshift_drm_card_count(void)
  */
 int blueshift_drm_open_card(int card_index)
 {
-  long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
-  char* pathname = alloca(maxlen * sizeof(char));
+  char pathname[4096];
   int fd;
   int rc;
   
-  sprintf(pathname, DRM_DEV_NAME, DRM_DIR_NAME, card_index);
+  snprintf(pathname, 4096, DRM_DEV_NAME, DRM_DIR_NAME, card_index);
   
   fd = open(pathname, O_RDWR | O_CLOEXEC);
   if (fd < 0)
