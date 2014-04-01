@@ -14,44 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
-
-#include <xcb/xcb.h>
-#include <xcb/randr.h>
-
-
-
-/**
- * The major version of RandR the program expects
- */
-#define RANDR_VERSION_MAJOR  1U
-
-/**
- * The minor version of RandR the program expects
- */
-#define RANDR_VERSION_MINOR  3U
-
-
-
-/**
- * Data structure for CRTC caches
- */
-typedef struct blueshift_randr_crtc
-{
-  /**
-   * Size of colour curves on the X-axis
-   */
-  unsigned int curve_size;
-  
-  /**
-   * CRT controller
-   */
-  xcb_randr_crtc_t* crtc;
-  
-} blueshift_randr_crtc_t;
-
+#include "blueshift_randr_c.h"
 
 
 /**

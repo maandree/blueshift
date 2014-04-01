@@ -48,7 +48,10 @@ PKGCONFIG ?= pkg-config
 # Optimisation settings for C code compilation
 OPTIMISE ?= -Og -g
 # Warnings settings for C code compilation
-WARN = -Wall -Wextra -pedantic
+WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs \
+       -Wtrampolines -Wfloat-equal -Wmissing-prototypes
+# Warnings violated by Cython and therefore excluded: (TODO)
+#    -Wswitch-default -Wshadow
 # The C standard for C code compilation
 STD = c99
 LIBS_idcrtc = xcb-randr
@@ -104,7 +107,7 @@ bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -o $@ $^
 
-obj/%.o: src/%.c
+obj/%.o: src/%.c src/%.h
 	@mkdir -p obj
 	$(CC) $(FLAGS) -c -o $@ $<
 

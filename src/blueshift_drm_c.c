@@ -14,46 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <alloca.h>
-
-#ifndef O_CLOEXEC
-  #define O_CLOEXEC  02000000
-#endif
-
-/* Requires video group */
-#include <xf86drm.h>
-#include <xf86drmMode.h>
-
-
-
-/**
- * Resources for an open connection to a graphics card
- */
-typedef struct _card_connection
-{
-  /**
-   * File descriptor for the connection
-   */
-  int fd;
-  
-  /**
-   * Card resources
-   */
-  drmModeRes* res;
-  
-  /**
-   * Resources for open connectors
-   */
-   drmModeConnector** connectors;
-  
-} card_connection;
+#include "blueshift_drm_c.h"
 
 
 /**
@@ -91,7 +52,7 @@ static long card_connection_reuse_size = 0;
 /**
  * Free all resources, but you need to close all connections first
  */
-void blueshift_drm_close()
+void blueshift_drm_close(void)
 {
   if (card_connections)
     free(card_connections);
@@ -113,7 +74,7 @@ void blueshift_drm_close()
  * 
  * @return  The number of cards present on the system
  */
-int blueshift_drm_card_count()
+int blueshift_drm_card_count(void)
 {
   long maxlen = strlen(DRM_DIR_NAME) + strlen(DRM_DEV_NAME) + 10;
   char* pathname = alloca(maxlen * sizeof(char));

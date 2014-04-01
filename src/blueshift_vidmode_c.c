@@ -14,13 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/xf86vmode.h>
-
+#include "blueshift_vidmode_c.h"
 
 
 /**
