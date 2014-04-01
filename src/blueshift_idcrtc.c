@@ -76,21 +76,21 @@ int main(int argc, char** argv)
   connection = xcb_connect(NULL, NULL);
   
   
-  /* Check RANDR protocol version */
+  /* Check RandR protocol version */
   
   version_cookie = xcb_randr_query_version(connection, RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
   randr_version = xcb_randr_query_version_reply(connection, version_cookie, &error);
   
   if (error || (randr_version == NULL))
     {
-      fprintf(stderr, "RANDR version query returned %i", error ? error->error_code : -1);
+      fprintf(stderr, "RandR version query returned %i", error ? error->error_code : -1);
       xcb_disconnect(connection);
       return 1;
     }
   
   if (randr_version->major_version != RANDR_VERSION_MAJOR || randr_version->minor_version < RANDR_VERSION_MINOR)
     {
-      fprintf(stderr, "Unsupported RANDR version, got %u.%u, expected %u.%u\n",
+      fprintf(stderr, "Unsupported RandR version, got %u.%u, expected %u.%u\n",
 	      randr_version->major_version, randr_version->minor_version,
 	      RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
       free(randr_version);
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
       
       if (error)
 	{
-	  fprintf(stderr, "RANDR screen resource query returned %i\n", error->error_code);
+	  fprintf(stderr, "RandR screen resource query returned %i\n", error->error_code);
 	  xcb_disconnect(connection);
 	  return 1;
 	}
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
 	  
 	  if (error)
 	    {
-	      fprintf(stderr, "RANDR output query returned %i\n", error->error_code);
+	      fprintf(stderr, "RandR output query returned %i\n", error->error_code);
 	      xcb_disconnect(connection);
 	      free(res_reply);
 	      return 1;
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 		
 		if (error)
 		  {
-		    fprintf(stderr, "RANDR output property query returned %i\n", error->error_code);
+		    fprintf(stderr, "RandR output property query returned %i\n", error->error_code);
 		    free(out_reply);
 		    free(res_reply);
 		    xcb_disconnect(connection);
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 		    
 		    if (error)
 		      {
-			fprintf(stderr, "RANDR atom name query returned %i\n", error->error_code);
+			fprintf(stderr, "RandR atom name query returned %i\n", error->error_code);
 			free(prop_reply);
 			free(out_reply);
 			free(res_reply);
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
 			
 			if (error)
 			  {
-			    fprintf(stderr, "RANDR atom data query returned %i\n", error->error_code);
+			    fprintf(stderr, "RandR atom data query returned %i\n", error->error_code);
 			    free(atom_name_reply);
 			    free(prop_reply);
 			    free(out_reply);
