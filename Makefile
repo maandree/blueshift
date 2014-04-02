@@ -111,7 +111,11 @@ bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -o $@ $^
 
-obj/%.o: src/%.c src/%.h
+obj/%.o: src/%.c
+	@mkdir -p obj
+	$(CC) $(FLAGS) -c -o $@ $<
+
+obj/%_c.o: src/%_c.c src/%_c.h
 	@mkdir -p obj
 	$(CC) $(FLAGS) -c -o $@ $<
 
