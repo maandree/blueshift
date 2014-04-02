@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 	  /* Get root window property value */
 	  
 	monitor_ok:
-	  /* Acquire the property's value */
+	  /* Acquire the property's value, partially. */
 	  prop_cookie = xcb_get_property(connection, 0, screen->root, *atoms, XCB_GET_PROPERTY_TYPE_ANY, 0, 0);
 	  prop_reply = xcb_get_property_reply(connection, prop_cookie, &error);
 	  
@@ -227,6 +227,7 @@ int main(int argc, char** argv)
 	  /* Get the length of the property's value */
 	  len = prop_reply->bytes_after;
 	  
+	  /* Acquire the property's value, fully. */
 	  prop_cookie = xcb_get_property(connection, 0, screen->root, *atoms, XCB_GET_PROPERTY_TYPE_ANY, 0, len);
 	  prop_reply = xcb_get_property_reply(connection, prop_cookie, &error);
 	  

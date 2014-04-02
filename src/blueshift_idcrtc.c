@@ -206,9 +206,11 @@ int main(int argc, char** argv)
 	     as it is not NUL-terminated. */
 	  printf("    Name: %.*s\n", name_len, name);
 	  
+	  /* Check connection status */
 	  switch (out_reply->connection)
 	    {
 	    case XCB_RANDR_CONNECTION_CONNECTED:
+	      /* IF connectioned, do stuff! */
 	      {
 		xcb_randr_list_output_properties_cookie_t prop_cookie;
 		xcb_randr_list_output_properties_reply_t* prop_reply;
@@ -216,21 +218,36 @@ int main(int argc, char** argv)
 		xcb_atom_t* atoms_end;
 		int crtc_i;
 		
+		/* Print that the connector is used. */
 		printf("    Connection: connected\n");
+		/* And print what dimensions RandR thinks the monitor has,
+		   physically in millimeters, however common that it is
+		   extremely wrong as it does not read it from the extended
+		   display identication data, but tries to calculate it. */
 		printf("    Size: %i %i\n", out_reply->mm_width, out_reply->mm_height);
 		
+		/* Iterate over all CRTC:s, */
 		for (crtc_i = 0; crtc_i < res_reply->num_crtcs; crtc_i++)
+		  /* and look for a CRTC with the same ID, */
 		  if (crtcs[crtc_i] == out_reply->crtc)
-		    printf("    CRTC: %i\n", crtc_i);
+		    {
+		      /* and print that CRTC:s index. */
+		      printf("    CRTC: %i\n", crtc_i);
+		      break;
+		    }
 		
+		/* Acquire a list of all properties of the output. */
 		prop_cookie = xcb_randr_list_output_properties(connection, outputs[output_i]);
 		prop_reply = xcb_randr_list_output_properties_reply(connection, prop_cookie, &error);
 		
 		if (error)
 		  {
+		    /* On error print an error message, */
 		    fprintf(stderr, "RandR output property query returned %i\n", error->error_code);
+		    /* and free that output and screen information resources, */
 		    free(out_reply);
 		    free(res_reply);
+		    /* and then close the connection to the display. */
 		    xcb_disconnect(connection);
 		    return 1;
 		  }
@@ -238,9 +255,12 @@ int main(int argc, char** argv)
 		
 		/* Get output atoms */
 		
+		/* Extract the properties for the data structure that holds them, */
 		atoms = xcb_randr_list_output_properties_atoms(prop_reply);
+		/* and get the last one so that we can iterate over them nicely. */
 		atoms_end = atoms + xcb_randr_list_output_properties_atoms_length(prop_reply);
 		
+		/* For each property */
 		for (; atoms != atoms_end; atoms++)
 		  {
 		    xcb_get_atom_name_cookie_t atom_name_cookie;
@@ -312,19 +332,23 @@ int main(int argc, char** argv)
 			free(atom_reply);
 		      }
 		    
+		    /* Free the name of the atom. */
 		    free(atom_name_reply);
 		  }
 		
+		/* Free the list of properties. */
 		free(prop_reply);
 	      }
 	      break;
 	      
 	    case XCB_RANDR_CONNECTION_DISCONNECTED:
+	      /* If disconnected, print that and continue to next output. */
 	      printf("    Connection: disconnected\n");
 	      break;
 	      
 	    case XCB_RANDR_CONNECTION_UNKNOWN:
 	    default:
+	      /* If the connection status is unkown, print that and continue to next output. */
 	      printf("    Connection: unknown\n");
 	      break;
 	    }
