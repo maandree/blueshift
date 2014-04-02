@@ -60,7 +60,6 @@ int main(int argc, char** argv)
 {
   xcb_randr_query_version_cookie_t version_cookie;
   xcb_randr_query_version_reply_t* randr_version;
-  const xcb_setup_t* setup;
   xcb_screen_iterator_t iter;
   int screen_count;
   xcb_screen_t* screens;
@@ -73,16 +72,22 @@ int main(int argc, char** argv)
   
   /* Get X connection */
   
+  /* This acquires a connection to the
+     X display indicated by the DISPLAY
+     environ variable. */
   connection = xcb_connect(NULL, NULL);
   
   
   /* Check RandR protocol version */
   
+  /* Check that the version of RandR is supported. */
   version_cookie = xcb_randr_query_version(connection, RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
   randr_version = xcb_randr_query_version_reply(connection, version_cookie, &error);
   
   if (error || (randr_version == NULL))
     {
+      /* If not possible, print an error message and
+         close the connection to the display. */
       fprintf(stderr, "RandR version query returned %i", error ? error->error_code : -1);
       xcb_disconnect(connection);
       return 1;
@@ -90,27 +95,35 @@ int main(int argc, char** argv)
   
   if (randr_version->major_version != RANDR_VERSION_MAJOR || randr_version->minor_version < RANDR_VERSION_MINOR)
     {
+      /* If the version did not match, print a warning, */
       fprintf(stderr, "Unsupported RandR version, got %u.%u, expected %u.%u\n",
 	      randr_version->major_version, randr_version->minor_version,
 	      RANDR_VERSION_MAJOR, RANDR_VERSION_MINOR);
+      /* free the version information resources, */
       free(randr_version);
+      /* and close the connection to the display. */
       xcb_disconnect(connection);
       return 1;
     }
   
+  /* Free the version information resources. */
   free(randr_version);
   
   
   /* Get screen information */
   
-  setup = xcb_get_setup(connection);
-  iter = xcb_setup_roots_iterator(setup);
+  /* Acquire a list of all screens in the display, */
+  iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
+  /* count the list, */
   screen_count = iter.rem;
+  /* and start at the first screen. */
   screens = iter.data;
   
+  /* Print the number available screens. */
   printf("Screen count: %i\n", screen_count);
   for (screen_i = 0; screen_i < screen_count; screen_i++)
     {
+      /* For each screen */
       xcb_screen_t* screen = screens + screen_i;
       xcb_randr_get_screen_resources_current_cookie_t res_cookie;
       xcb_randr_get_screen_resources_current_reply_t* res_reply;
@@ -118,51 +131,80 @@ int main(int argc, char** argv)
       xcb_randr_crtc_t* crtcs;
       int output_i;
       
+      /* Print the screen index. */
       printf("Screen: %i\n", screen_i);
       
+      /* Acquire information about the screen. */
       res_cookie = xcb_randr_get_screen_resources_current(connection, screen->root);
       res_reply = xcb_randr_get_screen_resources_current_reply(connection, res_cookie, &error);
       
       if (error)
 	{
+	  /* On error print an error message and close the connection to the display. */
 	  fprintf(stderr, "RandR screen resource query returned %i\n", error->error_code);
 	  xcb_disconnect(connection);
 	  return 1;
 	}
       
+      /* Print the CRTC count, */
       printf("  CRTC count: %i\n", res_reply->num_crtcs);
+      /* and the output count. */
       printf("  Output count: %i\n", res_reply->num_outputs);
+      /* There are as many outputs as there are
+         connectors, that is, the number of
+	 monitors that you could potentially
+         plugg into the graphics cards that
+         are associated with the screen, even
+         if that many are not supported. But
+         there are only as many CRTC:s as
+         there are monitors actually plugged
+         in and supported. */
       
       
       /* Get output information */
       
+      /* Extract output list. */
       outputs = xcb_randr_get_screen_resources_current_outputs(res_reply);
+      /* Extract CRTC list. */
       crtcs = xcb_randr_get_screen_resources_current_crtcs(res_reply);
+      /* For each output */
       for (output_i = 0; output_i < res_reply->num_outputs; output_i++)
         {
 	  xcb_randr_get_output_info_cookie_t out_cookie;
 	  xcb_randr_get_output_info_reply_t* out_reply;
-	  char* name;
-	  unsigned char* name_;
+	  char* name_;
+	  int name_len;
 	  
+	  /* Acquire information abou the output. */
 	  out_cookie = xcb_randr_get_output_info(connection, outputs[output_i], res_reply->config_timestamp);
 	  out_reply = xcb_randr_get_output_info_reply(connection, out_cookie, &error);
 	  
 	  if (error)
 	    {
+	      /* On error print an error message, release the screen resources,
+		 and close the connection to the display. */
 	      fprintf(stderr, "RandR output query returned %i\n", error->error_code);
-	      xcb_disconnect(connection);
 	      free(res_reply);
+	      xcb_disconnect(connection);
 	      return 1;
 	    }
 	  
+	  /* Print the index, in the scope of the screen, of the output. */
 	  printf("  Output: %i\n", output_i);
 	  
-	  name_ = xcb_randr_get_output_info_name(out_reply);
-	  name = alloca((out_reply->name_len + 1) * sizeof(char));
-	  memcpy(name, name_, out_reply->name_len * sizeof(char));
-	  *(name + out_reply->name_len) = 0;
-	  printf("    Name: %s\n", name);
+	  /* We use intention not for computer-readability, but
+	     exclusively for human-readability, especially for
+	     debugging. */
+	  
+	  /* Extract the output name from the data structure that holds it. */
+	  name = xcb_randr_get_output_info_name(out_reply);
+	  /* As well as the length of the name; it is not NUL-termianted.*/
+	  name_len = out_reply->name_len;
+	  
+	  /* Print the output name, we specified length, so that
+	     printf does not attempt to read outside the name,
+	     as it is not NUL-terminated. */
+	  printf("    Name: %.*s\n", name_len, name);
 	  
 	  switch (out_reply->connection)
 	    {
@@ -287,15 +329,18 @@ int main(int argc, char** argv)
 	      break;
 	    }
 	  
+	  /* Free the output information resources. */
 	  free(out_reply);
 	}
       
+      /* Free the screen information resources. */
       free(res_reply);
     }
   
   
   /* Free resources **/
   
+  /* Close the connection to the display.*/
   xcb_disconnect(connection);
   return 0;
 }
