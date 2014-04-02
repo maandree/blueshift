@@ -16,9 +16,6 @@ Low priority:
 
 Future stuff:
 	How is it looking on the DirectFB front?
-	Add wayland support (could not find an API for it, but xwayland works)
-	Add mir support (could not find an API for it; does xmir work?)
-	Add haiku support (haiku currently does not support gamma ramps)
 	Test on the BSD:s
 	Test on Hurd
 	Add support for the BSD:s' TTY:s
