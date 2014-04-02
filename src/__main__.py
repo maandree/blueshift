@@ -22,7 +22,14 @@ import signal
 import datetime
 import threading
 
-from argparser import *
+have_argparser = True
+try:
+    from argparser import *
+except:
+    sys.stderr.buffer.write('Warning: failed to load module \'argparser\',\n'.encode('utf-8'))
+    sys.stderr.buffer.write('         command line options will not be parsed.\n'.encode('utf-8'))
+    sys.stderr.buffer.flush()
+    have_argparser = False
 
 
 
@@ -522,57 +529,75 @@ def continuous_run():
 
 
 ## Read command line arguments
-# Create parser
-parser = ArgParser('Colour temperature controller',
-                   sys.argv[0] + ' [options] [-- configuration-options]',
-                   'Blueshift adjusts the colour temperature of your\n'
-                   'monitor according to brightness outside to reduce\n'
-                   'eye strain and make it easier to fall asleep when\n'
-                   'going to bed. It can also be used to increase the\n'
-                   'colour temperature and make the monitor bluer,\n'
-                   'this helps you focus on your work.',
-                   None, True, ArgParser.standard_abbreviations())
+parser = None
+if have_argparser:
+    # Create parser
+    parser = ArgParser('Colour temperature controller',
+                       sys.argv[0] + ' [options] [-- configuration-options]',
+                       'Blueshift adjusts the colour temperature of your\n'
+                       'monitor according to brightness outside to reduce\n'
+                       'eye strain and make it easier to fall asleep when\n'
+                       'going to bed. It can also be used to increase the\n'
+                       'colour temperature and make the monitor bluer,\n'
+                       'this helps you focus on your work.',
+                       None, True, ArgParser.standard_abbreviations())
+    
+    # Populate parser with possible options
+    dn = '\nUse twice or daytime and nighttime respectively'
+    parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
+    parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
+    parser.add_argumented(['-g', '--gamma'], 0, 'RGB|R:G:B', 'Set gamma correction' + dn)
+    parser.add_argumented(['-b', '--brightness'], 0, 'RGB|R:G:B', 'Set brightness using sRGB' + dn)
+    parser.add_argumented(['+b', '++brightness'], 0, 'Y', 'Set brightness using CIE xyY' + dn)
+    parser.add_argumented(['-t', '--temperature'], 0, 'TEMP', 'Set colour temperature' + dn)
+    parser.add_argumented(['+t', '++temperature'], 0, 'TEMP', 'Set colour temperature using CIE xyY' + dn)
+    parser.add_argumented(['-l', '--location'], 0, 'LAT:LON', 'Select your GPS location\n'
+                                                              'Measured in degrees, negative for south or west')
+    parser.add_argumentless(['-r', '--reset'], 0, 'Reset to default settings')
+    parser.add_argumented(['-o', '--output', '--crtc'], 0, 'CRTCS',
+                          'Select CRTC to apply changes to\nComma separated or multiple options\n'
+                          'It is best to start one instance per monitor with colour calibration')
+    parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
+    parser.add_argumentless(['-C', '--copying', '--copyright'], 0, 'Print copyright information')
+    parser.add_argumentless(['-W', '--warranty'], 0, 'Print non-warranty information')
+    parser.add_argumentless(['-v', '--version'], 0, 'Print program name and version')
+    
+    # Parse options
+    parser.parse()
+    parser.support_alternatives()
 
-# Populate parser with possible options
-dn = '\nUse twice or daytime and nighttime respectively'
-parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
-parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
-parser.add_argumented(['-g', '--gamma'], 0, 'RGB|R:G:B', 'Set gamma correction' + dn)
-parser.add_argumented(['-b', '--brightness'], 0, 'RGB|R:G:B', 'Set brightness using sRGB' + dn)
-parser.add_argumented(['+b', '++brightness'], 0, 'Y', 'Set brightness using CIE xyY' + dn)
-parser.add_argumented(['-t', '--temperature'], 0, 'TEMP', 'Set colour temperature' + dn)
-parser.add_argumented(['+t', '++temperature'], 0, 'TEMP', 'Set colour temperature using CIE xyY' + dn)
-parser.add_argumented(['-l', '--location'], 0, 'LAT:LON', 'Select your GPS location\n'
-                                                          'Measured in degrees, negative for south or west')
-parser.add_argumentless(['-r', '--reset'], 0, 'Reset to default settings')
-parser.add_argumented(['-o', '--output', '--crtc'], 0, 'CRTCS',
-                      'Select CRTC to apply changes to\nComma separated or multiple options\n'
-                      'It is best to start one instance per monitor with colour calibration')
-parser.add_argumentless(['-h', '-?', '--help'], 0, 'Print this help information')
-parser.add_argumentless(['-C', '--copying', '--copyright'], 0, 'Print copyright information')
-parser.add_argumentless(['-W', '--warranty'], 0, 'Print non-warranty information')
-parser.add_argumentless(['-v', '--version'], 0, 'Print program name and version')
-
-# Parse options
-parser.parse()
-parser.support_alternatives()
-
-# Check for no-action options
-if parser.opts['--help'] is not None:
-    parser.help()
-    sys.exit(0)
-elif parser.opts['--copyright'] is not None:
-    print(copyright[1 : -1])
-    sys.exit(0)
-elif parser.opts['--warranty'] is not None:
-    print('This program is distributed in the hope that it will be useful,')
-    print('but WITHOUT ANY WARRANTY; without even the implied warranty of')
-    print('MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the')
-    print('GNU Affero General Public License for more details.')
-    sys.exit(0)
-elif parser.opts['--version'] is not None:
-    print('%s %s' % (PROGRAM_NAME, PROGRAM_VERSION))
-    sys.exit(0)
+    # Check for no-action options
+    if parser.opts['--help'] is not None:
+        parser.help()
+        sys.exit(0)
+    elif parser.opts['--copyright'] is not None:
+        print(copyright[1 : -1])
+        sys.exit(0)
+    elif parser.opts['--warranty'] is not None:
+        print('This program is distributed in the hope that it will be useful,')
+        print('but WITHOUT ANY WARRANTY; without even the implied warranty of')
+        print('MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the')
+        print('GNU Affero General Public License for more details.')
+        sys.exit(0)
+    elif parser.opts['--version'] is not None:
+        print('%s %s' % (PROGRAM_NAME, PROGRAM_VERSION))
+        sys.exit(0)
+else:
+    # Argparser was not available
+    class FauxParser:
+        '''
+        Just a pretend-instance of an argparser parser
+        '''
+        def __init__(self):
+            '''
+            Constructor
+            '''
+            self.opts = {}
+            self.files = []
+            for o in ('--configurations', '--panicgate', '--reset', '--location', '--gamma',
+                      '--brightness', '++brightness', '--temperature', '++temperature', '--output'):
+                self.opts[o] = None
+    parser = FauxParser()
 
 # Get used options
 a = lambda opt : opt[0] if opt is not None else None
