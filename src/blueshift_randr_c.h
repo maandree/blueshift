@@ -62,9 +62,10 @@ typedef struct blueshift_randr_crtc
  * Start stage of colour curve control
  * 
  * @param   use_screen  The screen to use
+ * @param   display     The display to use, `NULL` for the current one
  * @return              Zero on success
  */
-int blueshift_randr_open(int use_screen);
+int blueshift_randr_open(int use_screen, char* display);
 
 /**
  * Gets the current colour curves

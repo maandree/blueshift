@@ -19,7 +19,7 @@ cimport cython
 from libc.stdlib cimport malloc, free
 
 
-cdef extern int blueshift_randr_open(int use_screen)
+cdef extern int blueshift_randr_open(int use_screen, char* display)
 cdef extern unsigned short int* blueshift_randr_read(int use_crtc)
 cdef extern int blueshift_randr_apply(unsigned long long int use_crtcs,
                                       unsigned short int* r_curve,
@@ -40,14 +40,18 @@ if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
 
 
 
-def randr_open(int use_screen):
+def randr_open(int use_screen, display):
     '''
     Start stage of colour curve control
     
-    @param   use_screen  The screen to use
-    @return              Zero on success
+    @param   use_screen    The screen to use
+    @param   display:str?  The display to use, `None` for the current
+    @return  :int          Zero on success
     '''
-    return blueshift_randr_open(use_screen)
+    cdef char* display_ = NULL
+    if display is not None:
+        display_ = display
+    return blueshift_randr_open(use_screen, display_)
 
 
 def randr_read(int use_crtc):

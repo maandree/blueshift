@@ -31,9 +31,10 @@
  * Start stage of colour curve control
  * 
  * @param   use_screen  The screen to use
+ * @param   display     The display to use, `NULL` for the current one
  * @return              Zero on error, otherwise the size of colours curves
  */
-int blueshift_vidmode_open(int use_screen);
+int blueshift_vidmode_open(int use_screen, char* display);
 
 /**
  * Gets the current colour curves

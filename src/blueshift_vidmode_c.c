@@ -20,7 +20,7 @@
 /**
  * The X server display
  */
-static Display* display;
+static Display* connection;
 
 /**
  * The X screen
@@ -38,16 +38,17 @@ static int curve_size;
  * Start stage of colour curve control
  * 
  * @param   use_screen  The screen to use
+ * @param   display     The display to use, `NULL` for the current one
  * @return              Zero on error, otherwise the size of colours curves
  */
-int blueshift_vidmode_open(int use_screen)
+int blueshift_vidmode_open(int use_screen, char* display)
 {
   int _major, _minor;
   
   
   /* Get X display */
   
-  if ((display = XOpenDisplay(NULL)) == NULL)
+  if ((connection = XOpenDisplay(display)) == NULL)
     {
       fprintf(stderr, "Cannot open X display\n");
       return 0;
@@ -56,10 +57,10 @@ int blueshift_vidmode_open(int use_screen)
   
   /* Check for VidMode extension */
   
-  if (XF86VidModeQueryVersion(display, &_major, &_minor) == 0)
+  if (XF86VidModeQueryVersion(connection, &_major, &_minor) == 0)
     {
       fprintf(stderr, "VidMode version query failed\n");
-      XCloseDisplay(display);
+      XCloseDisplay(connection);
       return 0;
     }
   
@@ -67,17 +68,17 @@ int blueshift_vidmode_open(int use_screen)
   /* Get curve's size on the encoding axis */
   
   screen = use_screen;
-  if (XF86VidModeGetGammaRampSize(display, screen, &curve_size) == 0)
+  if (XF86VidModeGetGammaRampSize(connection, screen, &curve_size) == 0)
     {
       fprintf(stderr, "VidMode gamma size query failed\n");
-      XCloseDisplay(display);
+      XCloseDisplay(connection);
       return 0;
     }
   
   if (curve_size <= 1)
     {
       fprintf(stderr, "VidMode gamma size query failed, impossible dimension\n");
-      XCloseDisplay(display);
+      XCloseDisplay(connection);
       return 0;
     }
   
@@ -100,10 +101,10 @@ int blueshift_vidmode_read(int use_crtc, uint16_t* r_gamma, uint16_t* g_gamma, u
   
   /* Read curves */
   
-  if (XF86VidModeGetGammaRamp(display, screen, curve_size, r_gamma, g_gamma, b_gamma) == 0)
+  if (XF86VidModeGetGammaRamp(connection, screen, curve_size, r_gamma, g_gamma, b_gamma) == 0)
     {
       fprintf(stderr, "VidMode gamma query failed\n");
-      XCloseDisplay(display);
+      XCloseDisplay(connection);
       return 1;
     }
   
@@ -126,7 +127,7 @@ int blueshift_vidmode_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_c
   
   /* Apply curves */
   
-  if (XF86VidModeSetGammaRamp(display, screen, curve_size, r_curve, g_curve, b_curve) == 0)
+  if (XF86VidModeSetGammaRamp(connection, screen, curve_size, r_curve, g_curve, b_curve) == 0)
     {
       fprintf(stderr, "VidMode gamma control failed\n");
       return 1;
@@ -143,6 +144,6 @@ void blueshift_vidmode_close(void)
 {
   /* Free remaining resources */
   
-  XCloseDisplay(display);
+  XCloseDisplay(connection);
 }
 

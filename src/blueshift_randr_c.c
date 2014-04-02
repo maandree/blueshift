@@ -48,9 +48,10 @@ static blueshift_randr_crtc_t* crtcs_end;
  * Start stage of colour curve control
  * 
  * @param   use_screen  The screen to use
+ * @param   display     The display to use, `NULL` for the current one
  * @return              Zero on success
  */
-int blueshift_randr_open(int use_screen)
+int blueshift_randr_open(int use_screen, char* display)
 {
   blueshift_randr_crtc_t* crtcs_;
   
@@ -69,7 +70,7 @@ int blueshift_randr_open(int use_screen)
   
   /* Get X connection */
   
-  connection = xcb_connect(NULL, NULL);
+  connection = xcb_connect(display, NULL);
   
   
   /* Check RandR protocol version */

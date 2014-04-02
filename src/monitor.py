@@ -48,12 +48,12 @@ except:
 
 randr_opened = None
 '''
-:int?  The index of the, with RandR, opened X screen, if any
+:(int, str)?  The index of the, with RandR, opened X screen and X display, if any
 '''
 
 vidmode_opened = None
 '''
-:int?  The index of the, with vidmode, opened X screen, if any
+:(int, str)?  The index of the, with vidmode, opened X screen and X display, if any
 '''
 
 
@@ -76,61 +76,64 @@ def close_c_bindings():
     drm_manager.close()
 
 
-def randr_get(crtc = 0, screen = 0):
+def randr_get(crtc = 0, screen = 0, display = None):
     '''
     Gets the current colour curves using the X11 extension RandR
     
-    @param   crtc:int    The CRTC of the monitor to read from
-    @param   screen:int  The screen that the monitor belong to
-    @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
+    @param   crtc:int      The CRTC of the monitor to read from
+    @param   screen:int    The screen to which the monitors belong
+    @param   display:str?  The display to which to connect, `None` for current display
+    @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
     from blueshift_randr import randr_open, randr_read, randr_close
     global randr_opened
-    # Open new RandR connection if non is open or one is open to the wrong screen
-    if (randr_opened is None) or not (randr_opened == screen):
-        # Close RandR connection, if any, because its is connected to the wrong screen
+    # Open new RandR connection if non is open or one is open to the wrong screen or display
+    if (randr_opened is None) or not (randr_opened == (screen, display)):
+        # Close RandR connection, if any, because its is connected to the wrong screen or display
         if randr_opened is not None:
             randr_close()
         # Open RandR connection
-        if randr_open(screen) == 0:
-            randr_opened = screen
+        if randr_open(screen, display) == 0:
+            randr_opened = (screen, display)
         else:
             raise Exception('Cannot open RandR connection')
     # Read current curves and create function
     return ramps_to_function(*(randr_read(crtc)))
 
 
-def vidmode_get(crtc = 0, screen = 0):
+def vidmode_get(crtc = 0, screen = 0, display = None):
     '''
     Gets the current colour curves using the X11 extension VidMode
     
-    @param   crtc:int    The CRTC of the monitor to read from
-    @param   screen:int  The screen that the monitor belong to
-    @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
+    @param   crtc:int      The CRTC of the monitor to read from
+    @param   screen:int    The screen to which the monitors belong
+    @param   display:str?  The display to which to connect, `None` for current display
+    @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
     from blueshift_vidmode import vidmode_open, vidmode_read, vidmode_close
     global vidmode_opened
-    # Open new vidmode connection if non is open or one is open to the wrong screen
-    if (vidmode_opened is None) or not (vidmode_opened == screen):
-        # Close vidmode connection, if any, because its is connected to the wrong screen
+    # Open new vidmode connection if non is open or one is open to the wrong screen or display
+    if (vidmode_opened is None) or not (vidmode_opened == (screen, display)):
+        # Close vidmode connection, if any, because its is connected to the wrong screen or display
         if vidmode_opened is not None:
             vidmode_close()
         # Open vidmode connection
-        if vidmode_open(screen):
-            vidmode_opened = screen
+        if vidmode_open(screen, display):
+            vidmode_opened = (screen, display)
         else:
             raise Exception('Cannot open vidmode connection')
     # Read current curves and create function
     return ramps_to_function(*(vidmode_read(crtc)))
 
 
-def drm_get(crtc = 0, screen = 0):
+def drm_get(crtc = 0, screen = 0, display = None):
     '''
     Gets the current colour curves using DRM
     
-    @param   crtc:int    The CRTC of the monitor to read from
-    @param   screen:int  The graphics card that the monitor belong to, named `screen` for compatibility with randr_get and vidmode_get
-    @return  :()→void    Function to invoke to apply the curves that was used when this function was invoked
+    @param   crtc:int      The CRTC of the monitor to read from
+    @param   screen:int    The graphics card to which the monitors belong, named `screen` for compatibility with `randr_get` and `vidmode_get`
+    @param   display:str?  Dummy parameter for compatibility with `randr_get` and `vidmode_get`
+    @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
     # Get DRM connection, open if necessary
     connection = drm_manager.open_card(screen)
@@ -138,12 +141,13 @@ def drm_get(crtc = 0, screen = 0):
     return ramps_to_function(*(drm_get_gamma_ramps(connection, crtc, i_size)))
 
 
-def randr(*crtcs, screen = 0):
+def randr(*crtcs, screen = 0, display = None):
     '''
     Applies colour curves using the X11 extension RandR
     
-    @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
-    @param  screen:int  The screen that the monitors belong to
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    The screen to which the monitors belong
+    @param  display:str?  The display to which to connect, `None` for current display
     '''
     from blueshift_randr import randr_open, randr_apply, randr_close
     global randr_opened
@@ -152,14 +156,14 @@ def randr(*crtcs, screen = 0):
     
     # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
-    # Open new RandR connection if non is open or one is open to the wrong screen
-    if (randr_opened is None) or not (randr_opened == screen):
-        # Close RandR connection, if any, because its is connected to the wrong screen
+    # Open new RandR connection if non is open or one is open to the wrong screen or display
+    if (randr_opened is None) or not (randr_opened == (screen, display)):
+        # Close RandR connection, if any, because its is connected to the wrong screen or display
         if randr_opened is not None:
             randr_close()
         # Open RandR connection
-        if randr_open(screen) == 0:
-            randr_opened = screen
+        if randr_open(screen, display) == 0:
+            randr_opened = (screen, display)
         else:
             raise Exception('Cannot open RandR connection')
     try:
@@ -170,12 +174,13 @@ def randr(*crtcs, screen = 0):
         pass # Happens on exit by TERM signal
 
 
-def vidmode(*crtcs, screen = 0):
+def vidmode(*crtcs, screen = 0, display = None):
     '''
     Applies colour curves using the X11 extension VidMode
     
-    @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
-    @param  screen:int  The screen that the monitors belong to
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    The screen to which the monitors belong
+    @param  display:str?  The display to which to connect, `None` for current display
     '''
     from blueshift_vidmode import vidmode_open, vidmode_apply, vidmode_close
     global vidmode_opened
@@ -184,14 +189,14 @@ def vidmode(*crtcs, screen = 0):
     
     # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
-    # Open new vidmode connection if non is open or one is open to the wrong screen
-    if (vidmode_opened is None) or not (vidmode_opened == screen):
-        # Close vidmode connection, if any, because its is connected to the wrong screen
+    # Open new vidmode connection if non is open or one is open to the wrong screen or display
+    if (vidmode_opened is None) or not (vidmode_opened == (screen, display)):
+        # Close vidmode connection, if any, because its is connected to the wrong screen or display
         if vidmode_opened is not None:
             vidmode_close()
         # Open vidmode connection
-        if vidmode_open(screen):
-            vidmode_opened = screen
+        if vidmode_open(screen, display):
+            vidmode_opened = (screen, display)
         else:
             raise Exception('Cannot open vidmode connection')
     try:
@@ -202,12 +207,14 @@ def vidmode(*crtcs, screen = 0):
         pass # Happens on exit by TERM signal
 
 
-def drm(*crtcs, screen = 0):
+def drm(*crtcs, screen = 0, display = None):
     '''
     Applies colour curves using DRM
     
-    @param  crtcs:*int  The CRT controllers to use, all are used if none are specified
-    @param  screen:int  The card that the monitors belong to, named `screen` for compatibility with randr_get and vidmode_get
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    The graphics card to which the monitors belong,
+                          named `screen` for compatibility with `randr` and `vidmode`
+    @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
     '''
     # Get DRM connection, open if necessary
     connection = drm_manager.open_card(screen)

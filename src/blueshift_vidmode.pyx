@@ -19,7 +19,7 @@ cimport cython
 from libc.stdlib cimport malloc, free
 
 
-cdef extern int blueshift_vidmode_open(int use_screen)
+cdef extern int blueshift_vidmode_open(int use_screen, char* display)
 cdef extern int blueshift_vidmode_read(int use_crtc,
                                        unsigned short int* r_curve,
                                        unsigned short int* g_curve,
@@ -46,15 +46,19 @@ if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
 
 
 
-def vidmode_open(int use_screen):
+def vidmode_open(int use_screen, display):
     '''
     Start stage of colour curve control
     
-    @param   use_screen  The screen to use
-    @return  :bool       Whether call was successful
+    @param   use_screen    The screen to use
+    @param   display:str?  The display to use, `None` for the current
+    @return  :bool         Whether call was successful
     '''
     global vidmode_gamma_size
-    vidmode_gamma_size = blueshift_vidmode_open(use_screen)
+    cdef char* display_ = NULL
+    if display is not None:
+        display_ = display
+    vidmode_gamma_size = blueshift_vidmode_open(use_screen, display_)
     return vidmode_gamma_size > 1
 
 
