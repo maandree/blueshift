@@ -15,6 +15,7 @@ Low priority:
 	Add support for temporarily closing DRM connection so that multiple users can run in DRM
 
 Future stuff:
+	How is it looking on the DirectFB front?
 	Add wayland support (could not find an API for it, but xwayland works)
 	Add mir support
 	Add haiku support (haiku currently does not support gamma ramps)
