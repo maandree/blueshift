@@ -294,8 +294,8 @@ int main(int argc, char** argv)
 		    atom_name_len = xcb_get_atom_name_name_length(atom_name_reply);
 		    
 		    /* NUL-terminate the atom name. */
-		    atom_name = alloca((atom_name_len + 1) * sizeof(char));
-		    memcpy(atom_name, atom_name_, atom_name_len * sizeof(char));
+		    atom_name = alloca(((size_t)atom_name_len + 1U) * sizeof(char));
+		    memcpy(atom_name, atom_name_, (size_t)atom_name_len * sizeof(char));
 		    *(atom_name + atom_name_len) = 0;
 		    /* (It is allocated on the stack, so it should not be free:d.) */
 		    
@@ -340,7 +340,7 @@ int main(int argc, char** argv)
 			length = xcb_randr_get_output_property_data_length(atom_reply);
 			
 			/* Convert to hexadecimal representation. */
-			atom_data = alloca((2 * length + 1) * sizeof(char));
+			atom_data = alloca((2U * (size_t)length + 1U) * sizeof(char));
 			for (i = 0; i < length; i++)
 			  {
 			    *(atom_data + i * 2 + 0) = "0123456789abcdef"[(*(atom_data_ + i) >> 4) & 15];

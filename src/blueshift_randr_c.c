@@ -206,7 +206,7 @@ uint16_t* blueshift_randr_read(int use_crtc)
   G_gamma = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
   B_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
   
-  r_gamma = malloc((3 + R_size + G_size + B_size) * sizeof(uint16_t));
+  r_gamma = malloc((3U + (size_t)R_size + (size_t)G_size + (size_t)B_size) * sizeof(uint16_t));
   g_gamma = r_gamma + R_size + 1;
   b_gamma = g_gamma + G_size + 1;
   if (r_gamma == NULL)

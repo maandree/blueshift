@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 	  xcb_get_atom_name_reply_t* name_reply;
 	  char* name;
 	  char* name_;
-	  int len;
+	  size_t len;
 	  xcb_get_property_cookie_t prop_cookie;
 	  xcb_get_property_reply_t* prop_reply;
 	  int monitor;
@@ -150,10 +150,11 @@ int main(int argc, char** argv)
 	  /* Extract the atom name from the data structure that holds it. */
 	  name_ = xcb_get_atom_name_name(name_reply);
 	  /* As well as the length of the name; it is not NUL-termianted.*/
-	  len = xcb_get_atom_name_name_length(name_reply);
+	  len = (size_t)xcb_get_atom_name_name_length(name_reply);
 	  
 	  /* NUL-terminate the atom name, */
-	  name = alloca((len + 1) * sizeof(char)); /* It is allocated on the stack, so it should not be free:d */
+	  name = alloca((len + 1U) * sizeof(char));
+	  /* (it is allocated on the stack, so it should not be free:d) */
 	  memcpy(name, name_, len * sizeof(char));
 	  *(name + len) = 0;
 	  /* and free the version that is not NUL-terminated. */
@@ -250,7 +251,7 @@ int main(int argc, char** argv)
 	    char* value = alloca((2 * len + 1) * sizeof(char));
 	    /* Get the property's value. */
 	    char* value_ = xcb_get_property_value(prop_reply);
-	    int i;
+	    size_t i;
 	    
 	    /* Recode */
 	    for (i = 0; i < len; i++)

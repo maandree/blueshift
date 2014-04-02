@@ -25,12 +25,12 @@ static card_connection* card_connections = NULL;
 /**
  * Next card connection identifiers
  */
-static long card_connection_ptr = 0;
+static size_t card_connection_ptr = 0;
 
 /**
  * Size of the storage allocated for card connection resouces
  */
-static long card_connection_size = 0;
+static size_t card_connection_size = 0;
 
 /**
  * Card connection identifier reuse stack
@@ -40,12 +40,12 @@ static long* card_connection_reusables = NULL;
 /**
  * The head of `card_connection_reusables`
  */
-static long card_connection_reuse_ptr = 0;
+static size_t card_connection_reuse_ptr = 0;
 
 /**
  * The allocation size of `card_connection_reusables`
  */
-static long card_connection_reuse_size = 0;
+static size_t card_connection_reuse_size = 0;
 
 
 
@@ -162,7 +162,7 @@ void blueshift_drm_close_card(int connection)
     free(card->connectors);
   close(card->fd);
   
-  if (connection + 1 == card_connection_reuse_ptr)
+  if ((size_t)connection + 1U == card_connection_reuse_ptr)
     card_connection_reuse_ptr--;
   else
     {
@@ -233,11 +233,11 @@ int blueshift_drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size
   card_connection* card = card_connections + connection;
   
   /* We need to initialise it to avoid valgrind warnings */
-  memset(red,   0, gamma_size * sizeof(uint16_t));
-  memset(green, 0, gamma_size * sizeof(uint16_t));
-  memset(blue,  0, gamma_size * sizeof(uint16_t));
+  memset(red,   0, (size_t)gamma_size * sizeof(uint16_t));
+  memset(green, 0, (size_t)gamma_size * sizeof(uint16_t));
+  memset(blue,  0, (size_t)gamma_size * sizeof(uint16_t));
   
-  return drmModeCrtcGetGamma(card->fd, *(card->res->crtcs + crtc_index), gamma_size, red, green, blue);
+  return drmModeCrtcGetGamma(card->fd, *(card->res->crtcs + crtc_index), (uint32_t)gamma_size, red, green, blue);
 }
 
 
@@ -257,7 +257,7 @@ int blueshift_drm_set_gamma_ramps(int connection, int crtc_index, int gamma_size
   card_connection* card = card_connections + connection;
   
   /* Fails if inside a graphical environment */
-  return drmModeCrtcSetGamma(card->fd, *(card->res->crtcs + crtc_index), gamma_size, red, green, blue);
+  return drmModeCrtcSetGamma(card->fd, *(card->res->crtcs + crtc_index), (uint32_t)gamma_size, red, green, blue);
 }
 
 
@@ -272,7 +272,7 @@ void blueshift_drm_open_connector(int connection, int connector_index)
   card_connection* card = card_connections + connection;
   
   if (card->connectors == NULL)
-    card->connectors = malloc(card->res->count_connectors * sizeof(drmModeConnector*));
+    card->connectors = malloc((size_t)(card->res->count_connectors) * sizeof(drmModeConnector*));
   *(card->connectors + connector_index) = drmModeGetConnector(card->fd, *(card->res->connectors + connector_index));
 }
 
@@ -299,7 +299,7 @@ void blueshift_drm_close_connector(int connection, int connector_index)
 int blueshift_drm_get_width(int connection, int connector_index)
 {
   /* Accurate dimension on area not covered by the edges */
-  return (card_connections + connection)->connectors[connector_index]->mmWidth;
+  return (int)((card_connections + connection)->connectors[connector_index]->mmWidth);
 }
 
 
@@ -313,7 +313,7 @@ int blueshift_drm_get_width(int connection, int connector_index)
 int blueshift_drm_get_height(int connection, int connector_index)
 {
   /* Accurate dimension on area not covered by the edges */
-  return (card_connections + connection)->connectors[connector_index]->mmHeight;
+  return (int)((card_connections + connection)->connectors[connector_index]->mmHeight);
 }
 
 
@@ -375,7 +375,7 @@ int blueshift_drm_get_crtc(int connection, int connector_index)
  */
 int blueshift_drm_get_connector_type_index(int connection, int connector_index)
 {
-  return (card_connections + connection)->connectors[connector_index]->connector_type;
+  return (int)((card_connections + connection)->connectors[connector_index]->connector_type);
 }
 
 
@@ -393,7 +393,7 @@ const char* blueshift_drm_get_connector_type_name(int connection, int connector_
     "Unknown", "VGA", "DVII", "DVID", "DVIA", "Composite", "SVIDEO", "LVDS", "Component",
     "9PinDIN", "DisplayPort", "HDMIA", "HDMIB", "TV", "eDP", "VIRTUAL", "DSI"};
   
-  int type = ((card_connections + connection)->connectors[connector_index])->connector_type;
+  uint32_t type = ((card_connections + connection)->connectors[connector_index])->connector_type;
   return (size_t)type < sizeof(TYPE_NAMES) / sizeof(char*) ? TYPE_NAMES[type] : "Unrecognised";
 }
 
@@ -437,7 +437,10 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
 		}
 	    }
 	  else
-	    memcpy(edid, blob->data, (blob->length < size ? blob->length : size) * sizeof(char));
+	    {
+	      uint32_t len = blob->length < size ? blob->length : size;
+	      memcpy(edid, blob->data, (size_t)len * sizeof(char));
+	    }
 	  drmModeFreePropertyBlob(blob);
 	  prop_i = connector->count_props; /* stop to for loop */
 	}

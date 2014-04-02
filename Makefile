@@ -55,8 +55,7 @@ WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissi
        -Wvector-operation-performance -Wstack-protector -Wunsuffixed-float-constants -Wcast-align \
        -Wsync-nand -Wunsafe-loop-optimizations
 # Warnings violated by Cython and therefore only use for C and not Cython
-CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual
-#    -Wsign-conversion -Wpadded (TODO)
+CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion
 # The C standard for C code compilation
 STD = c99
 LIBS_idcrtc = xcb-randr
