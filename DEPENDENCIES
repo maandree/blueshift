@@ -2,7 +2,7 @@ RUNTIME DEPENDENCIES:
 
 	python3
 
-	argparser-python
+	argparser-python (required but can function partially if missing)
 	
 	libxcb (opt-out)
 	    For RandR support and CRTC listing and ICC profile listing under X
