@@ -172,7 +172,7 @@ int main(int argc, char** argv)
         {
 	  xcb_randr_get_output_info_cookie_t out_cookie;
 	  xcb_randr_get_output_info_reply_t* out_reply;
-	  char* name_;
+	  uint8_t* name;
 	  int name_len;
 	  
 	  /* Acquire information abou the output. */
