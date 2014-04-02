@@ -136,11 +136,11 @@ def cmf_xdeg(temperature, lut, temp_min = 1000, temp_max = 40000, temp_step = 10
         # x component floor and y component floor
         floor   = lut[int(temp // temp_step)]
         # x component ceiling and y component ceiling
-        celiing = lut[int(temp // temp_step + 1)]
+        ceiling = lut[int(temp // temp_step + 1)]
         # Weight
         temp = (temp % temp_step) / temp_step
         # Interpolation
-        (x, y) = [c1 * (1 - temp) + c2 * temp for c1, c2 in zip(floor, ceilng)]
+        (x, y) = [c1 * (1 - temp) + c2 * temp for c1, c2 in zip(floor, ceiling)]
     # Convert to sRGB
     return ciexyy_to_srgb(x, y, 1.0)
 
