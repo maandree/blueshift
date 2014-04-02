@@ -54,8 +54,9 @@ WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissi
        -Wbad-function-cast -Wwrite-strings -Wlogical-op -Wstrict-prototypes -Wold-style-definition \
        -Wvector-operation-performance -Wstack-protector -Wunsuffixed-float-constants -Wcast-align \
        -Wsync-nand -Wunsafe-loop-optimizations
-# Warnings violated by Cython and therefore excluded: (TODO)
-#    -Wshadow -Wredundant-decls -Winline -Wsign-conversion -Wcast-qual -Wpadded
+# Warnings violated by Cython and therefore only use for C and not Cython
+CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual
+#    -Wsign-conversion -Wpadded (TODO)
 # The C standard for C code compilation
 STD = c99
 LIBS_idcrtc = xcb-randr
@@ -113,11 +114,11 @@ bin/%.so: obj/%.o obj/%_c.o
 
 obj/%.o: src/%.c
 	@mkdir -p obj
-	$(CC) $(FLAGS) -c -o $@ $<
+	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
 
 obj/%_c.o: src/%_c.c src/%_c.h
 	@mkdir -p obj
-	$(CC) $(FLAGS) -c -o $@ $<
+	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
 
 obj/%.o: obj/%.c
 	@mkdir -p obj
