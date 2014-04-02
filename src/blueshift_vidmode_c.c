@@ -64,7 +64,7 @@ int blueshift_vidmode_open(int use_screen)
     }
   
   
-  /* Get curve X-axis size */
+  /* Get curve's size on the encoding axis */
   
   screen = use_screen;
   if (XF86VidModeGetGammaRampSize(display, screen, &curve_size) == 0)
