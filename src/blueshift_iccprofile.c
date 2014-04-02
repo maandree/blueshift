@@ -77,7 +77,7 @@ int main(int argc, char** argv)
   
   /* Get screen information */
   
-  /* Acquire a list of all screens in the displaym */
+  /* Acquire a list of all screens in the display, */
   iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
   /* count the list, */
   screen_count = iter.rem;
