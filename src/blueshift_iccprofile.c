@@ -45,13 +45,11 @@ static xcb_generic_error_t* error;
  */
 int main(int argc, char** argv)
 {
+  char* display = NULL;
   xcb_screen_iterator_t iter;
   int screen_count;
   xcb_screen_t* screens;
   int screen_i;
-  
-  (void) argc;
-  (void) argv;
   
   
   /* To get all ICC profiles, which are binary encoded, we have
@@ -71,8 +69,12 @@ int main(int argc, char** argv)
   
   /* This acquires a connection to the
      X display indicated by the DISPLAY
-     environ variable. */
-  connection = xcb_connect(NULL, NULL);
+     environ variable, or as indicated 
+     by the first command line argument
+     if existent. */
+  if (argc > 1)
+    display = *(argv + 1);
+  connection = xcb_connect(display, NULL);
   
   
   /* Get screen information */

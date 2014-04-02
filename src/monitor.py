@@ -500,27 +500,33 @@ class Output:
         return '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
 
 
-def list_screens(method = 'randr'):
+def list_screens(method = 'randr', display = None):
     '''
     Retrieve informantion about all screens, outputs and CRTC:s
     
-    @param   method:str  The listing method: 'randr' for RandR (under X),
+    @param   method:str    The listing method: 'randr' for RandR (under X),
                                              'drm' for DRM (under TTY)
-    @return  :Screens    An instance of a datastructure with the relevant information
+    @param   display:str?  The display to use, `None` for the current one
+    @return  :Screens      An instance of a datastructure with the relevant information
     '''
-    if method == 'randr':  return list_screens_randr()
+    if method == 'randr':  return list_screens_randr(display = display)
     if method == 'drm':    return list_screens_drm()
     raise Exception('Invalid method: %s' % method)
 
 
-def list_screens_randr():
+def list_screens_randr(display = None):
     '''
     Retrieve informantion about all screens, outputs and CRTC:s, using RandR
     
-    @return  :Screens  An instance of a datastructure with the relevant information
+    @param   display:str?  The display to use, `None` for the current one
+    @return  :Screens      An instance of a datastructure with the relevant information
     '''
-    # Spawn the executeable library blueshift_idcrtc
-    process = Popen([LIBEXECDIR + os.sep + 'blueshift_idcrtc'], stdout = PIPE)
+    # Generate command line arguments to execute
+    command = [LIBEXECDIR + os.sep + 'blueshift_idcrtc']
+    if display is not None:
+        command.append(display)
+    # Spawn the executable library blueshift_idcrtc
+    process = Popen(command, stdout = PIPE)
     # Wait for the child process to exit and gather its output to stdout
     lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
     # Ensure that the child process has exited

@@ -58,6 +58,7 @@ static xcb_generic_error_t* error;
  */
 int main(int argc, char** argv)
 {
+  char* display = NULL;
   xcb_randr_query_version_cookie_t version_cookie;
   xcb_randr_query_version_reply_t* randr_version;
   xcb_screen_iterator_t iter;
@@ -66,16 +67,17 @@ int main(int argc, char** argv)
   int screen_i;
   int i;
   
-  (void) argc;
-  (void) argv;
-  
   
   /* Get X connection */
   
   /* This acquires a connection to the
      X display indicated by the DISPLAY
-     environ variable. */
-  connection = xcb_connect(NULL, NULL);
+     environ variable, or as indicated 
+     by the first command line argument
+     if existent. */
+  if (argc > 1)
+    display = *(argv + 1);
+  connection = xcb_connect(display, NULL);
   
   
   /* Check RandR protocol version */

@@ -42,23 +42,29 @@ def load_icc(pathname):
         return parse_icc(file.read())
 
 
-def get_current_icc():
+def get_current_icc(display = None):
     '''
     Get all currently applied ICC profiles as profile applying functions
     
+    @param   display:str?                                      The display to use, `None` for the current one
     @return  list<(screen:int, monitor:int, profile:()→void)>  List of used profiles
     '''
-    return [(screen, monitor, parse_icc(profile)) for screen, monitor, profile in get_current_icc_raw()]
+    return [(screen, monitor, parse_icc(profile)) for screen, monitor, profile in get_current_icc_raw(display)]
 
 
-def get_current_icc_raw():
+def get_current_icc_raw(display = None):
     '''
     Get all currently applied ICC profiles as raw profile data
     
+    @param   display:str?                                      The display to use, `None` for the current one
     @return  list<(screen:int, monitor:int, profile:bytes())>  List of used profiles
     '''
+    # Generate command line arguments to execute
+    command = [LIBEXECDIR + os.sep + 'blueshift_iccprofile']
+    if display is not None:
+        command.append(display)
     # Spawn the libexec blueshift_iccprofile
-    process = Popen([LIBEXECDIR + os.sep + 'blueshift_iccprofile'], stdout = PIPE)
+    process = Popen(command, stdout = PIPE)
     # Wait for the child process to exit and gather its output to stdout
     lines = process.communicate()[0].decode('utf-8', 'error').split('\n')
     # Ensure the tha process has exited
