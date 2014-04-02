@@ -56,7 +56,6 @@ int blueshift_randr_open(int use_screen)
   
   xcb_randr_query_version_cookie_t version_cookie;
   xcb_randr_query_version_reply_t* randr_version;
-  const xcb_setup_t* setup;
   xcb_screen_iterator_t iter;
   xcb_screen_t* screen;
   xcb_randr_get_screen_resources_current_cookie_t res_cookie;
@@ -70,7 +69,7 @@ int blueshift_randr_open(int use_screen)
   
   /* Get X connection */
   
-  connection = xcb_connect(NULL, &use_screen);
+  connection = xcb_connect(NULL, NULL);
   
   
   /* Check RandR protocol version */
@@ -100,9 +99,8 @@ int blueshift_randr_open(int use_screen)
   
   /* Get X resources */
   
-  setup = xcb_get_setup(connection);
-  iter = xcb_setup_roots_iterator(setup);
-  screen = iter.data;
+  iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
+  screen = iter.data + use_screen;
   
   res_cookie = xcb_randr_get_screen_resources_current(connection, screen->root);
   res_reply = xcb_randr_get_screen_resources_current_reply(connection, res_cookie, &error);
