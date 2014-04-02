@@ -7,7 +7,7 @@ High priority:
 Medium priority:
 	Add a section in manual for information on which order
 	  to apply settings and how it affects the result.
-	Import multi-screen and multi-display support so that new
+	Improve multi-screen and multi-display support so that new
 	  connections are not need all the time.
 
 Low priority:
