@@ -269,29 +269,40 @@ int main(int argc, char** argv)
 		    char* atom_name_;
 		    int atom_name_len;
 		    
+		    /* Acuire the atom name. */
 		    atom_name_cookie = xcb_get_atom_name(connection, *atoms);
 		    atom_name_reply = xcb_get_atom_name_reply(connection, atom_name_cookie, &error);
 		    
 		    if (error)
 		      {
+			/* On error print an error message, */
 			fprintf(stderr, "RandR atom name query returned %i\n", error->error_code);
+			/* and release the property list, */
 			free(prop_reply);
+			/* the output information resources */
 			free(out_reply);
+			/* and the screen information resources. */
 			free(res_reply);
+			/* And then close the connection to the display. */
 			xcb_disconnect(connection);
 			return 1;
 		      }
 		    
+		    /* Extract the atom name from the data structure that holds it. */
 		    atom_name_ = xcb_get_atom_name_name(atom_name_reply);
+		    /* As well as the length of the name; it is not NUL-termianted.*/
 		    atom_name_len = xcb_get_atom_name_name_length(atom_name_reply);
 		    
+		    /* NUL-terminate the atom name. */
 		    atom_name = alloca((atom_name_len + 1) * sizeof(char));
 		    memcpy(atom_name, atom_name_, atom_name_len * sizeof(char));
 		    *(atom_name + atom_name_len) = 0;
+		    /* (It is allocated on the stack, so it should not be free:d.) */
 		    
 		    
 		    /* Get output identifier */
 		    
+		    /* Look for the the property named EDID. */
 		    if (!strcmp(atom_name, "EDID"))
 		      {
 			xcb_randr_get_output_property_cookie_t atom_cookie;
@@ -300,6 +311,7 @@ int main(int argc, char** argv)
 			unsigned char* atom_data_;
 			char* atom_data;
 			
+			/* Acquire the property's value, we know that it is 128 byte long. */
 			atom_cookie = xcb_randr_get_output_property(connection, outputs[output_i], *atoms,
 								    XCB_GET_PROPERTY_TYPE_ANY, 0, 128, 0, 0);
 			
@@ -307,28 +319,40 @@ int main(int argc, char** argv)
 			
 			if (error)
 			  {
+			    /* On error print an error message, */
 			    fprintf(stderr, "RandR atom data query returned %i\n", error->error_code);
+			    /* and release the property name, */
 			    free(atom_name_reply);
+			    /* release the property list, */
 			    free(prop_reply);
+			    /* the output information resources */
 			    free(out_reply);
+			    /* and the screen information resources. */
 			    free(res_reply);
+			    /* And then close the connection to the display. */
 			    xcb_disconnect(connection);
 			    return 1;
 			  }
 			
+			/* Extract the property's value, */
 			atom_data_ = xcb_randr_get_output_property_data(atom_reply);
+			/* and its actual length, it is still probably 128 byte, it should be that. */
 			length = xcb_randr_get_output_property_data_length(atom_reply);
 			
+			/* Convert to hexadecimal representation. */
 			atom_data = alloca((2 * length + 1) * sizeof(char));
 			for (i = 0; i < length; i++)
 			  {
 			    *(atom_data + i * 2 + 0) = "0123456789abcdef"[(*(atom_data_ + i) >> 4) & 15];
 			    *(atom_data + i * 2 + 1) = "0123456789abcdef"[(*(atom_data_ + i) >> 0) & 15];
 			  }
+			/* NUL-terminate. */
 			*(atom_data + 2 * length) = 0;
 			
+			/* Print the property's name and values. */
 			printf("    %s: %s\n", atom_name, atom_data);
 			
+			/* Free the proprty value. */
 			free(atom_reply);
 		      }
 		    
