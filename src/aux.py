@@ -110,7 +110,7 @@ def polynomially_interpolate_ramp(r, g, b): # TODO test, demo and document this
                     A[i] -= A[k] * m
             # Eliminiate upper right
             for k in reversed(range(n)):
-                A[:k] = [A[i] - A[k] * M[i][k] / M[k][k] for i in range(k]]
+                A[:k] = [A[i] - A[k] * M[i][k] / M[k][k] for i in range(k)]
             # Eliminiate diagonal
             A = [A[k] / M[k][k] for k in range(n)]
             ## Construct interpolation function
