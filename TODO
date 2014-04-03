@@ -19,7 +19,6 @@ Future stuff:
 	Test on the BSD:s
 	Test on Hurd
 	Add support for the BSD:s' TTY:s
-	Add support for Hurd TTY
 	Add reactos support (this way windows might get supported without my
 	  computer or soul being violated with proprietary software.)
 	Make an example that warns about UPS states
