@@ -17,7 +17,6 @@ Low priority:
 Future stuff:
 	How is it looking on the DirectFB front?
 	Test on the BSD:s
-	Test on Hurd
 	Add support for the BSD:s' TTY:s
 	Add reactos support (this way windows might get supported without my
 	  computer or soul being violated with proprietary software.)
