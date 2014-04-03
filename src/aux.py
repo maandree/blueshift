@@ -63,6 +63,7 @@ def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
     R, G, B = C(r), C(g), C(b)
     for small, large in curves(R, G, B):
         small_, large_ = len(small) - 1, len(large) - 1
+        # Only interpolate if scaling up
         if large_ > small_:
             for i in range(len(large)):
                 # Scaling
@@ -71,6 +72,81 @@ def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
                 j, w, k = int(j), j % 1, min(int(j) + 1, small_)
                 # Interpolation
                 large[i] = small[j] * (1 - w) + small[k] * w
+    return (R, G, B)
+
+
+def polynomially_interpolate_ramp(r, g, b): # TODO test, demo and document this
+    '''
+    Polynomially interpolate ramps to the size of the output axes.
+    
+    This function will replace parts of the result with linear interpolation
+    where local monotonicity have been broken. That is, there is a local
+    maximum or local minimum generated between two reference points, linear
+    interpolation will be used instead between those two points.
+    
+    @param   r:list<float>                                   The red colour curves
+    @param   g:list<float>                                   The green colour curves
+    @param   b:list<float>                                   The blue colour curves
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
+                                                             or their original size, whatever is larger.
+    '''
+    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
+    R, G, B, linear = C(r), C(g), C(b), None
+    for small, (ci, large) in curves(*(enumerate((R, G, B)))):
+        small_, large_ = len(small) - 1, len(large) - 1
+        # Only interpolate if scaling up
+        if large_ > small_:
+            n = len(small) + 1
+            ## Construct interpolation matrix
+            M = [[small[y] ** i for i in n] for y in range(n)]
+            A = [x / small_ for x in range(n)]
+            ## Eliminate interpolation matrix
+            # (XXX this can be done faster by utilising the fact that we have a Vandermonde matrix)
+            # Eliminiate lower left
+            for k in range(n - 1):
+                for i in range(k + 1, n):
+                    m = M[i][k] / M[k][k]
+                    M[i][k + 1:] -= [M[i][j] - M[k][j] * m for j in range(k + 1, n)]
+                    A[i] -= A[k] * m
+            # Eliminiate upper right
+            for k in reversed(range(n)):
+                A[:k] = [A[i] - A[k] * M[i][k] / M[k][k] for i in range(k]]
+            # Eliminiate diagonal
+            A = [A[k] / M[k][k] for k in range(n)]
+            ## Construct interpolation function
+            f = lambda x : sum(A[i] * x ** i for i in range(n))
+            ## Apply interpolation
+            large[:] = [f(x / large_) for x in range(len(large))]
+            
+            ## Check local monotonicity
+            for i in range(small_):
+                # Small curve
+                x1, x2, y1, y2 = i, i + 1, small[i], small[i + 1]
+                # Scaled up curve
+                X1, X2 = int(x1 * large_ / small_), int(x2 * large_ / small_)
+                Y1, Y2 = large[X1], large[X2]
+                monotone = True
+                if y2 == y1:
+                    # Flat part, just make sure it is flat in the interpolation
+                    # without doing a check before.
+                    for x in range(X1, X2 + 1):
+                        large[x] = y1
+                elif y2 > y1:
+                    # Increasing
+                    monotone = all(map(lambda x : large[x + 1] >= large[x], range(X1, X2))) and (Y2 > Y1)
+                elif y2 < y1:
+                    # Decreasing
+                    monotone = all(map(lambda x : large[x + 1] <= large[x], range(X1, X2))) and (Y2 < Y1)
+                # If the monotonicity has been broken,
+                if not passed:
+                    # replace the partition with linear interpolation.
+                    # If linear interpolation has not yet been calculated,
+                    if linear is None:
+                        # then calculate it.
+                        linear = linearly_interpolate_ramp(r, g, b)
+                    # Extract the linear interpolation for the current colour curve,
+                    # and replace the local partition with the linear interpolation.
+                    large[X1 : X2 + 1] = linear[ci][X1 : X2 + 1]
     return (R, G, B)
 
 

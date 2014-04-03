@@ -11,7 +11,6 @@ Medium priority:
 	  connections are not need all the time.
 
 Low priority:
-	Raw ramp applying functions with precalcuated polynomial interpolation
 	Add support for temporarily closing DRM connection so that multiple users can run in DRM
 
 Future stuff:
