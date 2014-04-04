@@ -1,10 +1,14 @@
-**Request for contribution:**
+**Request for contributions:**
 
 If anyone have a monitor with backlight
 supported by xbacklight. src/blueshift_randr_c.c
 needs to be extended to be able to read and set
 backlight settings. src/blueshift_idcrtc.c can
 be used as a starting point of the implementation.
+
+If anyone have a multi-graphics card setup,
+testing of multiple graphics cards with DRM
+(in Linux TTY) is required.
 
 ---
 
