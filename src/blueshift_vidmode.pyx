@@ -38,11 +38,6 @@ vidmode_gamma_size = 0
 cdef unsigned short int* r_c
 cdef unsigned short int* g_c
 cdef unsigned short int* b_c
-r_c = <unsigned short int*>malloc(256 * 2)
-g_c = <unsigned short int*>malloc(256 * 2)
-b_c = <unsigned short int*>malloc(256 * 2)
-if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
-    raise MemoryError()
 
 
 
@@ -54,10 +49,15 @@ def vidmode_open(int use_screen, display):
     @param   display:bytes?  The display to use, `None` for the current
     @return  :bool           Whether call was successful
     '''
-    global vidmode_gamma_size
+    global vidmode_gamma_size, r_c, g_c, b_c
     cdef char* display_ = NULL
     if display is not None:
         display_ = display
+    r_c = <unsigned short int*>malloc(256 * 2)
+    g_c = <unsigned short int*>malloc(256 * 2)
+    b_c = <unsigned short int*>malloc(256 * 2)
+    if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
+        raise MemoryError()
     vidmode_gamma_size = blueshift_vidmode_open(use_screen, display_)
     return vidmode_gamma_size > 1
 

@@ -32,11 +32,6 @@ cdef extern void blueshift_randr_close()
 cdef unsigned short int* r_c
 cdef unsigned short int* g_c
 cdef unsigned short int* b_c
-r_c = <unsigned short int*>malloc(256 * 2)
-g_c = <unsigned short int*>malloc(256 * 2)
-b_c = <unsigned short int*>malloc(256 * 2)
-if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
-    raise MemoryError()
 
 
 
@@ -48,9 +43,15 @@ def randr_open(int use_screen, display):
     @param   display:bytes?  The display to use, `None` for the current
     @return  :int            Zero on success
     '''
+    global r_c, g_c, b_c
     cdef char* display_ = NULL
     if display is not None:
         display_ = display
+    r_c = <unsigned short int*>malloc(256 * 2)
+    g_c = <unsigned short int*>malloc(256 * 2)
+    b_c = <unsigned short int*>malloc(256 * 2)
+    if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
+        raise MemoryError()
     return blueshift_randr_open(use_screen, display_)
 
 

@@ -90,8 +90,8 @@ download_command = None
 
 
 # Method for applying colour curves in X.
-apply_curves_x = randr
-#apply_curves_x = vidmode
+#apply_curves_x = randr
+apply_curves_x = vidmode
 
 # Method for applying colour curves in TTY.
 apply_curves_tty_ = drm
@@ -131,7 +131,7 @@ def apply_curves(*crtcs, screen = 0):
     @param  screen:int    The screen to which the monitors belong
     '''
     # Single display and single server, variant:
-    #(apply_curves_tty if ttymode apply_curves_x)(*crtcs, screen = screen)
+    (apply_curves_tty if ttymode apply_curves_x)(*crtcs, screen = screen)
     
     # Variant for TTY and all X display:
     #apply_curves_tty(*crtcs, screen = screen)
@@ -144,9 +144,9 @@ def apply_curves(*crtcs, screen = 0):
     #            pass
     
     # Variant for TTY and selected X displays:
-    apply_curves_tty(*crtcs, screen = screen)
-    for display in [None, ':1']: # Current and :1
-        apply_curves_x(*crtcs, screen = screen, display = display)
+    #apply_curves_tty(*crtcs, screen = screen)
+    #for display in [None, ':1']: # Current and :1
+    #    apply_curves_x(*crtcs, screen = screen, display = display)
 
 
 # Keep uncomment to use solar position.
