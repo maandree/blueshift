@@ -75,7 +75,7 @@ def linearly_interpolate_ramp(r, g, b): # TODO demo and document this
     return (R, G, B)
 
 
-def cubicly_interpolate_ramp(r, g, b): # TODO test, demo and document this
+def cubicly_interpolate_ramp(r, g, b): # TODO demo and document this
     '''
     Interpolate ramps to the size of the output axes using cubic Hermite spline
     

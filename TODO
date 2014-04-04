@@ -11,6 +11,10 @@ Medium priority:
 
 Low priority:
 	Add support for temporarily closing DRM connection so that multiple users can run in DRM
+	Add ramp interpolators:
+	  https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
+	  https://en.wikipedia.org/wiki/Spline_interpolation
+	  https://en.wikipedia.org/wiki/Lanczos_resampling
 
 Future stuff:
 	How is it looking on the DirectFB front?
