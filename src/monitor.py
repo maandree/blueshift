@@ -230,12 +230,13 @@ def drm(*crtcs, screen = 0, display = None):
         pass # Happens on exit by TERM signal
 
 
-def print_curves(*crtcs, screen = 0, compact = False):
+def print_curves(*crtcs, screen = 0, display = None compact = False):
     '''
     Prints the curves to stdout
     
     @param  crtcs:*int    Dummy parameter
     @param  screen:int    Dummy parameter
+    @param  display:str?  Dummy parameter
     @param  compact:bool  Whether to print in compact form
     '''
     # Convert curves to [0, 0xFFFF] integer lists
