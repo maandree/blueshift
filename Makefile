@@ -50,12 +50,12 @@ OPTIMISE ?= -Og -g
 # Warnings settings for C code compilation
 WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs \
        -Wfloat-equal -Wmissing-prototypes -Wmissing-declarations -Wtrampolines -Wnested-externs \
-       -Wno-variadic-macros -Wstrict-overflow -Wdeclaration-after-statement -Wundef -Wpacked \
+       -Wno-variadic-macros -Wdeclaration-after-statement -Wundef -Wpacked -Wunsafe-loop-optimizations \
        -Wbad-function-cast -Wwrite-strings -Wlogical-op -Wstrict-prototypes -Wold-style-definition \
        -Wvector-operation-performance -Wstack-protector -Wunsuffixed-float-constants -Wcast-align \
-       -Wsync-nand -Wunsafe-loop-optimizations
+       -Wsync-nand
 # Warnings violated by Cython and therefore only use for C and not Cython
-CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion
+CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow
 # The C standard for C code compilation
 STD = c99
 LIBS_idcrtc = xcb-randr
