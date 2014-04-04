@@ -20,15 +20,46 @@ from libc.stdlib cimport malloc, free
 
 
 cdef extern int blueshift_vidmode_open(int use_screen, char* display)
+'''
+Start stage of colour curve control
+
+@param   use_screen  The screen to use
+@param   display     The display to use, `NULL` for the current one
+@return              Zero on error, otherwise the size of colours curves
+'''
+
 cdef extern int blueshift_vidmode_read(int use_crtc,
                                        unsigned short int* r_curve,
                                        unsigned short int* g_curve,
                                        unsigned short int* b_curve)
+'''
+Gets the current colour curves
+
+@param   use_crtc  The CRTC to use
+@param   r_gamma   Storage location for the red colour curve
+@param   g_gamma   Storage location for the green colour curve
+@param   b_gamma   Storage location for the blue colour curve
+@return            Zero on success
+'''
+
 cdef extern int blueshift_vidmode_apply(unsigned long long int use_crtcs,
                                         unsigned short int* r_curve,
                                         unsigned short int* g_curve,
                                         unsigned short int* b_curve)
+'''
+Apply stage of colour curve control
+
+@param   use_crtcs  Mask of CRTC:s to use
+@param   r_curve    The red colour curve
+@param   g_curve    The green colour curve
+@param   b_curve    The blue colour curve
+@return             Zero on success
+'''
+
 cdef extern void blueshift_vidmode_close()
+'''
+Resource freeing stage of colour curve control
+'''
 
 
 

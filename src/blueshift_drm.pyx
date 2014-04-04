@@ -20,31 +20,179 @@ from libc.stdlib cimport malloc, free
 
 
 cdef extern void blueshift_drm_close()
+'''
+Free all resources, but you need to close all connections first
+'''
+
 cdef extern int blueshift_drm_card_count()
+'''
+Get the number of cards present on the system
+
+@return  The number of cards present on the system
+'''
+
 cdef extern int blueshift_drm_open_card(int card_index)
+'''
+Open connection to a graphics card
+
+@param   card_index  The index of the graphics card
+@return              -1 on failure, otherwise an identifier for the connection to the card
+'''
+
 cdef extern void blueshift_drm_update_card(int connection)
+'''
+Update the resource, required after `blueshift_drm_open_card`
+
+@param  connection  The identifier for the connection to the card
+'''
+
 cdef extern void blueshift_drm_close_card(int connection)
+'''
+Close connection to the graphics card
+
+@param  connection  The identifier for the connection to the card
+'''
+
 cdef extern int blueshift_drm_crtc_count(int connection)
+'''
+Return the number of CRTC:s on the opened card
+
+@param   connection  The identifier for the connection to the card
+@return              The number of CRTC:s on the opened card
+'''
+
 cdef extern int blueshift_drm_connector_count(int connection)
+'''
+Return the number of connectors on the opened card
+
+@param   connection  The identifier for the connection to the card
+@return              The number of connectors on the opened card
+'''
+
 cdef extern int blueshift_drm_gamma_size(int connection, int crtc_index)
+'''
+Return the size of the gamma ramps on a CRTC
+
+@param   connection  The identifier for the connection to the card
+@param   crtc_index  The index of the CRTC
+@return              The size of the gamma ramps on a CRTC
+'''
+
 cdef extern int blueshift_drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size,
                                               unsigned short int* red,
                                               unsigned short int* green,
                                               unsigned short int* blue)
+'''
+Get the current gamma ramps of a monitor
+
+@param   connection  The identifier for the connection to the card
+@param   crtc_index  The index of the CRTC to read from
+@param   gamma_size  The size a gamma ramp
+@param   red         Storage location for the red gamma ramp
+@param   green       Storage location for the green gamma ramp
+@param   blue        Storage location for the blue gamma ramp
+@return              Zero on success
+'''
+
 cdef extern int blueshift_drm_set_gamma_ramps(int connection, int crtc_index, int gamma_size,
                                               unsigned short int* red,
                                               unsigned short int* green,
                                               unsigned short int* blue)
+'''
+Set the gamma ramps of the of a monitor
+
+@param   connection  The identifier for the connection to the card
+@param   crtc_index  The index of the CRTC to read from
+@param   gamma_size  The size a gamma ramp
+@param   red         The red gamma ramp
+@param   green       The green gamma ramp
+@param   blue        The blue gamma ramp
+@return              Zero on success
+'''
+
 cdef extern void blueshift_drm_open_connector(int connection, int connector_index)
+'''
+Acquire information about a connector
+
+@param  connection       The identifier for the connection to the card
+@param  connector_index  The index of the connector
+'''
+
 cdef extern void blueshift_drm_close_connector(int connection, int connector_index)
+'''
+Release information about a connector
+
+@param  connection       The identifier for the connection to the card
+@param  connector_index  The index of the connector
+'''
+
 cdef extern int blueshift_drm_get_width(int connection, int connector_index)
+'''
+Get the physical width the monitor connected to a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@return                   The physical width of the monitor in millimetres, 0 if unknown or not connected
+'''
+
 cdef extern int blueshift_drm_get_height(int connection, int connector_index)
+'''
+Get the physical height the monitor connected to a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@return                   The physical height of the monitor in millimetres, 0 if unknown or not connected
+'''
+
 cdef extern int blueshift_drm_is_connected(int connection, int connector_index)
+'''
+Get whether a monitor is connected to a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@return                   1 if there is a connection, 0 otherwise, -1 if unknown
+'''
+
 cdef extern int blueshift_drm_get_crtc(int connection, int connector_index)
+'''
+Get the index of the CRTC of the monitor connected to a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@return                   The index of the CRTC
+'''
+
 cdef extern int blueshift_drm_get_connector_type_index(int connection, int connector_index)
+'''
+Get the index of the type of a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@return                   The connector type by index, 0 for unknown
+'''
+
 cdef extern const char* blueshift_drm_get_connector_type_name(int connection, int connector_index)
+'''
+Get the name of the type of a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@return                   The connector type by name, "Unknown" if not identifiable,
+                          "Unrecognised" if Blueshift does not recognise it.
+'''
+
 cdef extern long int blueshift_drm_get_edid(int connection, int connector_index, char* edid,
                                             long int size, int hexadecimal)
+'''
+Get the extended display identification data for the monitor connected to a connector
+
+@param   connection       The identifier for the connection to the card
+@param   connector_index  The index of the connector
+@param   edid             Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
+@param   size             The size allocated to `edid` excluding your zero termination
+@param   hexadecimal      Whether to convert to hexadecimal representation, this is preferable
+@return                   The length of the found value, 0 if none, as if hex is false
+'''
 
 
 

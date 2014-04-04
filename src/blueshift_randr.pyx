@@ -20,12 +20,43 @@ from libc.stdlib cimport malloc, free
 
 
 cdef extern int blueshift_randr_open(int use_screen, char* display)
+'''
+Start stage of colour curve control
+
+@param   use_screen  The screen to use
+@param   display     The display to use, `NULL` for the current one
+@return              Zero on success
+'''
+
 cdef extern unsigned short int* blueshift_randr_read(int use_crtc)
+'''
+Gets the current colour curves
+
+@param   use_crtc  The CRTC to use
+@return            {the size of the red curve, *the red curve,
+                   the size of the green curve, *the green curve,
+                   the size of the blue curve, *the blue curve},
+                   needs to be free:d. `NULL` on error.
+'''
+
 cdef extern int blueshift_randr_apply(unsigned long long int use_crtcs,
                                       unsigned short int* r_curve,
                                       unsigned short int* g_curve,
                                       unsigned short int* b_curve)
+'''
+Apply stage of colour curve control
+
+@param   use_crtcs  Mask of CRTC:s to use
+@param   r_curve    The red colour curve
+@param   g_curve    The green colour curve
+@param   b_curve    The blue colour curve
+@return             Zero on success
+'''
+
 cdef extern void blueshift_randr_close()
+'''
+Resource freeing stage of colour curve control
+'''
 
 
 
