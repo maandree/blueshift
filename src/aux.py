@@ -49,7 +49,7 @@ def ramps_to_function(r, g, b):
     return functionise((fp(r), fp(g), fp(b)))
 
 
-def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
+def linearly_interpolate_ramp(r, g, b): # TODO demo and document this
     '''
     Linearly interpolate ramps to the size of the output axes
     
@@ -61,7 +61,7 @@ def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
     '''
     C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
     R, G, B = C(r), C(g), C(b)
-    for small, large in curves(R, G, B):
+    for small, large in ((r, R), (g, G), (b, B)):
         small_, large_ = len(small) - 1, len(large) - 1
         # Only interpolate if scaling up
         if large_ > small_:
@@ -75,7 +75,7 @@ def linearly_interpolate_ramp(r, g, b): # TODO test, demo and document this
     return (R, G, B)
 
 
-def polynomially_interpolate_ramp(r, g, b): # TODO test, demo and document this
+def polynomially_interpolate_ramp(r, g, b): # TODO Speedup, demo and document this
     '''
     Polynomially interpolate ramps to the size of the output axes.
     
@@ -92,13 +92,13 @@ def polynomially_interpolate_ramp(r, g, b): # TODO test, demo and document this
     '''
     C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
     R, G, B, linear = C(r), C(g), C(b), None
-    for small, (ci, large) in curves(*(enumerate((R, G, B)))):
+    for ci, (small, large) in enumerate(((r, R), (g, G), (b, B))):
         small_, large_ = len(small) - 1, len(large) - 1
         # Only interpolate if scaling up
         if large_ > small_:
-            n = len(small) + 1
-            ## Construct interpolation matrix
-            M = [[small[y] ** i for i in n] for y in range(n)]
+            n = len(small)
+            ## Construct interpolation matrix (TODO this is not working correctly)
+            M = [[small[y] ** i for i in range(n)] for y in range(n)]
             A = [x / small_ for x in range(n)]
             ## Eliminate interpolation matrix
             # (XXX this can be done faster by utilising the fact that we have a Vandermonde matrix)
@@ -106,7 +106,7 @@ def polynomially_interpolate_ramp(r, g, b): # TODO test, demo and document this
             for k in range(n - 1):
                 for i in range(k + 1, n):
                     m = M[i][k] / M[k][k]
-                    M[i][k + 1:] -= [M[i][j] - M[k][j] * m for j in range(k + 1, n)]
+                    M[i][k + 1:] = [M[i][j] - M[k][j] * m for j in range(k + 1, n)]
                     A[i] -= A[k] * m
             # Eliminiate upper right
             for k in reversed(range(n)):
@@ -138,7 +138,8 @@ def polynomially_interpolate_ramp(r, g, b): # TODO test, demo and document this
                     # Decreasing
                     monotone = all(map(lambda x : large[x + 1] <= large[x], range(X1, X2))) and (Y2 < Y1)
                 # If the monotonicity has been broken,
-                if not passed:
+                if not monotone:
+                    print('failed')
                     # replace the partition with linear interpolation.
                     # If linear interpolation has not yet been calculated,
                     if linear is None:
