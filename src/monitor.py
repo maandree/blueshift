@@ -230,7 +230,7 @@ def drm(*crtcs, screen = 0, display = None):
         pass # Happens on exit by TERM signal
 
 
-def print_curves(*crtcs, screen = 0, display = None compact = False):
+def print_curves(*crtcs, screen = 0, display = None, compact = False):
     '''
     Prints the curves to stdout
     
