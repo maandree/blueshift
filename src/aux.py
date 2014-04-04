@@ -49,7 +49,7 @@ def ramps_to_function(r, g, b):
     return functionise((fp(r), fp(g), fp(b)))
 
 
-def linearly_interpolate_ramp(r, g, b): # TODO demo and document this
+def linearly_interpolate_ramp(r, g, b): # TODO demo this
     '''
     Linearly interpolate ramps to the size of the output axes
     
@@ -75,7 +75,7 @@ def linearly_interpolate_ramp(r, g, b): # TODO demo and document this
     return (R, G, B)
 
 
-def cubicly_interpolate_ramp(r, g, b): # TODO demo and document this
+def cubicly_interpolate_ramp(r, g, b): # TODO demo this
     '''
     Interpolate ramps to the size of the output axes using cubic Hermite spline
     
@@ -173,7 +173,7 @@ def polynomially_interpolate_ramp(r, g, b): # TODO Speedup, demo and document th
     return (R, G, B)
 
 
-def eliminate_halos(r, g, b, R, G, B): # TODO demo and document this
+def eliminate_halos(r, g, b, R, G, B): # TODO demo this
     '''
     Eliminate haloing effects in interpolations
     

@@ -324,6 +324,7 @@ Disables or enables Blueshift.
 * Weather::                             Making weather dependent settings.
 * Running without X::                   Configuration options for running without X.
 * Optimising::                          Functions that can be used to optimise performance.
+* Interpolation::                       Interpolation functionised curves.
 @end menu
 
 
@@ -1530,6 +1531,48 @@ stored()
 Note that the @code{functionise(stored)()}
 might be heavier than applying the adjustments
 by invoking them.
+
+
+@node Interpolation
+@section Interpolation
+
+ICC profiles and curves that have beens turned
+into functions with @code{functionise} have lower
+input resolution that the input they receive;
+to compensate for this, nearest-neighbour
+interpolation is used. If you want to better
+interpolation there are a few functions that
+can be used to scale up the lookup table using
+interpolation.
+
+@table @code
+@item linearly_interpolate_ramp
+Scale up using linear interpolation.
+
+@item cubicly_interpolate_ramp
+Scale up using cubic Hermite interpolation.
+
+@end table
+
+These functions thats three arguments:
+the red, the green and the blue colour
+curves to scale up. The functions return
+a tuple of these scaled up. All functions
+are will using linear interpolation if
+an interpolation segments is non-monotonic.
+This is done, automatically by the
+functions, by using the function
+@code{eliminate_halos} that takes six
+arguments and does not return anything.
+@code{eliminate_halos}'s arguments are
+the original three colour curves, followed
+by the scaled up colour curves. The latter
+argument trio will be modified by the
+function. It does not matter which order
+there curves are in as long as the order
+is the same for the original curves and the
+scaled up curves. It is recommended to
+use the order: red, green and blue.
 
 
 
