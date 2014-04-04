@@ -850,14 +850,18 @@ be applied.
 If you want to apply your adjustments on top of the
 current colour adjustments, you can use the functions
 @code{randr_get} or @code{vidmode_get}. @code{randr_get}
-and @code{vidmode_get} have optional two parameters,
-@code{crtc} and @code{screen}, which are the CRTC of
-the monitor to read from, and the screen to which the
-monitor belongs, respectively. The functions return
-a parameterless function that applies adjustsments
-that were applied at the time of invokation of
-@code{randr_get} or @code{vidmode_get} to the current
-working curves.
+and @code{vidmode_get} have three optional parameters:
+@code{crtc}, @code{screen} and @code{display}, which are
+the CRTC of the monitor to read from, the screen to which
+the monitor belongs and the X display to use, respectively.
+The functions return a parameterless function that applies
+adjustsments that were applied at the time of invocation
+of @code{randr_get} or @code{vidmode_get} to the current
+working curves. If not specified, the zeroth (primary) CRTC,
+the zeroth screen and the current X display is used, for
+@code{crtc}, @code{screen} and @code{display} respectively.
+The current X display is also used if @code{display} is
+@code{None}.
 
 
 @node Applying colour curves
@@ -872,16 +876,20 @@ supports using the zeroth CRTC.};
 the curves to stdout instead (for debugging).
 These functions apply the curves to all
 monitors in the default screen (screen 0),
-put you can also use select monitors by
+but you can also use select monitors by
 specifying each monitor in as separate
 arguments. The monitors are indexed from
 zero. The screen by can be selected by
 adding the argument @code{screen = X},
-where @code{X} is the index of the screen.
-@code{print_curves} has a third optional
-parameters: @code{compact}, if it is set
-to @code{True}, the curves will be printed
-with run-length encoding.
+where @code{X} is the index of the screen,
+also indexed from zero. Additionally,
+you can add the argument @code{display = X},
+where @code{X} is the X display to use,
+or @code{None} (default) for the current
+X display. @code{print_curves} has a fourth
+optional parameter: @code{compact}, if it
+is set to @code{True}, the curves will be
+printed with run-length encoding.
 
 If you want to write your own curve flushing
 fucntion @code{translate_to_integers} can be
@@ -1458,9 +1466,12 @@ The DRM equivalent to the RandR functions
 @code{randr} (applying colour curves) and
 @code{randr_get} (reading current colour
 curves) are @code{drm} and @code{drm_get},
-respectively. The paramers are exactly the
+respectively. The parameters are exactly the
 same for the DRM functions as they are for
-the RandR functions.
+the RandR functions: @code{screen} is still
+named @code{screee} instead of @code{card},
+and @code{display} is still present but has
+not effect.
 
 The function @code{list_screens}, which
 lists all screens, CRTC:s and outputs,
