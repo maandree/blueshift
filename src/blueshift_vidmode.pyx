@@ -50,9 +50,9 @@ def vidmode_open(int use_screen, display):
     '''
     Start stage of colour curve control
     
-    @param   use_screen    The screen to use
-    @param   display:str?  The display to use, `None` for the current
-    @return  :bool         Whether call was successful
+    @param   use_screen      The screen to use
+    @param   display:bytes?  The display to use, `None` for the current
+    @return  :bool           Whether call was successful
     '''
     global vidmode_gamma_size
     cdef char* display_ = NULL

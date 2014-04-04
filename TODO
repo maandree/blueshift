@@ -2,7 +2,7 @@ High priority:
 	Add support for monitor hotplugging
 	Add models for calculating fade and refresh rate parameters
 	Test with multiple X screens
-	Test and demo multi-display support
+	Fix multi-display support
 
 Medium priority:
 	Add a section in manual for information on which order

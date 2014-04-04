@@ -93,7 +93,7 @@ def randr_get(crtc = 0, screen = 0, display = None):
         if randr_opened is not None:
             randr_close()
         # Open RandR connection
-        if randr_open(screen, display) == 0:
+        if randr_open(screen, display if display is None else display.encode('utf-8')) == 0:
             randr_opened = (screen, display)
         else:
             raise Exception('Cannot open RandR connection')
@@ -118,7 +118,7 @@ def vidmode_get(crtc = 0, screen = 0, display = None):
         if vidmode_opened is not None:
             vidmode_close()
         # Open vidmode connection
-        if vidmode_open(screen, display):
+        if vidmode_open(screen, display if display is None else display.encode('utf-8')):
             vidmode_opened = (screen, display)
         else:
             raise Exception('Cannot open vidmode connection')
@@ -162,7 +162,7 @@ def randr(*crtcs, screen = 0, display = None):
         if randr_opened is not None:
             randr_close()
         # Open RandR connection
-        if randr_open(screen, display) == 0:
+        if randr_open(screen, display if display is None else display.encode('utf-8')) == 0:
             randr_opened = (screen, display)
         else:
             raise Exception('Cannot open RandR connection')
@@ -195,7 +195,7 @@ def vidmode(*crtcs, screen = 0, display = None):
         if vidmode_opened is not None:
             vidmode_close()
         # Open vidmode connection
-        if vidmode_open(screen, display):
+        if vidmode_open(screen, display if display is None else display.encode('utf-8')):
             vidmode_opened = (screen, display)
         else:
             raise Exception('Cannot open vidmode connection')

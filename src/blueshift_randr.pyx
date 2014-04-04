@@ -44,9 +44,9 @@ def randr_open(int use_screen, display):
     '''
     Start stage of colour curve control
     
-    @param   use_screen    The screen to use
-    @param   display:str?  The display to use, `None` for the current
-    @return  :int          Zero on success
+    @param   use_screen      The screen to use
+    @param   display:bytes?  The display to use, `None` for the current
+    @return  :int            Zero on success
     '''
     cdef char* display_ = NULL
     if display is not None:

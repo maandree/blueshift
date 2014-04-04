@@ -89,11 +89,64 @@ download_command = None
 # download_command = lambda url : ['wget', url, '-O', '-']
 
 
-# Method for applying colour curves.
-apply_curves = randr
-#apply_curves = vidmode
-if ttymode:
-    apply_curves = drm
+# Method for applying colour curves in X.
+apply_curves_x = randr
+#apply_curves_x = vidmode
+
+# Method for applying colour curves in TTY.
+apply_curves_tty_ = drm
+
+# X's RandR and DRM which is used in TTY, does not
+# necessarily give the CRTC:s the same indices.
+# Specifically, RandR reorders them so that the
+# primary monitor have CRTC 0. Fill in this table
+# so that the indices give by DRM are mapped to
+# those given by RandR. In this example, 0 is mapped
+# to 1 and 1 is mapped to 0, this is how it should
+# be if your primary monitor is given index 1 by
+# DRM and you have two monitors.
+tty_to_x_crtc_mapping = {0 : 1, 1 : 0}
+
+def apply_curves_tty(*crtcs, screen = 0, display = None):
+    '''
+    Wrapping for `apply_curves_tty_` that remaps the CRTC:s
+    indices, to match those in RandR.
+    
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    The graphics card to which the monitors belong,
+                          named `screen` for compatibility with `randr` and `vidmode`
+    @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
+    '''
+    mapping = tty_to_x_crtc_mapping
+    crtcs_ = [(mapping[c] if c in mapping else c) for c in crtcs]
+    apply_curves_tty_(*crtcs_, screen = screen, display = display)
+
+def apply_curves(*crtcs, screen = 0):
+    '''
+    Applies colour curves
+
+    This wrapper is used to allow multi-display and multi-server support
+    
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    The screen to which the monitors belong
+    '''
+    # Single display and single server, variant:
+    #(apply_curves_tty if ttymode apply_curves_x)(*crtcs, screen = screen)
+    
+    # Variant for TTY and all X display:
+    #apply_curves_tty(*crtcs, screen = screen)
+    #for display_socket in  os.listdir('/tmp/.X11-unix'):
+    #    if display_socket.startswith('X'):
+    #        try:
+    #            display = ':%i' % int(display_socket[1:])
+    #            apply_curves_x(*crtcs, screen = screen, display = display)
+    #        except:
+    #            pass
+    
+    # Variant for TTY and selected X displays:
+    apply_curves_tty(*crtcs, screen = screen)
+    for display in [None, ':1']: # Current and :1
+        apply_curves_x(*crtcs, screen = screen, display = display)
 
 
 # Keep uncomment to use solar position.
