@@ -1537,7 +1537,8 @@ by invoking them.
 @section Interpolation
 
 ICC profiles and curves that have beens turned
-into functions with @code{functionise} have lower
+into functions with @code{functionise}, or curves
+read from the current adjustments, have lower
 input resolution that the input they receive;
 to compensate for this, nearest-neighbour
 interpolation is used. If you want to better
@@ -1573,6 +1574,16 @@ there curves are in as long as the order
 is the same for the original curves and the
 scaled up curves. It is recommended to
 use the order: red, green and blue.
+
+However, often these lookup tables are
+oftern turned in to functions. To interpolate
+a function, you can use the function
+@code{interpolate_function}, it takes
+two arguments: the function that applies
+adjustments from a lookup table, and
+a function that interpolates a lookup
+table trio. It returns a function that
+applies the interpolated lookup table.
 
 
 

@@ -17,6 +17,7 @@
 
 # This module contains interpolation functions.
 
+from aux import *
 from curve import *
 
 
@@ -187,4 +188,22 @@ def eliminate_halos(r, g, b, R, G, B):
                 # Extract the linear interpolation for the current colour curve,
                 # and replace the local partition with the linear interpolation.
                 large[X1 : X2 + 1] = linear[ci][X1 : X2 + 1]
+
+
+def interpolate_function(function, interpolator):
+    '''
+    Interpolate a function that applies adjustments from a lookup table
+    
+    @param   function:()→void                                 The function that applies the adjustments
+    @param   interpolator:(list<float>{3})?→[list<float>{3}]  Function that interpolates lookup tables
+    @return  :()→void                                         `function` interpolated
+    '''
+    if interpolator is None:
+        return function
+    stored = store()
+    start_over()
+    function()
+    rc = functionise(interpolator(*store()))
+    restore(stored)
+    return rc
 
