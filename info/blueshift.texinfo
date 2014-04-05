@@ -1621,9 +1621,9 @@ questions''.
 The predefined colour temperatures, in
 order of warmness, are:
 
-@c TODO can we use a proper kelvin symbol instead
-@c      of K, that is, K with all three stroked
-@c      intersecting (the K [U+212A] symbol)?
+@c XXX can we use a proper kelvin symbol instead
+@c     of K, that is, K with all three stroked
+@c     intersecting (the K [U+212A] symbol)?
 
 @table @code
 @item K_F_LUX_W32_EMBER = 1200 K
