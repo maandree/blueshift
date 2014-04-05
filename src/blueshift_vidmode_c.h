@@ -39,24 +39,22 @@ int blueshift_vidmode_open(int use_screen, char* display);
 /**
  * Gets the current colour curves
  * 
- * @param   use_crtc  The CRTC to use
- * @param   r_gamma   Storage location for the red colour curve
- * @param   g_gamma   Storage location for the green colour curve
- * @param   b_gamma   Storage location for the blue colour curve
- * @return            Zero on success
+ * @param   r_gamma  Storage location for the red colour curve
+ * @param   g_gamma  Storage location for the green colour curve
+ * @param   b_gamma  Storage location for the blue colour curve
+ * @return           Zero on success
  */
-int blueshift_vidmode_read(int use_crtc, uint16_t* r_gamma, uint16_t* g_gamma, uint16_t* b_gamma);
+int blueshift_vidmode_read(uint16_t* r_gamma, uint16_t* g_gamma, uint16_t* b_gamma);
 
 /**
  * Apply stage of colour curve control
  * 
- * @param   use_crtcs  Mask of CRTC:s to use
- * @param   r_curve    The red colour curve
- * @param   g_curve    The green colour curve
- * @param   b_curve    The blue colour curve
- * @return             Zero on success
+ * @param   r_curve  The red colour curve
+ * @param   g_curve  The green colour curve
+ * @param   b_curve  The blue colour curve
+ * @return           Zero on success
  */
-int blueshift_vidmode_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve);
+int blueshift_vidmode_apply(uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve);
 
 /**
  * Resource freeing stage of colour curve control

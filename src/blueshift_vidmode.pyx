@@ -29,27 +29,24 @@ Start stage of colour curve control
 @return              Zero on error, otherwise the size of colours curves
 '''
 
-cdef extern int blueshift_vidmode_read(int use_crtc, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
+cdef extern int blueshift_vidmode_read(uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 '''
 Gets the current colour curves
 
-@param   use_crtc  The CRTC to use
-@param   r_gamma   Storage location for the red colour curve
-@param   g_gamma   Storage location for the green colour curve
-@param   b_gamma   Storage location for the blue colour curve
-@return            Zero on success
+@param   r_gamma  Storage location for the red colour curve
+@param   g_gamma  Storage location for the green colour curve
+@param   b_gamma  Storage location for the blue colour curve
+@return           Zero on success
 '''
 
-cdef extern int blueshift_vidmode_apply(unsigned long long int use_crtcs,
-                                        uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
+cdef extern int blueshift_vidmode_apply(uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 '''
 Apply stage of colour curve control
 
-@param   use_crtcs  Mask of CRTC:s to use
-@param   r_curve    The red colour curve
-@param   g_curve    The green colour curve
-@param   b_curve    The blue colour curve
-@return             Zero on success
+@param   r_curve  The red colour curve
+@param   g_curve  The green colour curve
+@param   b_curve  The blue colour curve
+@return           Zero on success
 '''
 
 cdef extern void blueshift_vidmode_close()
@@ -109,15 +106,14 @@ def vidmode_open(int use_screen, display):
     return vidmode_gamma_size > 1
 
 
-def vidmode_read(int use_crtc):
+def vidmode_read():
     '''
     Gets the current colour curves
     
-    @param   use_crtc                                  The CRTC to use
     @return  :(r:list<int>, g:list<int>, b:list<int>)  The current red, green and blue colour curves
     '''
     # Read the current curves
-    if not blueshift_vidmode_read(use_crtc, r_c, g_c, b_c) == 0:
+    if not blueshift_vidmode_read(r_c, g_c, b_c) == 0:
         raise Exception()
     # Convert to Python integer lists
     r, g, b = [], [], []
@@ -128,11 +124,10 @@ def vidmode_read(int use_crtc):
     return (r, g, b)
 
 
-def vidmode_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
+def vidmode_apply(r_curve, g_curve, b_curve):
     '''
     Apply stage of colour curve control
     
-    @param   use_crtcs          Mask of CRTC:s to use
     @param   r_curve:list<int>  The red colour curve
     @param   g_curve:list<int>  The green colour curve
     @param   b_curve:list<int>  The blue colour curve
@@ -144,7 +139,7 @@ def vidmode_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
         g_c[i] = g_curve[i] & 0xFFFF
         b_c[i] = b_curve[i] & 0xFFFF
     # Apply curves
-    return blueshift_vidmode_apply(use_crtcs, r_c, g_c, b_c)
+    return blueshift_vidmode_apply(r_c, g_c, b_c)
 
 
 def vidmode_close():

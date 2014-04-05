@@ -105,7 +105,7 @@ def vidmode_get(crtc = 0, screen = 0, display = None):
     '''
     Gets the current colour curves using the X11 extension VidMode
     
-    @param   crtc:int      The CRTC of the monitor to read from
+    @param   crtc:int      The CRTC of the monitor to read from, dummy parameter
     @param   screen:int    The screen to which the monitors belong
     @param   display:str?  The display to which to connect, `None` for current display
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
@@ -123,7 +123,7 @@ def vidmode_get(crtc = 0, screen = 0, display = None):
         else:
             raise Exception('Cannot open vidmode connection')
     # Read current curves and create function
-    return ramps_to_function(*(vidmode_read(crtc)))
+    return ramps_to_function(*(vidmode_read()))
 
 
 def drm_get(crtc = 0, screen = 0, display = None):
@@ -178,15 +178,12 @@ def vidmode(*crtcs, screen = 0, display = None):
     '''
     Applies colour curves using the X11 extension VidMode
     
-    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified, dummy parameter
     @param  screen:int    The screen to which the monitors belong
     @param  display:str?  The display to which to connect, `None` for current display
     '''
     from blueshift_vidmode import vidmode_open, vidmode_apply, vidmode_close
     global vidmode_opened
-    # Select CRTC:s
-    crtcs = sum([1 << i for i in crtcs]) if len(crtcs) > 0 else ((1 << 64) - 1)
-    
     # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
     # Open new vidmode connection if non is open or one is open to the wrong screen or display
@@ -201,7 +198,7 @@ def vidmode(*crtcs, screen = 0, display = None):
             raise Exception('Cannot open vidmode connection')
     try:
         # Apply adjustments
-        if not vidmode_apply(crtcs, R_curve, G_curve, B_curve) == 0:
+        if not vidmode_apply(R_curve, G_curve, B_curve) == 0:
             raise Exception('Cannot use vidmode to apply colour adjustments')
     except OverflowError:
         pass # Happens on exit by TERM signal
