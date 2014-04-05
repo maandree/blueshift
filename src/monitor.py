@@ -152,7 +152,7 @@ def randr(*crtcs, screen = 0, display = None):
     from blueshift_randr import randr_open, randr_apply, randr_close
     global randr_opened
     # Select CRTC:s
-    crtcs = sum([1 << i for i in crtcs]) if len(crtcs) > 0 else ((1 << 64) - 1)
+    crtcs = list(crtcs) if len(crtcs) > 0 else [-1]
     
     # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()

@@ -81,13 +81,13 @@ uint16_t* blueshift_randr_read(int use_crtc);
 /**
  * Apply stage of colour curve control
  * 
- * @param   use_crtcs  Mask of CRTC:s to use
- * @param   r_curve    The red colour curve
- * @param   g_curve    The green colour curve
- * @param   b_curve    The blue colour curve
- * @return             Zero on success
+ * @param   use_crtc  The CRTC to use, -1 for all
+ * @param   r_curve   The red colour curve
+ * @param   g_curve   The green colour curve
+ * @param   b_curve   The blue colour curve
+ * @return            Zero on success
  */
-int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve);
+int blueshift_randr_apply(int use_crtc, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve);
 
 /**
  * Resource freeing stage of colour curve control

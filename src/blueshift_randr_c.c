@@ -232,32 +232,31 @@ uint16_t* blueshift_randr_read(int use_crtc)
 /**
  * Apply stage of colour curve control
  * 
- * @param   use_crtcs  Mask of CRTC:s to use
- * @param   r_curve    The red colour curve
- * @param   g_curve    The green colour curve
- * @param   b_curve    The blue colour curve
- * @return             Zero on success
+ * @param   use_crtc  The CRTC to use, -1 of all
+ * @param   r_curve   The red colour curve
+ * @param   g_curve   The green colour curve
+ * @param   b_curve   The blue colour curve
+ * @return            Zero on success
  */
-int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
+int blueshift_randr_apply(int use_crtc, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 {
-  blueshift_randr_crtc_t* crtcs_ = crtcs;
+  /* Select first CRTC */
+  blueshift_randr_crtc_t* crtc_start = crtcs + (use_crtc < 0 ? 0 : use_crtc);
   
+  /* Select exclusive last CRTC */
+  blueshift_randr_crtc_t* crtc_end = use_crtc < 0 ? crtcs_end : (crtc_start + 1);
+  
+  blueshift_randr_crtc_t* crtc;
   xcb_void_cookie_t gamma_set_cookie;
   
   
-  /* Use CRTC:s */
+  /* Apply for all selected CRTC:s */
   
-  while (crtcs_ != crtcs_end)
+  for (crtc = crtc_start; crtc != crtc_end; crtc++)
     {
-      /* Check whether we should use the CRTC */
-
-      if ((use_crtcs & 1) == 0)
-	goto next_crtc;
-      
-      
       /* Apply curves */
       
-      gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *(crtcs_->crtc), crtcs_->curve_size,
+      gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(connection, *(crtc->crtc), crtc->curve_size,
 							  r_curve, g_curve, b_curve);
       error = xcb_request_check(connection, gamma_set_cookie);
       
@@ -266,13 +265,6 @@ int blueshift_randr_apply(uint64_t use_crtcs, uint16_t* r_curve, uint16_t* g_cur
 	  fprintf(stderr, "RandR CRTC control returned %i\n", error->error_code);
 	  return 1;
 	}
-      
-      
-      /* Next CRTC */
-      
-    next_crtc:
-      crtcs_++;
-      use_crtcs >>= 1;
     }
   
   return 0;

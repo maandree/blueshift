@@ -40,16 +40,15 @@ Gets the current colour curves
                    needs to be free:d. `NULL` on error.
 '''
 
-cdef extern int blueshift_randr_apply(unsigned long long int use_crtcs,
-                                      uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
+cdef extern int blueshift_randr_apply(int use_crtc, uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 '''
 Apply stage of colour curve control
 
-@param   use_crtcs  Mask of CRTC:s to use
-@param   r_curve    The red colour curve
-@param   g_curve    The green colour curve
-@param   b_curve    The blue colour curve
-@return             Zero on success
+@param   use_crtc  The CRTC to use, -1 for all
+@param   r_curve   The red colour curve
+@param   g_curve   The green colour curve
+@param   b_curve   The blue colour curve
+@return            Zero on success
 '''
 
 cdef extern void blueshift_randr_close()
@@ -126,23 +125,27 @@ def randr_read(int use_crtc):
     return (r, g, b)
 
 
-def randr_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
+def randr_apply(crtc_indices, r_curve, g_curve, b_curve):
     '''
     Apply stage of colour curve control
     
-    @param   use_crtcs          Mask of CRTC:s to use
-    @param   r_curve:list<int>  The red colour curve
-    @param   g_curve:list<int>  The green colour curve
-    @param   b_curve:list<int>  The blue colour curve
-    @return                     Zero on success
+    @param   crtc_indices:list<int>  The indices of the CRTC:s to control, -1 for all
+    @param   r_curve:list<int>       The red colour curve
+    @param   g_curve:list<int>       The green colour curve
+    @param   b_curve:list<int>       The blue colour curve
+    @return                          Zero on success
     '''
     # Convert curves to 16-bit C integers
     for i in range(256):
         r_c[i] = r_curve[i] & 0xFFFF
         g_c[i] = g_curve[i] & 0xFFFF
         b_c[i] = b_curve[i] & 0xFFFF
-    # Apply curves
-    return blueshift_randr_apply(use_crtcs, r_c, g_c, b_c)
+    rc = 0
+    # For each selected CRTC,
+    for crtc_index in crtc_indices:
+        # apply curves.
+        rc |= blueshift_randr_apply(crtc_index, r_c, g_c, b_c)
+    return rc
 
 
 def randr_close():
