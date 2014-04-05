@@ -271,7 +271,7 @@ Synonym for `K_ELECTRONIC_FLASH_BULB`
 
 K_D50 = 5000
 '''
-The standard illuminate D50 (5000 K) of the CIE standard illuminate series D
+The standard illuminant D50 (5000 K) of the CIE standard illuminant series D
 '''
 
 K_NOON_DAYLIGHT = 5000
@@ -322,7 +322,7 @@ The colour temperature in the Mac OS X and iOS port of f.lux named â€˜daylightâ€
 
 K_D55 = 5500
 '''
-The standard illuminate D55 (5500 K) of the CIE standard illuminate series D
+The standard illuminant D55 (5500 K) of the CIE standard illuminant series D
 '''
 
 K_F_LUX_W32_DAYLIGHT = 5500
@@ -396,7 +396,7 @@ Approximate colour temperature of daylight during an overcast day
 
 K_D65 = 6500
 '''
-The standard illuminate D65 (6500 K) of the CIE standard illuminate series D
+The standard illuminant D65 (6500 K) of the CIE standard illuminant series D
 '''
 
 K_NEUTRAL = K_D65
@@ -436,7 +436,7 @@ Synonym for `K_SHARP` and `K_FORTE_LUX`
 
 K_D75 = 7500
 '''
-The standard illuminate D75 (7500 K) of the CIE standard illuminate series D
+The standard illuminant D75 (7500 K) of the CIE standard illuminant series D
 '''
 
 K_BLUE_FILTER = 8000
