@@ -72,7 +72,7 @@ setproctitle(sys.argv[0])
 
 
 ## Set global variables
-global i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate
+global i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate, reset_on_error
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
 global monitor_controller, running, continuous_run, panic, _globals_, conf_storage, parser
 global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2, DATADIR, LIBDIR, LIBEXECDIR
@@ -213,6 +213,12 @@ sleep_condition = threading.Condition()
 trans_delta = -1
 '''
 :int  In what direction are with transitioning?
+'''
+
+reset_on_error = True # TODO demo and document this
+'''
+:bool  Whether to reset the colour curves if the configuration script
+       runs into an exception that it did not handle
 '''
 
 
@@ -524,9 +530,13 @@ def continuous_run():
                 # before we sleep. If we did not break
                 # would would run into errors.
                 sleep(fadeout_time / fadeout_steps)
+        
+        ## Mark that we ant to reset the colour curves
+        reset_on_error = True
     finally:
-        ## Reset
-        reset()
+        ## Reset when done, or on error if not stated otherwise
+        if reset_on_error:
+            reset()
 
 
 ## Read command line arguments
