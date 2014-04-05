@@ -1584,6 +1584,9 @@ adjustments from a lookup table, and
 a function that interpolates a lookup
 table trio. It returns a function that
 applies the interpolated lookup table.
+If the second argument is @code{None},
+then the first argument will be returned:
+no interpolation is done.
 
 
 
