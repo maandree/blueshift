@@ -4,16 +4,24 @@ on the cursor. It does not seem to be possible to
 listen for changes in the visible cursor and edit it.
 This can sometimes be circumvented by disabling
 hardware cursors in xorg.conf.
+  Issue listen in the issue tracker:
+    https://github.com/maandree/blueshift/issues/3
 
 The colour curves are strictly independent, it is for
 example not possible to swap red and blue, or adjust
 a subpixel depend on another. It is to my knowledge
 not possible to do so in X11.
-
-VidMode can only modify the primary monitor.
+  Issue listen in the issue tracker:
+    https://github.com/maandree/blueshift/issues/5
 
 Blueshift requires adjustable gamma ramps. It is
 very rare that video drivers do not support this.
+  Issue listen in the issue tracker:
+    https://github.com/maandree/blueshift/issues/5
+
+VidMode can only modify the primary monitor.
+It can potentially do adjustments on some video
+drivers not supported by RandR.
 
 X11 cannot be started when DRM is used.
 
