@@ -173,7 +173,7 @@ def polynomially_interpolate_ramp(r, g, b): # TODO Speedup, demo and document th
     return (R, G, B)
 
 
-def eliminate_halos(r, g, b, R, G, B): # TODO demo this
+def eliminate_halos(r, g, b, R, G, B):
     '''
     Eliminate haloing effects in interpolations
     
