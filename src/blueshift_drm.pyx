@@ -194,8 +194,20 @@ Get the extended display identification data for the monitor connected to a conn
 
 
 cdef uint16_t* r_shared
+'''
+Non-threadsafe storage for the red colour curve to be used in native code
+'''
+
 cdef uint16_t* g_shared
+'''
+Non-threadsafe storage for the green colour curve to be used in native code
+'''
+
 cdef uint16_t* b_shared
+'''
+Non-threadsafe storage for the blue colour curve to be used in native code
+'''
+
 r_shared = NULL
 g_shared = NULL
 b_shared = NULL
@@ -207,6 +219,7 @@ def drm_close():
     Free all resources, but you need to close all connections first
     '''
     global r_shared, g_shared, b_shared
+    # Deallocate colour curve storage
     if r_shared is not NULL:
         free(r_shared)
         r_shared = NULL
@@ -216,6 +229,7 @@ def drm_close():
     if b_shared is not NULL:
         free(b_shared)
         b_shared = NULL
+    # Close all native resources
     blueshift_drm_close()
 
 
@@ -302,32 +316,45 @@ def drm_get_gamma_ramps(int connection, int crtc_index, int gamma_size, threadsa
     cdef uint16_t* r
     cdef uint16_t* g
     cdef uint16_t* b
+    # If not running in thread-safe mode,
     if not threadsafe:
+        # allocate the shared storage space for colour curves
+        # if not already allocated.
         if r_shared is NULL:
             r_shared = <uint16_t*>malloc(gamma_size * sizeof(uint16_t))
         if g_shared is NULL:
             g_shared = <uint16_t*>malloc(gamma_size * sizeof(uint16_t))
         if b_shared is NULL:
             b_shared = <uint16_t*>malloc(gamma_size * sizeof(uint16_t))
+    # If not thread-safe use those, otherwise allocate ad-hoc ones
     r = <uint16_t*>malloc(gamma_size * sizeof(uint16_t)) if threadsafe else r_shared
     g = <uint16_t*>malloc(gamma_size * sizeof(uint16_t)) if threadsafe else g_shared
     b = <uint16_t*>malloc(gamma_size * sizeof(uint16_t)) if threadsafe else b_shared
+    # Check for out-of-memory error, both for thread-safe and thread-unsafe
     if (r is NULL) or (g is NULL) or (b is NULL):
         raise MemoryError()
+    # Get current curves
     rc = blueshift_drm_get_gamma_ramps(connection, crtc_index, gamma_size, r, g, b)
     if rc == 0:
+        # If successful:
+        # Move the C native colour curves to Python data structures
         rc_r, rc_g, rc_b = [], [], []
         for i in range(gamma_size):
             rc_r.append(r[i])
             rc_g.append(g[i])
             rc_b.append(b[i])
+        # Then, if running in thread-safe mode,
         if threadsafe:
+            # deallocate the ad-hoc curve storage.
             free(r)
             free(g)
             free(b)
         return (rc_r, rc_g, rc_b)
     else:
+        # On failure,
         if threadsafe:
+            # deallocate the ad-hoc curve storage
+            # if running in thread-safe mode.
             free(r)
             free(g)
             free(b)
@@ -352,26 +379,36 @@ def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g
     cdef uint16_t* r
     cdef uint16_t* g
     cdef uint16_t* b
+    # If not running in thread-safe mode,
     if not threadsafe:
+        # allocate the shared storage space for colour curves
+        # if not already allocated.
         if r_shared is NULL:
             r_shared = <uint16_t*>malloc(gamma_size * sizeof(uint16_t))
         if g_shared is NULL:
             g_shared = <uint16_t*>malloc(gamma_size * sizeof(uint16_t))
         if b_shared is NULL:
             b_shared = <uint16_t*>malloc(gamma_size * sizeof(uint16_t))
+    # If not thread-safe use those, otherwise allocate ad-hoc ones
     r = <uint16_t*>malloc(gamma_size * sizeof(uint16_t)) if threadsafe else r_shared
     g = <uint16_t*>malloc(gamma_size * sizeof(uint16_t)) if threadsafe else g_shared
     b = <uint16_t*>malloc(gamma_size * sizeof(uint16_t)) if threadsafe else b_shared
+    # Check for out-of-memory error, both for thread-safe and thread-unsafe
     if (r is NULL) or (g is NULL) or (b is NULL):
         raise MemoryError()
+    # Convert the Python colour curves to C native format
     for i in range(gamma_size):
         r[i] = r_curve[i] & 0xFFFF
         g[i] = g_curve[i] & 0xFFFF
         b[i] = b_curve[i] & 0xFFFF
     rc = 0
+    # For each selected CRTC,
     for crtc_index in crtc_indices:
+        # adjust the colour curves.
         rc |= blueshift_drm_set_gamma_ramps(connection, crtc_index, gamma_size, r, g, b)
     if threadsafe:
+        # deallocate the ad-hoc curve storage
+        # if running in thread-safe mode
         free(r)
         free(g)
         free(b)
