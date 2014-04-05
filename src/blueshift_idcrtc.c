@@ -56,8 +56,11 @@ static xcb_generic_error_t* error;
  * @param   argv  Command line arguments
  * @return        Zero on success
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstack-protector"
 int main(int argc, char** argv)
 {
+#pragma GCC diagnostic pop
   char* display = NULL;
   xcb_randr_query_version_cookie_t version_cookie;
   xcb_randr_query_version_reply_t* randr_version;

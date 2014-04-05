@@ -35,7 +35,6 @@ static xcb_connection_t* connection;
 static xcb_generic_error_t* error;
 
 
-
 /**
  * Main entry point of the program
  * 
@@ -43,8 +42,11 @@ static xcb_generic_error_t* error;
  * @param   argv  Command line arguments
  * @return        Zero on success
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstack-protector"
 int main(int argc, char** argv)
 {
+#pragma GCC diagnostic pop
   char* display = NULL;
   xcb_screen_iterator_t iter;
   int screen_count;
