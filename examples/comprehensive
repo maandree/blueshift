@@ -395,10 +395,11 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
             for condition in conditions:
                 if condition in weather_modifiers:
                     dayness *= weather_modifiers[condition]
-            _bound, visibility = metar[1]
-            if (visibility_max is not None) and (visibility is not None):
-                if visibility < visibility_max:
-                    dayness *= visibility / visibility_max
+            if metar[1] is not None:
+                (_bound, visibility) = metar[1]
+                if (visibility_max is not None) and (visibility is not None):
+                    if visibility < visibility_max:
+                        dayness *= visibility / visibility_max
     
     # Do not do unnecessary work.
     if fade is None:

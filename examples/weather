@@ -60,10 +60,11 @@ if metar is not None:
     for condition in conditions:
         if condition in modifiers:
             dayness *= modifiers[condition]
-    _bound, visibility = metar[1]
-    if (visibility_max is not None) and (visibility is not None):
-        if visibility < visibility_max:
-            dayness *= visibility / visibility_max
+    if metar[1] is not None:
+        _bound, visibility = metar[1]
+        if (visibility_max is not None) and (visibility is not None):
+            if visibility < visibility_max:
+                dayness *= visibility / visibility_max
 
 # Calculation of the colour temperature.
 temp = temperature_day * dayness + temperature_night * (1 - dayness)
