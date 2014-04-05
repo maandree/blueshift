@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 cimport cython
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport malloc, free, realloc
 from libc.stdint cimport *
 
 
@@ -516,22 +516,69 @@ def drm_get_edid(int connection, int connector_index):
     cdef char* edid
     cdef bytes rc
     
+    # Prototype side of the hexadecimal representation
+    # of the EDID, should be exact
     size = 256
+    # Allocate storage space for the EDID, with one
+    # extra character for NUL-termination
     edid = <char*>malloc((size + 1) * sizeof(char))
+    # Check for out-of-memory error
     if edid is NULL:
         raise MemoryError()
+    # Fill the storage space for the EDID, with the
+    # EDID of the monitor connected to the selected
+    # connector, in hexadecimal, representation.
     got = blueshift_drm_get_edid(connection, connector_index, edid, size, 1)
     
+    # If the length of the EDID is zero,
     if got == 0:
+        # the free the storage space,
         free(edid)
+        # and return that it failed.
         return None
     
+    # But if we got an non-zero length, it is of the
+    # EDID's byte-length, not in hexadecimal representation
+    # that is twice as long.
     if got * 2 > size:
-        size = got
-        blueshift_drm_get_edid(connection, connector_index, edid, size, 1)
+        # In if that length is larger than we have anticipated,
+        # update to new size (of the hexadecimal representation),
+        size = got * 2
+        # and reallocate the storage.
+        edid = <char*>realloc(edid, (size + 1) * sizeof(char))
+        # Check for out-of-memory error
+        if edid is NULL:
+            raise MemoryError()
+        # Get the full EDID.
+        got = blueshift_drm_get_edid(connection, connector_index, edid, size, 1)
+        # Check that we got the EDID. There is an unlikely
+        # race condition where the user can have unplugged
+        # the monitor.
+        if got == 0:
+            # If we did not get an EDID,
+            # free the storage for it,
+            free(edid)
+            # and return that it failed.
+            return None
+        # If we got a large EDID yet,
+        if got * 2 > size:
+            # ignore it because it should happen,
+            # EDID:s are 128 bytes long and the risk that
+            # the use plugged in new monitor that did not
+            # have the same EDID format, is super unlikely.
+            # She would have to pause the program or used
+            # a KVM switch between the two readings.
+            # Instead just truncate the EDID to the size
+            # that we expected; it is not fatal.
+            got = size // 2
     
+    # NUL-terminate the EDID,
     edid[got * 2] = 0
+    # and convert it to bytes so that we can
+    # later convert it to a Python string,
     rc = edid
+    # and deallocate the C string.
     free(edid)
+    # Convert the EDID to a Sython string
     return rc.decode('utf-8', 'replace')
 
