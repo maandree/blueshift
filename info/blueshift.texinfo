@@ -1799,7 +1799,7 @@ Approximate average colour temperature of electronic flash.
 @c  https://en.wikipedia.org/wiki/Colour_temperature
 
 @item K_XENON_SHORT_ARC_LAMP = 6200 K
-Approximate colour temperature of Xenon short-arc lamp.
+Approximate colour temperature of xenon short-arc lamp.
 @c  https://en.wikipedia.org/wiki/Colour_temperature
 
 @item K_DAYLIGHT = 6500 K
