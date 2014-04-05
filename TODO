@@ -17,6 +17,7 @@ Low priority:
 	  https://en.wikipedia.org/wiki/Lanczos_resampling
 	  https://en.wikipedia.org/wiki/Kochanek–Bartels_spline
 	  https://en.wikipedia.org/wiki/Stairstep_interpolation
+	  https://en.wikipedia.org/wiki/Hermite_interpolation
 	Use curve sizes returned from RandR/VidMode/...
 	Use Robertson's method
 
