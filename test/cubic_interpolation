@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+# -*- python -*-
+
+
+# Test of cubic interpolation.
+
+
+# Load matplotlib.pyplot,
+# it can take some time so
+# print information about it.
+print('Loading matplotlib.pyplot...')
+import matplotlib.pyplot as plot
+print('Done loading matplotlib.pyplot')
+
+
+def main():
+    # Create a page with graphs
+    fig = plot.figure()
+    
+    # Add graphs
+    add_graph(fig, 111, [i / 15 for i in range(16)])
+    
+    # Show graphs
+    plot.show()
+
+def add_graph(fig, graph_pos, input_values):
+    '''
+    Add a graph
+    
+    @param  fig:Figure                The page to which to add the graph
+    @param  graph_pos:int             Where to place the graph
+    @param  input_values:list<float>  The input values for each point
+    '''
+    # Interpolate data
+    output_values = interpolate(input_values)
+    # Number of input points
+    n = len(input_values)
+    # Number of output points
+    m = len(output_values)
+    # Create graph
+    graph = fig.add_subplot(graph_pos)
+    # Plot interpolated data
+    graph.plot([i / (m - 1) for i in range(m)], output_values, 'b-')
+    # Plot input data
+    graph.plot([i / (n - 1) for i in range(n)], input_values, 'ro')
+
+
+def interpolate(small):
+    '''
+    Interpolate data
+    
+    @param   small:list<float>  The input values for each point
+    @return  :list<float>       The values for each point in a scaled up version
+    '''
+    large = [None] * len(small) ** 2
+    small_, large_ = len(small) - 1, len(large) - 1
+    # Basis functions
+    h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
+    h01 = lambda t : t * (1 - t) ** 2
+    h10 = lambda t : t ** 2 * (3 - 2 * t)
+    h11 = lambda t : t ** 2 * (t - 1)
+    def tangent(values, index, last):
+        '''
+        Calculate the tangent at a point
+        
+        @param   values:list<float>  Mapping from points to values
+        @param   index:int           The point
+        @param   last:int            The last point
+        @return  :float              The tangent at the point `index`
+        '''
+        if last == 0:      return 0
+        if index == 0:     return values[1] - values[0]
+        if index == last:  return values[last] - values[last - 1]
+        return (values[index + 1] - values[index - 1]) / 2
+    for i in range(len(large)):
+        # Scaling
+        j = i * small_ / large_
+        # Floor, weight, ceiling
+        j, w, k = int(j), j % 1, min(int(j) + 1, small_)
+        # Points
+        pj, pk = small[j], small[k]
+        # Tangents
+        mj, mk = tangent(small, j, small_), tangent(small, k, small_)
+        # Interpolation
+        large[i] = h00(w) * pj + h10(w) * mj + h01(w) * pk + h11(w) * mk
+    return large
+
+# Plot interpolation
+main()
+
