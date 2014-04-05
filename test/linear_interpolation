@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+# -*- python -*-
+
+
+# Test of linear interpolation.
+# Intended as a test of the test and
+# as a reference implemention of a test.
+
+
+# Load matplotlib.pyplot,
+# it can take some time so
+# print information about it.
+print('Loading matplotlib.pyplot...')
+import matplotlib.pyplot as plot
+print('Done loading matplotlib.pyplot')
+
+
+def main():
+    # Create a page with graphs
+    fig = plot.figure()
+    
+    # Add graphs
+    add_graph(fig, 111, [i / 15 for i in range(16)])
+    
+    # Show graphs
+    plot.show()
+
+def add_graph(fig, graph_pos, input_values):
+    '''
+    Add a graph
+    
+    @param  fig:Figure                The page to which to add the graph
+    @param  graph_pos:int             Where to place the graph
+    @param  input_values:list<float>  The input values for each point
+    '''
+    # Interpolate data
+    output_values = interpolate(input_values)
+    # Number of input points
+    n = len(input_values)
+    # Number of output points
+    m = len(output_values)
+    # Create graph
+    graph = fig.add_subplot(graph_pos)
+    # Plot interpolated data
+    graph.plot([i / (m - 1) for i in range(m)], output_values, 'b-')
+    # Plot input data
+    graph.plot([i / (n - 1) for i in range(n)], input_values, 'ro')
+
+
+def interpolate(small):
+    '''
+    Interpolate data
+    
+    @param   small:list<float>  The input values for each point
+    @return  :list<float>       The values for each point in a scaled up version
+    '''
+    large = [None] * len(small) ** 2
+    small_, large_ = len(small) - 1, len(large) - 1
+    for i in range(len(large)):
+        # Scaling
+        j = i * small_ / large_
+        # Floor, weight, ceiling
+        j, w, k = int(j), j % 1, min(int(j) + 1, small_)
+        # Interpolation
+        large[i] = small[j] * (1 - w) + small[k] * w
+    return large
+
+# Plot interpolation
+main()
+

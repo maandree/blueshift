@@ -1,0 +1,9 @@
+These are test for matematical formulæ.
+They require python-matplotlib, and that
+you run in a graphical session.
+
+Ohh, and if you wrap everying arount
+`with plot.xkcd():` and have Humor Sans
+installed, it is going to be awesome,
+but not too useful.
+
