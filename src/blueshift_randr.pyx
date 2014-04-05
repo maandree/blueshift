@@ -61,8 +61,19 @@ Resource freeing stage of colour curve control
 
 
 cdef unsigned short int* r_c
+'''
+Storage space for the red colour curve in C native data structure
+'''
+
 cdef unsigned short int* g_c
+'''
+Storage space for the green colour curve in C native data structure
+'''
+
 cdef unsigned short int* b_c
+'''
+Storage space for the blue colour curve in C native data structure
+'''
 
 
 
@@ -75,14 +86,18 @@ def randr_open(int use_screen, display):
     @return  :int            Zero on success
     '''
     global r_c, g_c, b_c
+    # Get the display to use
     cdef char* display_ = NULL
     if display is not None:
         display_ = display
+    # Allocate the storage space for the C native colour curves
     r_c = <unsigned short int*>malloc(256 * 2)
     g_c = <unsigned short int*>malloc(256 * 2)
     b_c = <unsigned short int*>malloc(256 * 2)
+    # Check for out-of-memory error
     if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
         raise MemoryError()
+    # Start using RandR for the screen and display
     return blueshift_randr_open(use_screen, display_)
 
 
@@ -94,16 +109,20 @@ def randr_read(int use_crtc):
     @return  :(r:list<int>, g:list<int>, b:list<int>)  The current red, green and blue colour curves
     '''
     cdef unsigned short int* got
+    # Read the current curves
     got = blueshift_randr_read(use_crtc)
     if got is NULL:
         raise Exception()
+    # Convert to Python integer lists
     r, g, b, i = [], [], [], 0
     for c in (r, g, b):
+        # while extracting the sizes of the curves
         s = got[i]
         i += 1
         for j in range(s):
             c.append(got[i + j])
         i += s
+    # Free the native curves
     free(got)
     return (r, g, b)
 
@@ -118,10 +137,12 @@ def randr_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
     @param   b_curve:list<unsigned short int>  The blue colour curve
     @return                                    Zero on success
     '''
+    # Convert curves to 16-bit C integers
     for i in range(256):
         r_c[i] = r_curve[i] & 0xFFFF
         g_c[i] = g_curve[i] & 0xFFFF
         b_c[i] = b_curve[i] & 0xFFFF
+    # Apply curves
     return blueshift_randr_apply(use_crtcs, r_c, g_c, b_c)
 
 
@@ -129,8 +150,10 @@ def randr_close():
     '''
     Resource freeing stage of colour curve control
     '''
+    # Free the storage space for the colour curves
     free(r_c)
     free(g_c)
     free(b_c)
+    # Close free all resources in the native code
     blueshift_randr_close()
 
