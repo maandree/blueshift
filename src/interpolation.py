@@ -21,7 +21,7 @@ from aux import *
 from curve import *
 
 
-def linearly_interpolate_ramp(r, g, b): # TODO demo this
+def linearly_interpolate_ramp(r, g, b):
     '''
     Linearly interpolate ramps to the size of the output axes
     
@@ -47,7 +47,7 @@ def linearly_interpolate_ramp(r, g, b): # TODO demo this
     return (R, G, B)
 
 
-def cubicly_interpolate_ramp(r, g, b): # TODO demo this
+def cubicly_interpolate_ramp(r, g, b):
     '''
     Interpolate ramps to the size of the output axes using cubic Hermite spline
     
@@ -198,12 +198,22 @@ def interpolate_function(function, interpolator):
     @param   interpolator:(list<float>{3})?→[list<float>{3}]  Function that interpolates lookup tables
     @return  :()→void                                         `function` interpolated
     '''
+    # Do not interpolation if none is selected
     if interpolator is None:
         return function
+    # Store the current adjustments, we
+    # will need to apply our own temporary
+    # adjustments
     stored = store()
+    # Clean any adjustments,
     start_over()
+    # and apply those we should interpolate.
     function()
+    # Interpolate the adjustments we just
+    # made and make a function out of it
     rc = functionise(interpolator(*store()))
+    # Restore the adjustments to those
+    # that were applied when we started
     restore(stored)
     return rc
 
