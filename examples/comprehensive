@@ -131,7 +131,7 @@ def apply_curves(*crtcs, screen = 0):
     @param  screen:int    The screen to which the monitors belong
     '''
     # Single display and single server, variant:
-    (apply_curves_tty if ttymode apply_curves_x)(*crtcs, screen = screen)
+    (apply_curves_tty if ttymode else apply_curves_x)(*crtcs, screen = screen)
     
     # Variant for TTY and all X display:
     #apply_curves_tty(*crtcs, screen = screen)
@@ -315,7 +315,15 @@ for i in range(len(current_calibration)):
     if f is not None:
         if not len(monitors) == 0:
             m = monitors[i % len(monitors)]
-        current_calibration[i] = f(m)
+        f = f(m)
+        
+        # Use linear interpolation
+        f = interpolate_function(f, linearly_interpolate_ramp)
+        # Use cubic interpolation
+        #f = interpolate_function(f, cubicly_interpolate_ramp)
+        # Otherwise use nearest-neighbour
+        
+        current_calibration[i] = f
 
 
 monitor_controller = lambda : apply_curves(*monitors)
@@ -489,7 +497,15 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         i = m % len(icc_calibration_profile)
         if icc_calibration_profile[i] is not None:
             if isinstance(icc_calibration_profile[i], str):
-                icc_calibration_profile[i] = load_icc(icc_calibration_profile[i])
+                f = load_icc(icc_calibration_profile[i])
+                
+                # Use linear interpolation
+                f = interpolate_function(f, linearly_interpolate_ramp)
+                # Use cubic interpolation
+                #f = interpolate_function(f, cubicly_interpolate_ramp)
+                # Otherwise use nearest-neighbour
+                
+                icc_calibration_profile[i] = f
             icc_calibration_profile[i]()
         
         # Flush settings to monitor.
