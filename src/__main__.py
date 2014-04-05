@@ -38,7 +38,7 @@ PROGRAM_NAME = 'blueshift'
 :str  The name of the program
 '''
 
-PROGRAM_VERSION = '1.16'
+PROGRAM_VERSION = '1.17'
 '''
 :str  The version of the program
 '''
