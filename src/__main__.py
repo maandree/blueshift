@@ -93,6 +93,7 @@ from monitor import *
 from weather import *
 from backlight import *
 from blackbody import *
+from interpolation import *
 
 
 
