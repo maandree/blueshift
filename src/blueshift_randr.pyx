@@ -17,6 +17,7 @@
 
 cimport cython
 from libc.stdlib cimport malloc, free
+from libc.stdint cimport *
 
 
 cdef extern int blueshift_randr_open(int use_screen, char* display)
@@ -28,7 +29,7 @@ Start stage of colour curve control
 @return              Zero on success
 '''
 
-cdef extern unsigned short int* blueshift_randr_read(int use_crtc)
+cdef extern uint16_t* blueshift_randr_read(int use_crtc)
 '''
 Gets the current colour curves
 
@@ -40,9 +41,7 @@ Gets the current colour curves
 '''
 
 cdef extern int blueshift_randr_apply(unsigned long long int use_crtcs,
-                                      unsigned short int* r_curve,
-                                      unsigned short int* g_curve,
-                                      unsigned short int* b_curve)
+                                      uint16_t* r_curve, uint16_t* g_curve, uint16_t* b_curve)
 '''
 Apply stage of colour curve control
 
@@ -60,17 +59,17 @@ Resource freeing stage of colour curve control
 
 
 
-cdef unsigned short int* r_c
+cdef uint16_t* r_c
 '''
 Storage space for the red colour curve in C native data structure
 '''
 
-cdef unsigned short int* g_c
+cdef uint16_t* g_c
 '''
 Storage space for the green colour curve in C native data structure
 '''
 
-cdef unsigned short int* b_c
+cdef uint16_t* b_c
 '''
 Storage space for the blue colour curve in C native data structure
 '''
@@ -91,9 +90,9 @@ def randr_open(int use_screen, display):
     if display is not None:
         display_ = display
     # Allocate the storage space for the C native colour curves
-    r_c = <unsigned short int*>malloc(256 * 2)
-    g_c = <unsigned short int*>malloc(256 * 2)
-    b_c = <unsigned short int*>malloc(256 * 2)
+    r_c = <uint16_t*>malloc(256 * sizeof(uint16_t))
+    g_c = <uint16_t*>malloc(256 * sizeof(uint16_t))
+    b_c = <uint16_t*>malloc(256 * sizeof(uint16_t))
     # Check for out-of-memory error
     if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
         raise MemoryError()
@@ -108,7 +107,7 @@ def randr_read(int use_crtc):
     @param   use_crtc                                  The CRTC to use
     @return  :(r:list<int>, g:list<int>, b:list<int>)  The current red, green and blue colour curves
     '''
-    cdef unsigned short int* got
+    cdef uint16_t* got
     # Read the current curves
     got = blueshift_randr_read(use_crtc)
     if got is NULL:
@@ -131,11 +130,11 @@ def randr_apply(unsigned long long use_crtcs, r_curve, g_curve, b_curve):
     '''
     Apply stage of colour curve control
     
-    @param   use_crtcs                         Mask of CRTC:s to use
-    @param   r_curve:list<unsigned short int>  The red colour curve
-    @param   g_curve:list<unsigned short int>  The green colour curve
-    @param   b_curve:list<unsigned short int>  The blue colour curve
-    @return                                    Zero on success
+    @param   use_crtcs          Mask of CRTC:s to use
+    @param   r_curve:list<int>  The red colour curve
+    @param   g_curve:list<int>  The green colour curve
+    @param   b_curve:list<int>  The blue colour curve
+    @return                     Zero on success
     '''
     # Convert curves to 16-bit C integers
     for i in range(256):

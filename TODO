@@ -15,7 +15,6 @@ Low priority:
 	  https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
 	  https://en.wikipedia.org/wiki/Spline_interpolation
 	  https://en.wikipedia.org/wiki/Lanczos_resampling
-	Increase portability of .pyx code
 	Use curve sizes returned from RandR/VidMode/...
 
 Future stuff:
