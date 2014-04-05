@@ -365,15 +365,15 @@ def drm_set_gamma_ramps(int connection, crtc_indices, int gamma_size, r_curve, g
     '''
     Set the gamma ramps of the of a monitor
     
-    @param   connection            The identifier for the connection to the card
-    @param   crtc_index:list<int>  The index of the CRTC to read from
-    @param   gamma_size            The size a gamma ramp
-    @param   r_curve:list<int>     The red gamma ramp
-    @param   g_curve:list<int>     The green gamma ramp
-    @param   b_curve:list<int>     The blue gamma ramp
-    @param   threadsafe:bool       Whether to decrease memory efficiency and performace so
-                                   multiple threads can use DRM concurrently
-    @return  :int                  Zero on success
+    @param   connection              The identifier for the connection to the card
+    @param   crtc_indices:list<int>  The indices of the CRTC:s to control
+    @param   gamma_size              The size a gamma ramp
+    @param   r_curve:list<int>       The red gamma ramp
+    @param   g_curve:list<int>       The green gamma ramp
+    @param   b_curve:list<int>       The blue gamma ramp
+    @param   threadsafe:bool         Whether to decrease memory efficiency and performace so
+                                     multiple threads can use DRM concurrently
+    @return  :int                    Zero on success
     '''
     global r_shared, g_shared, b_shared
     cdef uint16_t* r
