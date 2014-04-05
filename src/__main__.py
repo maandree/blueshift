@@ -646,12 +646,20 @@ for key in l:
 settings = [gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures]
 if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
-    import importlib
+    # Get the Python version
+    v = sys.version_info
     # Load and execute adhoc.py with the same
     # globals as this module, so that it can
     # not only use want we have defined, but
     # also redefine it for us.
-    exec(importlib.find_loader('adhoc').get_code('adhoc'), g)
+    if (v.major > 3) or ((v.major == 3) and (v.minor >= 4)):
+        # The (new) Python 3.4 way
+        import importlib.util
+        exec(importlib.util.find_spec('adhoc').loader.get_code('adhoc'), g)
+    else:
+        # The deprecated legacy way
+        import importlib
+        exec(importlib.find_loader('adhoc').get_code('adhoc'), g)
 else:
     ## Load extension and configurations via blueshiftrc
     # No configuration script has been selected explicitly,
