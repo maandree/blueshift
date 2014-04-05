@@ -14,13 +14,16 @@ print('Loading matplotlib.pyplot...')
 import matplotlib.pyplot as plot
 print('Done loading matplotlib.pyplot')
 
+from math import *
+
 
 def main():
     # Create a page with graphs
     fig = plot.figure()
     
     # Add graphs
-    add_graph(fig, 111, [i / 15 for i in range(16)])
+    add_graph(fig, 211, [i / 15 for i in range(16)])
+    add_graph(fig, 212, [sin(6 * i / 15) for i in range(16)])
     
     # Show graphs
     plot.show()

@@ -12,13 +12,16 @@ print('Loading matplotlib.pyplot...')
 import matplotlib.pyplot as plot
 print('Done loading matplotlib.pyplot')
 
+from math import *
+
 
 def main():
     # Create a page with graphs
     fig = plot.figure()
     
     # Add graphs
-    add_graph(fig, 111, [i / 15 for i in range(16)])
+    add_graph(fig, 211, [i / 15 for i in range(16)])
+    add_graph(fig, 212, [sin(6 * i / 15) for i in range(16)])
     
     # Show graphs
     plot.show()
@@ -45,7 +48,7 @@ def add_graph(fig, graph_pos, input_values):
     graph.plot([i / (n - 1) for i in range(n)], input_values, 'ro')
 
 
-def interpolate(small):
+def interpolate(small, tension = 0):
     '''
     Interpolate data
     
@@ -56,8 +59,8 @@ def interpolate(small):
     small_, large_ = len(small) - 1, len(large) - 1
     # Basis functions
     h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
-    h01 = lambda t : t * (1 - t) ** 2
-    h10 = lambda t : t ** 2 * (3 - 2 * t)
+    h10 = lambda t : t * (1 - t) ** 2
+    h01 = lambda t : t ** 2 * (3 - 2 * t)
     h11 = lambda t : t ** 2 * (t - 1)
     def tangent(values, index, last):
         '''
@@ -72,6 +75,8 @@ def interpolate(small):
         if index == 0:     return values[1] - values[0]
         if index == last:  return values[last] - values[last - 1]
         return (values[index + 1] - values[index - 1]) / 2
+    # Tension coefficent
+    c_ = 1 - tension
     for i in range(len(large)):
         # Scaling
         j = i * small_ / large_
@@ -80,7 +85,7 @@ def interpolate(small):
         # Points
         pj, pk = small[j], small[k]
         # Tangents
-        mj, mk = tangent(small, j, small_), tangent(small, k, small_)
+        mj, mk = c_ * tangent(small, j, small_), c_ * tangent(small, k, small_)
         # Interpolation
         large[i] = h00(w) * pj + h10(w) * mj + h01(w) * pk + h11(w) * mk
     return large

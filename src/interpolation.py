@@ -47,13 +47,14 @@ def linearly_interpolate_ramp(r, g, b):
     return (R, G, B)
 
 
-def cubicly_interpolate_ramp(r, g, b):
+def cubicly_interpolate_ramp(r, g, b, tension = 0): # TODO demo and document tension parameter
     '''
     Interpolate ramps to the size of the output axes using cubic Hermite spline
     
     @param   r:list<float>                                   The red colour curves
     @param   g:list<float>                                   The green colour curves
     @param   b:list<float>                                   The blue colour curves
+    @param   tension:float                                   A [0, 1] value of the tension
     @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
                                                              or their original size, whatever is larger.
     '''
@@ -61,8 +62,8 @@ def cubicly_interpolate_ramp(r, g, b):
     R, G, B = C(r), C(g), C(b)
     # Basis functions
     h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
-    h01 = lambda t : t * (1 - t) ** 2
-    h10 = lambda t : t ** 2 * (3 - 2 * t)
+    h10 = lambda t : t * (1 - t) ** 2
+    h01 = lambda t : t ** 2 * (3 - 2 * t)
     h11 = lambda t : t ** 2 * (t - 1)
     def tangent(values, index, last):
         '''
@@ -77,6 +78,8 @@ def cubicly_interpolate_ramp(r, g, b):
         if index == 0:     return values[1] - values[0]
         if index == last:  return values[last] - values[last - 1]
         return (values[index + 1] - values[index - 1]) / 2
+    # Tension coefficent
+    c_ = 1 - tension
     # Interpolate each curve
     for small, large in ((r, R), (g, G), (b, B)):
         small_, large_ = len(small) - 1, len(large) - 1
@@ -90,7 +93,7 @@ def cubicly_interpolate_ramp(r, g, b):
                 # Points
                 pj, pk = small[j], small[k]
                 # Tangents
-                mj, mk = tangent(small, j, small_), tangent(small, k, small_)
+                mj, mk = c_ * tangent(small, j, small_), c_ * tangent(small, k, small_)
                 # Interpolation
                 large[i] = h00(w) * pj + h10(w) * mj + h01(w) * pk + h11(w) * mk
     ## Check local monotonicity
