@@ -32,37 +32,185 @@ DATADIR = 'res'
 
 
 
-# TODO add documentation
+# None of these colour temperatures are exact or
+# guaranteed to even be approximate values. A few
+# of them are from Wikipedia, others are from
+# very(!) questionable sources.
+
 K_F_LUX_W32_EMBER = 1200
+'''
+The colour temperature in the Windows port of f.lux named ‘ember’
+'''
+
+# Warning: f.lux is nasty software that is extremely
+#  negative in the freedom dimension. Values are not
+#  verified, they are only acquired from f.lux's
+#  “Frequently asked questions”.
+
 K_MATCH_FLAME = 1700
+'''
+Approximate colour temperature of the flame of a match stick
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_CANDLE_FLAME = 1850
+'''
+Approximate colour temperature of the flame of a candle
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_CANDLELIGHT = K_CANDLE_FLAME
+'''
+Synonym for `K_CANDLE_FLAME`
+'''
+
 K_SUNSET = 1850
+'''
+Approximate colour temperature of the sunset
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_SUNRISE = K_SUNSET
+'''
+Approximate colour temperature of the sunrise
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_F_LUX_W32_CANDLE = 1900
+'''
+The colour temperature in the Windows port of f.lux named ‘candle’
+'''
+
 K_HIGH_PRESSURE_SODIUM = 2100
+'''
+Approximate colour temperature of high pressure sodium
+'''
+
 K_F_LUX_MAC_CANDLE = 2300
+'''
+The colour temperature in the Mac OS X and iOS port of f.lux named ‘candle’
+'''
+
 K_F_LUX_W32_WARM_INCANDESCENT = 2300
+'''
+The colour temperature in the Windows port of f.lux named ‘warm incandescent’
+'''
+
 K_STANDARD_INCANDESCENT = 2500
+'''
+Approximate colour of standard incandescent
+'''
+
 K_INCANDESCENT = K_STANDARD_INCANDESCENT
+'''
+Synonym for `K_STANDARD_INCANDESCENT`
+'''
+
 K_F_LUX_MAC_TUNGSTEN = 2700
+'''
+The colour temperature in the Mac OS X and iOS port of f.lux named ‘tungsten’
+'''
+
 K_F_LUX_W32_INCANDESCENT = 2700
+'''
+The colour temperature in the Windows port of f.lux named ‘incandescent’
+'''
+
 K_EXTRA_SOFT = 2700
+'''
+A very soft colour temperature
+'''
+
 K_PIANO_PIANO_LUX = K_EXTRA_SOFT
+'''
+Synonym for `K_EXTRA_SOFT` and `K_PIANO_PIANO`
+'''
+
 K_PIANO_PIANO = K_PIANO_PIANO_LUX
+'''
+Synonym for `K_EXTRA_SOFT` and `K_PIANO_PIANO_LUX`
+'''
+
 K_INCANDESCENT_LAMP = (2700 + 3300) / 2
+'''
+Approximate average colour temperature of incandescent lamps
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_EARLY_SUNRISE = (2800 + 3200) / 2
+'''
+Approximate average colour temperature the the sunrise at its early stage
+'''
+
 K_LATE_SUNSET = K_EARLY_SUNRISE
+'''
+Approximate average colour temperature the the sunsun at its late stage
+'''
+
 K_WARM_WHITE = 3000
+'''
+Approximate colour temperature of “warm white”
+'''
+
 K_SOFT_WHITE_COMPACT_FLOURESCENT_LAMP = 3000
+'''
+Approximate colour temperature of soft white compact flourescent lamps
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_WARM_WHITE_COMPACT_FLOURESCENT_LAMP = K_SOFT_WHITE_COMPACT_FLOURESCENT_LAMP
+'''
+Synonym for `K_SOFT_WHITE_COMPACT_FLOURESCENT_LAMP`
+'''
+
 K_HALOGEN_LIGHT = 3000
+'''
+Approximate colour temperature of halogen light
+'''
+
 K_TUNGSTEN_LIGHT = 3200
+'''
+Approximate colour temperature of tungsten light
+(not to be confused with scheelite)
+'''
+
 K_HOUSEHOLD_LIGHT_BULB = K_TUNGSTEN_LIGHT
+'''
+Approximate colour temperature regular household light bulbs
+'''
+
 K_LIGHT_BULB = K_HOUSEHOLD_LIGHT_BULB
-K_STUDIO_LAMPS = K_TUNGSTEN_LIGHT
-K_PHOTOFLOODS = K_STUDIO_LAMPS
+'''
+Synonym for `K_HOUSEHOLD_LIGHT_BULB`
+'''
+
+K_STUDIO_LAMP = K_TUNGSTEN_LIGHT
+'''
+Approximate colour temperature studio lamps
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
+K_PHOTOFLOOD = K_STUDIO_LAMP
+'''
+Approximate colour temperature photoflood
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_STUDIO_CP_LIGHT = 3350
+'''
+Approximate colour temperature studio ‘CP’ light
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_F_LUX_MAC_HALOGEN = 3400
 K_F_LUX_W32_HALOGEN = 3400
 K_SOFT = 3700
@@ -70,6 +218,10 @@ K_PIANO_LUX = K_SOFT
 K_PIANO = K_PIANO_LUX
 K_MOONLIGHT = (4100 + 4150) / 2
 K_COOL_WHITE = 4200
+'''
+Approximate colour temperature of “cool white”
+'''
+
 K_F_LUX_MAC_FLOURESCENT = 4200
 K_F_LUX_W32_FLOURESCENT = 4200
 K_ELECTRONIC_FLASH_BULB = 4500
