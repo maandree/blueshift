@@ -1096,6 +1096,13 @@ run @code{reset} and exit. This is normally done
 the second time @kbd{Control+c} is pressed or
 the second time a SIGTERM signal has been received.
 (Or if both has happend.)
+
+@item reset_on_error
+The default value of this variable is @code{True},
+but it can be set to @code{False}. If it is set to
+false @code{False}, Blueshift will not attempt to
+reset the colour curves if the configuration script
+crashes.
 @end table
 
 The parameterless function @code{continuous_run},

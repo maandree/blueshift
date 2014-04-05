@@ -216,7 +216,7 @@ trans_delta = -1
 :int  In what direction are with transitioning?
 '''
 
-reset_on_error = True # TODO demo and document this
+reset_on_error = True
 '''
 :bool  Whether to reset the colour curves if the configuration script
        runs into an exception that it did not handle

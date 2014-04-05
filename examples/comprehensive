@@ -338,6 +338,13 @@ uses_adhoc_opts = True
 '''
 
 
+reset_on_error = True
+'''
+:bool  Whether to reset the colour curves if the configuration script
+       runs into an exception that it did not handle
+'''
+
+
 # Get --reset from Blueshift ad-hoc settigns
 doreset = parser.opts['--reset']
 
