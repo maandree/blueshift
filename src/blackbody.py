@@ -32,10 +32,11 @@ DATADIR = 'res'
 
 
 
-# None of these colour temperatures are exact or
-# guaranteed to even be approximate values. A few
-# of them are from Wikipedia, others are from
-# very(!) questionable sources.
+# None (except those from the D series) of these
+# colour temperatures are exact or guaranteed to
+# even be approximate values. A few of them are
+# from Wikipedia, others are from very(!)
+# questionable sources.
 
 K_F_LUX_W32_EMBER = 1200
 '''
@@ -159,7 +160,7 @@ Approximate colour temperature of “warm white”
 
 K_SOFT_WHITE_COMPACT_FLOURESCENT_LAMP = 3000
 '''
-Approximate colour temperature of soft white compact flourescent lamps
+Approximate colour temperature of soft/warm white compact flourescent lamps
 
 @ref  https://en.wikipedia.org/wiki/Colour_temperature
 '''
@@ -212,59 +213,278 @@ Approximate colour temperature studio ‘CP’ light
 '''
 
 K_F_LUX_MAC_HALOGEN = 3400
+'''
+The colour temperature in the Mac OS X and iOS port of f.lux named ‘halogen’
+'''
+
 K_F_LUX_W32_HALOGEN = 3400
+'''
+The colour temperature in the Windows port of f.lux named ‘halogen’
+'''
+
 K_SOFT = 3700
+'''
+A soft colour temperature
+'''
+
 K_PIANO_LUX = K_SOFT
+'''
+Synonym for `K_SOFT` and `K_PIANO`
+'''
+
 K_PIANO = K_PIANO_LUX
+'''
+Synonym for `K_SOFT` and `K_PIANO_LUX`
+'''
+
 K_MOONLIGHT = (4100 + 4150) / 2
+'''
+Approximate average colour temperature of moonlight
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_COOL_WHITE = 4200
 '''
 Approximate colour temperature of “cool white”
 '''
 
 K_F_LUX_MAC_FLOURESCENT = 4200
+'''
+The colour temperature in the Mac OS X and iOS port of f.lux named ‘flourescent’
+'''
+
 K_F_LUX_W32_FLOURESCENT = 4200
+'''
+The colour temperature in the Windows port of f.lux named ‘flourescent’
+'''
+
 K_ELECTRONIC_FLASH_BULB = 4500
+'''
+Approximate colour temperature of electronic flash bulbs
+'''
+
 K_FLASH_BULB = K_ELECTRONIC_FLASH_BULB
+'''
+Synonym for `K_ELECTRONIC_FLASH_BULB`
+'''
+
 K_D50 = 5000
+'''
+The standard illuminate D50 (5000 K) of the CIE standard illuminate series D
+'''
+
 K_NOON_DAYLIGHT = 5000
+'''
+Approximate colour temperature of noon daylight
+'''
+
 K_DIRECT_SUN = K_NOON_DAYLIGHT
+'''
+Approximate colour temperature of direct sunlight
+'''
+
 K_METAL_HALIDE = 5000
+'''
+Approximate colour temperature of metal halide
+'''
+
 K_HORIZON_DAYLIGHT = 5000
+'''
+Approximate colour temperature of horizon daylight
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_TUBULAR_FLUORESCENT_LAMP = 5000
+'''
+Approximate colour temperature of tubular fluorescent lamps
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_COOL_WHITE_COMPACT_FLUORESCENT_LAMPS = 5000
+'''
+Approximate colour temperature of cool white/daylight compact fluorescent lamps
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_DAYLIGHT_WHITE_COMPACT_FLUORESCENT_LAMPS = K_COOL_WHITE_COMPACT_FLUORESCENT_LAMPS
+'''
+Synonym for `K_COOL_WHITE_COMPACT_FLUORESCENT_LAMPS`
+'''
+
 K_F_LUX_MAC_DAYLIGHT = 5000
+'''
+The colour temperature in the Mac OS X and iOS port of f.lux named ‘daylight’
+'''
+
 K_D55 = 5500
+'''
+The standard illuminate D55 (5500 K) of the CIE standard illuminate series D
+'''
+
 K_F_LUX_W32_DAYLIGHT = 5500
+'''
+The colour temperature in the Windows port of f.lux named ‘daylight’
+'''
+
 K_MODERATELY_SOFT = 5500
+'''
+A moderately soft colour temperature
+'''
+
 K_MEZZO_PIANO_LUX = K_MODERATELY_SOFT
+'''
+Synonym for `K_MODERATELY_SOFT` and `K_MEZZO_PIANO`
+'''
+
 K_MEZZO_PIANO = K_MEZZO_PIANO_LUX
+'''
+Synonym for `K_MODERATELY_SOFT` and `K_MEZZO_PIANO_LUX`
+'''
+
 K_CRYSTAL_VERTICAL = 5600
+'''
+The colour temperature of the standard lighting of
+"Kristall, vertikal accent i glas och stål"
+(Crystal, vertical accent in glass and steal)
+
+@ref  http://ljusdesign.com/meriter/juryn.htm
+'''
+
 K_CLEAR_MID_DAY = 5600
+'''
+Approximate colour temperature of a clear mid-day
+'''
+
 K_VERTICAL_DAYLIGHT = (5500 + 6000) / 2
+'''
+Approximate average colour temperature of vertical daylight
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_ELECTRONIC_FLASH = (5500 + 6000) / 2
+'''
+Approximate average colour temperature of electronic flash
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_XENON_SHORT_ARC_LAMP = 6200
+'''
+Approximate colour temperature of Xenon short-arc lamp
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_DAYLIGHT = 6500
+'''
+Approximate colour temperature of daylight
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_OVERCAST_DAY = 6500
+'''
+Approximate colour temperature of daylight during an overcast day
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
+
 K_D65 = 6500
+'''
+The standard illuminate D65 (6500 K) of the CIE standard illuminate series D
+'''
+
 K_NEUTRAL = K_D65
+'''
+Synonym for `K_D65`, the standard colour temperature
+'''
+
 K_WHITE = K_NEUTRAL
+'''
+Synonym for `K_NEUTRAL`
+'''
+
 K_MEZZO_LUX = K_NEUTRAL
+'''
+A moderate colour temperature
+'''
+
 K_MEZZO = K_MEZZO_LUX
+'''
+Synonym for `K_MEZZO_LUX`
+'''
+
 K_SHARP = 7000
+'''
+A sharp colour temperature
+'''
+
 K_FORTE_LUX = K_SHARP
+'''
+Synonym for `K_SHARP` and `K_FORTE`
+'''
+
 K_FORTE = K_FORTE_LUX
+'''
+Synonym for `K_SHARP` and `K_FORTE_LUX`
+'''
+
 K_D75 = 7500
+'''
+The standard illuminate D75 (7500 K) of the CIE standard illuminate series D
+'''
+
 K_BLUE_FILTER = 8000
+'''
+Approximate colour temperature of a standard blue filter
+'''
+
 K_NORTH_LIGHT = 10000
-K_EXTRA_SHARP = 10000
-K_FORTE_FORTE_LUX = K_EXTRA_SHARP
-K_FORTE_FORTE = K_FORTE_FORTE_LUX
+'''
+Approximate colour temperature of north light
+'''
+
 K_BLUE_SKY = K_NORTH_LIGHT
+'''
+Synonym for `K_NORTH_LIGHT`
+'''
+
+K_EXTRA_SHARP = 10000
+'''
+A very sharp colour temperature
+'''
+
+K_FORTE_FORTE_LUX = K_EXTRA_SHARP
+'''
+Synonym for `K_EXTRA_SHARP` and `K_FORTE_FORTE`
+'''
+
+K_FORTE_FORTE = K_FORTE_FORTE_LUX
+'''
+Synonym for `K_EXTRA_SHARP` and `K_FORTE_FORTE_LUX`
+'''
+
 K_SKYLIGHT = (9000 + 15000) / 2
+'''
+Approximate average colour temperature of the skylight
+'''
+
 K_OUTDOOR_SHADE = K_SKYLIGHT
+'''
+Approximate average colour temperature of an outdoor shade
+'''
+
 K_CLEAR_BLUE_POLEWARD_SKY = (15000 + 27000) / 2
+'''
+Approximate average colour temperature of a clear blue poleward sky
+
+@ref  https://en.wikipedia.org/wiki/Colour_temperature
+'''
 
 
 
