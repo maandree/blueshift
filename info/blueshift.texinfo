@@ -1561,7 +1561,7 @@ the red, the green and the blue colour
 curves to scale up. The functions return
 a tuple of these scaled up. All functions
 are will using linear interpolation if
-an interpolation segments is non-monotonic.
+an interpolation segment is non-monotonic.
 This is done, automatically by the
 functions, by using the function
 @code{eliminate_halos} that takes six
