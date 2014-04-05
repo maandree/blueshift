@@ -7,6 +7,7 @@
 # However the are features that are only covered by the info manual:
 #   Methods for calculating correlated colour temperature
 #   The `functionise` function
+#   Predefined colour temperatures
 
 
 # This file is dual-licensed under GNU General Public License

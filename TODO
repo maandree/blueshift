@@ -8,7 +8,6 @@ Medium priority:
 	  to apply settings and how it affects the result.
 	Improve multi-screen and multi-display support so that new
 	  connections are not need all the time.
-	Demo colour temperature constants
 
 Low priority:
 	Add support for temporarily closing DRM connection so that multiple users can run in DRM
