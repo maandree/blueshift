@@ -53,6 +53,7 @@ def interpolate(small, tension = 0):
     Interpolate data
     
     @param   small:list<float>  The input values for each point
+    @param   tension:float      A [0, 1] value of the interpolation tension
     @return  :list<float>       The values for each point in a scaled up version
     '''
     large = [None] * len(small) ** 2
