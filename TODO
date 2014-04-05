@@ -16,6 +16,7 @@ Low priority:
 	  https://en.wikipedia.org/wiki/Spline_interpolation
 	  https://en.wikipedia.org/wiki/Lanczos_resampling
 	Use curve sizes returned from RandR/VidMode/...
+	Add colour temperature constants
 
 Future stuff:
 	How is it looking on the DirectFB front?
