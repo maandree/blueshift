@@ -38,15 +38,18 @@ K_MATCH_FLAME = 1700
 K_CANDLE_FLAME = 1850
 K_CANDLELIGHT = K_CANDLE_FLAME
 K_SUNSET = 1850
-K_SUNRISE = SUNSET
+K_SUNRISE = K_SUNSET
 K_F_LUX_W32_CANDLE = 1900
 K_HIGH_PRESSURE_SODIUM = 2100
 K_F_LUX_MAC_CANDLE = 2300
 K_F_LUX_W32_WARM_INCANDESCENT = 2300
 K_STANDARD_INCANDESCENT = 2500
-K_INCANDESCENT = STANDARD_INCANDESCENT
+K_INCANDESCENT = K_STANDARD_INCANDESCENT
 K_F_LUX_MAC_TUNGSTEN = 2700
 K_F_LUX_W32_INCANDESCENT = 2700
+K_EXTRA_SOFT = 2700
+K_PIANO_PIANO_LUX = K_EXTRA_SOFT
+K_PIANO_PIANO = K_PIANO_PIANO_LUX
 K_INCANDESCENT_LAMP = (2700 + 3300) / 2
 K_EARLY_SUNRISE = (2800 + 3200) / 2
 K_LATE_SUNSUN = K_EARLY_SUNRISE
@@ -64,6 +67,7 @@ K_F_LUX_MAC_HALOGEN = 3400
 K_F_LUX_W32_HALOGEN = 3400
 K_SOFT = 3700
 K_PIANO_LUX = K_SOFT
+K_PIANO = K_PIANO_LUX
 K_MOONLIGHT = (4100 + 4150) / 2
 K_COOL_WHITE = 4200
 K_F_LUX_MAC_FLOURESCENT = 4200
@@ -81,6 +85,9 @@ K_DAYLIGHT_WHITE_COMPACT_FLUORESCENT_LAMPS = K_COOL_WHITE_COMPACT_FLUORESCENT_LA
 K_F_LUX_MAC_DAYLIGHT = 5000
 K_D55 = 5500
 K_F_LUX_W32_DAYLIGHT = 5500
+K_MODERATELY_SOFT = 5500
+K_MEZZO_PIANO_LUX = K_MODERATELY_SOFT
+K_MEZZO_PIANO = K_MEZZO_PIANO_LUX
 K_CRYSTAL_VERTICAL = 5600
 K_CLEAR_MID_DAY = 5600
 K_VERTICAL_DAYLIGHT = (5500 + 6000) / 2
@@ -92,11 +99,16 @@ K_D65 = 6500
 K_NEUTRAL = K_D65
 K_WHITE = K_NEUTRAL
 K_MEZZO_LUX = K_NEUTRAL
+K_MEZZO = K_MEZZO_LUX
 K_SHARP = 7000
 K_FORTE_LUX = K_SHARP
+K_FORTE = K_FORTE_LUX
 K_D75 = 7500
 K_BLUE_FILTER = 8000
 K_NORTH_LIGHT = 10000
+K_EXTRA_SHARP = 10000
+K_FORTE_FORTE_LUX = K_EXTRA_SHARP
+K_FORTE_FORTE = K_FORTE_FORTE_LUX
 K_BLUE_SKY = K_NORTH_LIGHT
 K_SKYLIGHT = (9000 + 15000) / 2
 K_OUTDOOR_SHADE = K_SKYLIGHT
@@ -297,4 +309,22 @@ def clip_whitepoint(rgb):
     @return  :[float, float, float]     The three colour components clipped
     '''
     return [min(max(0, x), 1) for x in rgb]
+
+
+def kelvins(temperature): # TODO demo and document this
+    '''
+    Resolve and colour temperature name
+    
+    @param   temperature:float|str  The colour temperature
+    @return  :float                 The colour temperature
+    '''
+    # If float (or something we do not allow) return the input
+    if not isinstance(temperature, str):
+        return temperature
+    # Replace punctuation with underscore
+    temperature = temperature.replace('.', '_').replace('-', '_').replace(' ', '_')
+    # Add prefix and turn into upper case
+    temperature = 'K_' + temperature.upper()
+    # Evaluate (that is, return the named variable)
+    return eval(temperature)
 

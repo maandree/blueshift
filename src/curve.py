@@ -59,7 +59,7 @@ def temperature(temperature, algorithm):
     '''
     Change colour temperature according to the CIE illuminant series D using CIE sRBG
     
-    @param  temperature:float                        The blackbody temperature in kelvins
+    @param  temperature:float|str                    The blackbody temperature in kelvins, or a name
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
     rgb_temperature(temperature, algorithm)
@@ -69,9 +69,11 @@ def rgb_temperature(temperature, algorithm):
     '''
     Change colour temperature according to the CIE illuminant series D using CIE sRBG
     
-    @param  temperature:float                        The blackbody temperature in kelvins
+    @param  temperature:float|str                    The blackbody temperature in kelvins, or a name
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
+    # Resolve colour temperature name
+    temperature = kelvins(temperature) # TODO demo and document this and add to textconf and lisp-esque
     # Do nothing if the temperature is neutral
     if temperature == 6500:  return
     # Otherwise manipulate the colour curves
@@ -82,9 +84,11 @@ def cie_temperature(temperature, algorithm):
     '''
     Change colour temperature according to the CIE illuminant series D using CIE xyY
     
-    @param  temperature:float                        The blackbody temperature in kelvins
+    @param  temperature:float|str                    The blackbody temperature in kelvins, or a name
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
+    # Resolve colour temperature name
+    temperature = kelvins(temperature)
     # Do nothing if the temperature is neutral
     if temperature == 6500:  return
     # Otherwise manipulate the colour curves
