@@ -49,6 +49,7 @@ Texts. A copy of the license is included in the section entitled
 @author by Mattias Andrée (maandree)
 
 @page
+@center `The possibilities are... like endless.' -- Scootaloo
 @vskip 0pt plus 1filll
 @insertcopying
 @end titlepage
