@@ -337,7 +337,7 @@ def continuous_run():
     '''
     Invoked to run continuously if `periodically` is not `None`
     '''
-    global running, wait_period, fadein_time, fadeout_time
+    global running, wait_period, fadein_time, fadeout_time, reset_on_error
     global fadein_steps, fadeout_steps, trans_delta, p, sleep, panic
     
     def p(t, fade = None):
