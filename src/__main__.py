@@ -646,40 +646,12 @@ for key in l:
 settings = [gammas, rgb_brightnesses, cie_brightnesses, rgb_temperatures, cie_temperatures]
 if (config_file is None) and any([doreset, location] + settings):
     ## Use one time configurations
-    code, pathname = None, None
-    # Look in all Python modules paths, the program's personal
-    # path should be the first one, unless we add anything
-    # before it ourselfs.
-    for p in sys.path:
-        # If we can find the python module `adhoc`,
-        p += os.sep + 'adhoc.py'
-        if os.path.exists(p):
-            # select it
-            pathname = p
-            # and stop looking futher, we really
-            # do not want to find something else
-            # by mistake.
-            break
-    # TODO can this be done in a better way?
-    if pathname is not None:
-        with open(pathname, 'rb') as script:
-            code = script.read()
-    else: # TODO should we not try this first?
-        import zipimport
-        importer = zipimport.zipimporter(sys.argv[0])
-        code = importer.get_data('adhoc.py')
-        pathname = sys.argv[0] + os.sep + 'adhoc.py'
-    # Decode script and add a line break at the
-    # end to ensure that the last line is empty.
-    # If it is not, we will get errors.
-    code = code.decode('utf-8', 'error') + '\n'
-    # Compile the script,
-    code = compile(code, pathname, 'exec')
-    # and run it, with it have the same
+    import importlib
+    # Load and execute adhoc.py with the same
     # globals as this module, so that it can
     # not only use want we have defined, but
     # also redefine it for us.
-    exec(code, g)
+    exec(importlib.find_loader('adhoc').get_code('adhoc'), g)
 else:
     ## Load extension and configurations via blueshiftrc
     # No configuration script has been selected explicitly,
