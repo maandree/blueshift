@@ -12,7 +12,9 @@ print('Loading matplotlib.pyplot...')
 import matplotlib.pyplot as plot
 print('Done loading matplotlib.pyplot')
 
+# Modules used for input data generation
 from math import *
+from random import *
 
 
 def main():
@@ -20,8 +22,10 @@ def main():
     fig = plot.figure()
     
     # Add graphs
-    add_graph(fig, 211, [i / 15 for i in range(16)])
-    add_graph(fig, 212, [sin(6 * i / 15) for i in range(16)])
+    add_graph(fig, 221, [i / 15 for i in range(16)])
+    add_graph(fig, 222, [sin(6 * i / 15) for i in range(16)])
+    add_graph(fig, 223, [(i / 15) ** 0.5 for i in range(16)])
+    add_graph(fig, 224, [random() for i in range(16)])
     
     # Show graphs
     plot.show()
