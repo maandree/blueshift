@@ -61,7 +61,7 @@ def cubicly_interpolate_ramp(r, g, b, tension = 0): # TODO demo and document ten
     C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
     R, G, B = C(r), C(g), C(b)
     # Basis functions
-    h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
+    #h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
     h10 = lambda t : t * (1 - t) ** 2
     h01 = lambda t : t ** 2 * (3 - 2 * t)
     h11 = lambda t : t ** 2 * (t - 1)
@@ -95,7 +95,7 @@ def cubicly_interpolate_ramp(r, g, b, tension = 0): # TODO demo and document ten
                 # Tangents
                 mj, mk = c_ * tangent(small, j, small_), c_ * tangent(small, k, small_)
                 # Interpolation
-                large[i] = h00(w) * pj + h10(w) * mj + h01(w) * pk + h11(w) * mk
+                large[i] = pj + h10(w) * mj + h01(w) * (pk - pj) + h11(w) * mk
     ## Check local monotonicity
     eliminate_halos(r, g, b, R, G, B)
     return (R, G, B)
