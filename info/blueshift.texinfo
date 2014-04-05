@@ -326,6 +326,7 @@ Disables or enables Blueshift.
 * Running without X::                   Configuration options for running without X.
 * Optimising::                          Functions that can be used to optimise performance.
 * Interpolation::                       Interpolation functionised curves.
+* Temperature constants::               Predefined colour temperature values.
 @end menu
 
 
@@ -1595,6 +1596,258 @@ applies the interpolated lookup table.
 If the second argument is @code{None},
 then the first argument will be returned:
 no interpolation is done.
+
+
+@node Temperature constants
+@section Temperature constants
+
+
+There is a collection of predefined colour
+temperatures that are accessable in form
+of constants. None of these (except those
+from the D series) colour temperatures are
+exact or guaranteed to even be approximate
+values. A few of them are from Wikipedia,
+others are from @emph{very} questionable
+sources. Some values are, as indicated by
+their name, those used in f.lux.
+
+Warning: f.lux is nasty software that is
+extremely negative in the freedom dimension.
+Values are not verified, they are only
+acquired from f.lux's ``Frequently asked
+questions''.
+
+The predefined colour temperatures, in
+order of warmness, are:
+
+@c TODO can we use a proper kelvin symbol instead
+@c      of K, that is, K with all three stroked
+@c      intersecting (the K [U+212A] symbol)?
+
+@table @code
+@item K_F_LUX_W32_EMBER = 1200 K
+The colour temperature in the Windows port of f.lux named `ember'.
+
+@item K_MATCH_FLAME = 1700 K
+Approximate colour temperature of the flame of a match stick.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_CANDLE_FLAME = 1850 K
+@itemx K_CANDLELIGHT
+Approximate colour temperature of the flame of a candle.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_SUNSET = 1850 K
+Approximate colour temperature of the sunset.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_SUNRISE = 1850 K
+Approximate colour temperature of the sunrise.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_F_LUX_W32_CANDLE = 1900 K
+The colour temperature in the Windows port of f.lux named `candle'.
+
+@item K_HIGH_PRESSURE_SODIUM = 2100 K
+Approximate colour temperature of high pressure sodium
+
+@item K_F_LUX_MAC_CANDLE = 2300 K
+The colour temperature in the Mac OS X and iOS port of f.lux named `candle'.
+
+@item K_F_LUX_W32_WARM_INCANDESCENT = 2300 K
+The colour temperature in the Windows port of f.lux named `warm incandescent'.
+
+@item K_STANDARD_INCANDESCENT = 2500 K
+@itemx K_INCANDESCENT
+Approximate colour of standard incandescent.
+
+@item K_F_LUX_MAC_TUNGSTEN = 2700 K
+The colour temperature in the Mac OS X and iOS port of f.lux named `tungsten'.
+
+@item K_F_LUX_W32_INCANDESCENT = 2700 K
+The colour temperature in the Windows port of f.lux named `incandescent'.
+
+@item K_EXTRA_SOFT = 2700 K
+@c @itemx K_PIANO_PIANO_LUX
+@c @itemx K_PIANO_PIANO
+A very soft colour temperature.
+
+@item K_INCANDESCENT_LAMP = average of 2700 K and 3300 K
+Approximate average colour temperature of incandescent lamps.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_EARLY_SUNRISE = average of 2800 K and 3200 K
+Approximate average colour temperature the the sunrise at its early stage.
+
+@item K_LATE_SUNSET = average of 2800 K and 3200 K
+Approximate average colour temperature the the sunsun at its late stage.
+
+@item K_WARM_WHITE = 3000 K
+Approximate colour temperature of ``warm white''.
+
+@item K_SOFT_WHITE_COMPACT_FLOURESCENT_LAMP = 3000 K
+@itemx K_WARM_WHITE_COMPACT_FLOURESCENT_LAMP
+Approximate colour temperature of soft/warm white compact flourescent lamps.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_HALOGEN_LIGHT = 3000 K
+Approximate colour temperature of halogen light.
+
+@item K_TUNGSTEN_LIGHT = 3200 K
+Approximate colour temperature of tungsten light.
+@c (not to be confused with scheelite)
+
+@item K_HOUSEHOLD_LIGHT_BULB = 3200 K
+@itemx K_LIGHT_BULB
+Approximate colour temperature regular household light bulbs.
+
+@item K_STUDIO_LAMP = 3200 K
+Approximate colour temperature studio lamps.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_PHOTOFLOOD = 3200 K
+Approximate colour temperature photoflood.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_STUDIO_CP_LIGHT = 3350 K
+Approximate colour temperature studio `CP' light.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_F_LUX_MAC_HALOGEN = 3400 K
+The colour temperature in the Mac OS X and iOS port of f.lux named `halogen'.
+
+@item K_F_LUX_W32_HALOGEN = 3400 K
+The colour temperature in the Windows port of f.lux named `halogen'.
+
+@item K_SOFT = 3700 K
+@c @itemx K_PIANO_LUX
+@c @itemx K_PIANO
+A soft colour temperature.
+
+@item K_MOONLIGHT = average of 4100 K and 4150 K
+Approximate average colour temperature of moonlight.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_COOL_WHITE = 4200 K
+Approximate colour temperature of ``cool white''.
+
+@item K_F_LUX_MAC_FLOURESCENT = 4200 K
+The colour temperature in the Mac OS X and iOS port of f.lux named `flourescent'.
+
+@item K_F_LUX_W32_FLOURESCENT = 4200 K
+The colour temperature in the Windows port of f.lux named `flourescent'.
+
+@item K_ELECTRONIC_FLASH_BULB = 4500 K
+@itemx K_FLASH_BULB
+Approximate colour temperature of electronic flash bulbs.
+
+@item K_D50 = 5000 K
+The standard illuminant D50 of the CIE standard illuminant series D.
+
+@item K_NOON_DAYLIGHT = 5000 K
+Approximate colour temperature of noon daylight.
+
+@item K_DIRECT_SUN = 5000 K
+Approximate colour temperature of direct sunlight.
+
+@item K_METAL_HALIDE = 5000 K
+Approximate colour temperature of metal halide.
+
+@item K_HORIZON_DAYLIGHT = 5000 K
+Approximate colour temperature of horizon daylight.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_TUBULAR_FLUORESCENT_LAMP = 5000 K
+Approximate colour temperature of tubular fluorescent lamps.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_COOL_WHITE_COMPACT_FLUORESCENT_LAMPS = 5000 K
+@itemx K_DAYLIGHT_WHITE_COMPACT_FLUORESCENT_LAMPS
+Approximate colour temperature of cool white/daylight compact fluorescent lamps.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_F_LUX_MAC_DAYLIGHT = 5000 K
+The colour temperature in the Mac OS X and iOS port of f.lux named `daylight'.
+
+@item K_D55 = 5500 K
+The standard illuminant D55 of the CIE standard illuminant series D.
+
+@item K_F_LUX_W32_DAYLIGHT = 5500 K
+The colour temperature in the Windows port of f.lux named `daylight'.
+
+@item K_MODERATELY_SOFT = 5500
+@c @itemx K_MEZZO_PIANO_LUX
+@c @itemx K_MEZZO_PIANO
+A moderately soft colour temperature.
+
+@c @item K_CRYSTAL_VERTICAL = 5600 K
+@c The colour temperature of the standard lighting of
+@c "Kristall, vertikal accent i glas och stål"
+@c (Crystal, vertical accent in glass and steal)
+@c @c  http://ljusdesign.com/meriter/juryn.htm
+
+@item K_CLEAR_MID_DAY = 5600 K
+Approximate colour temperature of a clear mid-day.
+
+@item K_VERTICAL_DAYLIGHT = average of 5500 K and 6000 K
+Approximate average colour temperature of vertical daylight.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_ELECTRONIC_FLASH = average of 5500 K and 6000 K
+Approximate average colour temperature of electronic flash.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_XENON_SHORT_ARC_LAMP = 6200 K
+Approximate colour temperature of Xenon short-arc lamp.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_DAYLIGHT = 6500 K
+Approximate colour temperature of daylight.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_OVERCAST_DAY = 6500 K
+Approximate colour temperature of daylight during an overcast day.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+
+@item K_D65 = 6500 K
+@itemx K_NEUTRAL
+@itemx K_WHITE
+@c @itemx K_MEZZO_LUX
+@c @itemx K_MEZZO
+The standard illuminant D65 of the CIE standard illuminant series D,
+the standard colour temperature.
+
+@item K_SHARP = 7000 K
+@c @itemx K_FORTE_LUX
+@c @itemx K_FORTE
+A sharp colour temperature.
+
+@item K_D75 = 7500 K
+The standard illuminant D75 of the CIE standard illuminant series D.
+
+@item K_BLUE_FILTER = 8000 K
+Approximate colour temperature of a standard blue filter.
+
+@item K_NORTH_LIGHT = 10000 K
+@itemx K_BLUE_SKY
+Approximate colour temperature of north light.
+
+@item K_EXTRA_SHARP = 10000 K
+@c @itemx K_FORTE_FORTE_LUX
+@c @itemx K_FORTE_FORTE
+A very sharp colour temperature.
+
+@item K_SKYLIGHT = average of 9000 K and 15000 K
+Approximate average colour temperature of the skylight.
+
+@item K_OUTDOOR_SHADE = average of 9000 K and 15000 K
+Approximate average colour temperature of an outdoor shade.
+
+@item K_CLEAR_BLUE_POLEWARD_SKY = average of 15000 K and 27000 K
+Approximate average colour temperature of a clear blue poleward sky.
+@c  https://en.wikipedia.org/wiki/Colour_temperature
+@end table
 
 
 
