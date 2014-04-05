@@ -683,7 +683,7 @@ def clip_whitepoint(rgb):
     return [min(max(0, x), 1) for x in rgb]
 
 
-def kelvins(temperature): # TODO demo and document this
+def kelvins(temperature): # TODO demo this
     '''
     Resolve and colour temperature name
     

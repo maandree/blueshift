@@ -73,7 +73,7 @@ def rgb_temperature(temperature, algorithm):
     @param  algorithm:(float)→(float, float, float)  Algorithm for calculating a white point, for example `cmf_10deg`
     '''
     # Resolve colour temperature name
-    temperature = kelvins(temperature) # TODO demo and document this and add to textconf and lisp-esque
+    temperature = kelvins(temperature) # TODO demo this and add to textconf and lisp-esque
     # Do nothing if the temperature is neutral
     if temperature == 6500:  return
     # Otherwise manipulate the colour curves

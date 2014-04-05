@@ -1849,6 +1849,22 @@ Approximate average colour temperature of a clear blue poleward sky.
 @c  https://en.wikipedia.org/wiki/Colour_temperature
 @end table
 
+The functions @code{temperature} (@code{rgb_temperature})
+and @code{cie_temperature} allow you to, instead of specifing
+a colour temperature using literals or these constants,
+use the proper name of this constants. For example,
+if you use the string `@code{xenon short-arc lamp}'
+as the first argument (the temperature value) for the
+function @code{temperature}, @code{K_XENON_SHORT_ARC_LAMP}
+(6200 kelvins) will be used. These functions utilise
+the function @code{kelvins} that does this resolution.
+@code{kelvins} kelvins takes either a numerical value
+an returns it or takes a string and resolves it.
+Predefined recognised punctuation (dot and hyphen)
+and regular blank space is converted into underscores,
+than the string it converted to upper case and prefixed
+with `@code{K_}'. The string is then evaluated without
+any sanity-checks, it should match one of the constants.
 
 
 @node Configuration examples
