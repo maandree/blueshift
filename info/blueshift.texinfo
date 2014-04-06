@@ -1553,7 +1553,10 @@ to compensate for this, nearest-neighbour
 interpolation is used. If you want to better
 interpolation there are a few functions that
 can be used to scale up the lookup table using
-interpolation.
+interpolation. These functions have three
+arguments: the red, the green and the blue
+colour curves to scale up. The functions
+return a tuple of these scaled up.
 
 @table @code
 @item linearly_interpolate_ramp
@@ -1562,16 +1565,17 @@ Scale up using linear interpolation.
 @item cubicly_interpolate_ramp
 Scale up using cubic Hermite interpolation.
 
+This function have one additional, optional,
+parameter: @code{tension}, those default value
+is 0. It is a floating point value that should
+be between 0 and 1.
+
 @end table
 
-These functions thats three arguments:
-the red, the green and the blue colour
-curves to scale up. The functions return
-a tuple of these scaled up. All functions
-are will using linear interpolation if
-an interpolation segment is non-monotonic.
-This is done, automatically by the
-functions, by using the function
+All functions are will using linear
+interpolation if an interpolation segment
+is non-monotonic. This is done, automatically
+by the functions, by using the function
 @code{eliminate_halos} that takes six
 arguments and does not return anything.
 @code{eliminate_halos}'s arguments are
