@@ -433,7 +433,7 @@ def continuous_run():
     with_fadein  = lambda : (fadein_steps  > 0) and (fadein_time  is not None) and not panicgate
     with_fadeout = lambda : (fadeout_steps > 0) and (fadeout_time is not None)
     
-    try:
+    try: # TODO why does it look like there is a small jump at the beginning?
         ## Run until we get a signal to exit
         # When the program start we are fading in,
         # than we run in normal periodical state.
@@ -456,7 +456,7 @@ def continuous_run():
                 # If we are using fading,
                 if with_fadein():
                     # and just started
-                    if trans_alpha == 0:
+                    if trans_alpha == 1:
                         # Apply fully clean adjustments,
                         p(now(), 1 - trans_alpha)
                         # and and sleep for a short period.
@@ -466,7 +466,7 @@ def continuous_run():
                 # If we are not fading, which might actually
                 # have beend should from `periodically`, which
                 # is invoked by `p`,
-                if not with_fadein():
+                if (not with_fadein()) or (trans_alpha < 0):
                     # The jump to adjusted state and
                     # stop transitioning
                     trans_alpha = trans_delta = 0
