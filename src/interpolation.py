@@ -182,8 +182,6 @@ def monotonicly_cubicly_interpolate_ramp(r, g, b, tension = 0):
                 mj, mk = c_ * ms[j], c_ * ms[k]
                 # Interpolation
                 large[i] = pj + h10(w) * mj + h01(w) * (pk - pj) + h11(w) * mk
-    ## Check local monotonicity
-    eliminate_halos(r, g, b, R, G, B)
     return (R, G, B)
 
 
