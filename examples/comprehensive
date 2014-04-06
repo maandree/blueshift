@@ -324,6 +324,10 @@ for i in range(len(current_calibration)):
         #f = interpolate_function(f, cubicly_interpolate_ramp)
         # Use semitense cubic interpolation
         #f = interpolate_function(f, lambda *c : cubicly_interpolate_ramp(*c, tension = 0.5))
+        # Use monotone cubic interpolation
+        #f = interpolate_function(f, monotonicly_cubicly_interpolate_ramp)
+        # Use semitense monotone cubic interpolation
+        #f = interpolate_function(f, lambda *c : monotonicly_cubicly_interpolate_ramp(*c, tension = 0.5))
         # Otherwise use nearest-neighbour
         
         current_calibration[i] = f
@@ -516,6 +520,10 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
                 #f = interpolate_function(f, cubicly_interpolate_ramp)
                 # Use semitense cubic interpolation
                 #f = interpolate_function(f, lambda *c : cubicly_interpolate_ramp(*c, tension = 0.5))
+                # Use monotone cubic interpolation
+                #f = interpolate_function(f, monotonicly_cubicly_interpolate_ramp)
+                # Use semitense monotone cubic interpolation
+                #f = interpolate_function(f, lambda *c : monotonicly_cubicly_interpolate_ramp(*c, tension = 0.5))
                 # Otherwise use nearest-neighbour
                 
                 icc_calibration_profile[i] = f
