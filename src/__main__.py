@@ -54,6 +54,12 @@ def setproctitle(title):
     '''
     import ctypes
     try:
+        # Remove path, keep only the file,
+        # otherwise we get really bad effects, namely
+        # the name title is truncates by the number
+        # of slashes in the title. At least that is
+        # the observed behaviour when using procps-ng.
+        title = title.split('/')[-1]
         # Create strng buffer with title
         title = title.encode(sys.getdefaultencoding(), 'replace')
         title = ctypes.create_string_buffer(title)
