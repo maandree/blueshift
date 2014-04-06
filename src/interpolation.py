@@ -101,6 +101,92 @@ def cubicly_interpolate_ramp(r, g, b, tension = 0):
     return (R, G, B)
 
 
+def monotonic_cubicly_interpolate_ramp(r, g, b, tension = 0):
+    '''
+    Interpolate ramps to the size of the output axes using
+    monotone cubic Hermite spline and the Fritsch–Carlson method
+    
+    Does not overshoot, but regular cubic interpolation with uses
+    linear replacement for overshot areas is better
+    
+    @param   r:list<float>                                   The red colour curves
+    @param   g:list<float>                                   The green colour curves
+    @param   b:list<float>                                   The blue colour curves
+    @param   tension:float                                   A [0, 1] value of the tension
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
+                                                             or their original size, whatever is larger.
+    '''
+    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
+    R, G, B = C(r), C(g), C(b)
+    # Basis functions
+    #h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
+    h10 = lambda t : t * (1 - t) ** 2
+    h01 = lambda t : t ** 2 * (3 - 2 * t)
+    h11 = lambda t : t ** 2 * (t - 1)
+    def tangent(values, index, last):
+        '''
+        Calculate the tangent at a point
+        
+        @param   values:list<float>  Mapping from points to values
+        @param   index:int           The point
+        @param   last:int            The last point
+        @return  :float              The tangent at the point `index`
+        '''
+        if last == 0:      return 0
+        if index == 0:     return values[1] - values[0]
+        if index == last:  return values[last] - values[last - 1]
+        return (values[index + 1] - values[index - 1]) / 2
+    # Tension coefficent
+    c_ = 1 - tension
+    ## Interpolant selection
+    # Compute the slopes of the secant
+    # lines between successive points
+    ds = [small[i + 1] - small[i] for i in range(small_)]
+    # Initialize the tangents at every
+    # data point as the average of the secants
+    ms = [ds[0]] + [(ds[i - 1] + ds[i]) / 2 for i in range(1, small_)] + [ds[small_ - 1]]
+    βlast = 0
+    for i in range(small_):
+        if ds[i] == 0:
+            # Two successive values are equal, ms[i],
+            # must be zero to preserve monotonicity,
+            # no idea to do further work on them.
+            ms[i], βlast = 0, -1
+            continue
+        # Look for local extremums
+        α, β = ms[i] / ds[i], ms[i + 1] / ds[i]
+        if (α < 0) or (βlast < 0):
+            # Local extremum found,
+            # ensure piecewise monotonicity
+            ms[i], β = 0, -1
+        elif α ** 2 + β ** 2 > 9:
+            # Otherwise, prevent overshoot and ensure
+            # monotonicity by restricting the (α, β)
+            # vector to a circle of radius 3.
+            τ = 3 / (α ** 2 + β ** 2) ** 0.5
+            ms[i], ms[i + 1] = τ * α * ds[i], τ * β  * ds[i]
+        βlast = β
+    ## Interpolate each curve
+    for small, large in ((r, R), (g, G), (b, B)):
+        small_, large_ = len(small) - 1, len(large) - 1
+        # Only interpolate if scaling up
+        if large_ > small_:
+            for i in range(len(large)):
+                # Scaling
+                j = i * small_ / large_
+                # Floor, weight, ceiling
+                j, w, k = int(j), j % 1, min(int(j) + 1, small_)
+                # Points
+                pj, pk = small[j], small[k]
+                # Tangents
+                mj, mk = c_ * ms[j], c_ * ms[k]
+                # Interpolation
+                large[i] = pj + h10(w) * mj + h01(w) * (pk - pj) + h11(w) * mk
+    ## Check local monotonicity
+    eliminate_halos(r, g, b, R, G, B)
+    return (R, G, B)
+
+
 def polynomially_interpolate_ramp(r, g, b): # TODO Speedup, demo and document this
     '''
     Polynomially interpolate ramps to the size of the output axes.
