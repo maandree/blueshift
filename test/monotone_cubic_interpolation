@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+# -*- python -*-
+
+# Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# Test of monotone cubic interpolation
+# using the Fritsch–Carlson method.
+# Does not overshoot, but regular
+# cubic interpolation with linear
+# replace for overshots is better.
+
+
+# Load matplotlib.pyplot,
+# it can take some time so
+# print information about it.
+print('Loading matplotlib.pyplot...')
+import matplotlib.pyplot as plot
+print('Done loading matplotlib.pyplot')
+
+# Modules used for input data generation
+from math import *
+from random import *
+
+
+def main():
+    # Create a page with graphs
+    fig = plot.figure()
+    
+    # Add graphs
+    add_graph(fig, 221, [i / 15 for i in range(16)])
+    add_graph(fig, 222, [sin(6 * i / 15) for i in range(16)])
+    add_graph(fig, 223, [(i / 15) ** 0.5 for i in range(16)])
+    #add_graph(fig, 221, [random() for i in range(16)])
+    #add_graph(fig, 222, [random() for i in range(16)])
+    #add_graph(fig, 223, [random() for i in range(16)])
+    #add_graph(fig, 224, [random() for i in range(16)])
+    #add_graph(fig, 224, [(-1) ** (i // 2) for i in range(16)])
+    add_graph(fig, 224, [i / 15 * (-1) ** (i // 2) for i in range(16)])
+    
+    # Show graphs
+    plot.show()
+
+def add_graph(fig, graph_pos, input_values):
+    '''
+    Add a graph
+    
+    @param  fig:Figure                The page to which to add the graph
+    @param  graph_pos:int             Where to place the graph
+    @param  input_values:list<float>  The input values for each point
+    '''
+    # Interpolate data
+    output_values = interpolate(input_values)
+    # Number of input points
+    n = len(input_values)
+    # Number of output points
+    m = len(output_values)
+    # Create graph
+    graph = fig.add_subplot(graph_pos)
+    # Plot interpolated data
+    graph.plot([i / (m - 1) for i in range(m)], output_values, 'b-')
+    # Plot input data
+    graph.plot([i / (n - 1) for i in range(n)], input_values, 'ro')
+
+
+def interpolate(small, tension = 0):
+    '''
+    Interpolate data
+    
+    @param   small:list<float>  The input values for each point
+    @param   tension:float      A [0, 1] value of the interpolation tension
+    @return  :list<float>       The values for each point in a scaled up version
+    '''
+    large = [None] * len(small) ** 2
+    small_, large_ = len(small) - 1, len(large) - 1
+    # Basis functions
+    h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
+    h10 = lambda t : t * (1 - t) ** 2
+    h01 = lambda t : t ** 2 * (3 - 2 * t)
+    h11 = lambda t : t ** 2 * (t - 1)
+    # Tension coefficent
+    c_ = 1 - tension
+    ## Interpolant selection
+    # Compute the slopes of the secant
+    # lines between successive points
+    ds = [small[i + 1] - small[i] for i in range(small_)]
+    # Initialize the tangents at every
+    # data point as the average of the secants
+    ms = [ds[0]] + [(ds[i - 1] + ds[i]) / 2 for i in range(1, small_)] + [ds[small_ - 1]]
+    βlast = 0
+    for i in range(small_):
+        if ds[i] == 0:
+            # Two successive values are equal, ms[i],
+            # must be zero to preserve monotonicity,
+            # no idea to do further work on them.
+            ms[i], βlast = 0, -1
+            continue
+        # Look for local extremums
+        α, β = ms[i] / ds[i], ms[i + 1] / ds[i]
+        if (α < 0) or (βlast < 0):
+            # Local extremum found,
+            # ensure piecewise monotonicity
+            ms[i], β = 0, -1
+        elif α ** 2 + β ** 2 > 9:
+            # Otherwise, prevent overshoot and ensure
+            # monotonicity by restricting the (α, β)
+            # vector to a circle of radius 3.
+            τ = 3 / (α ** 2 + β ** 2) ** 0.5
+            ms[i], ms[i + 1] = τ * α * ds[i], τ * β  * ds[i]
+        βlast = β
+    ## Interpolation 
+    for i in range(len(large)):
+        # Scaling
+        j = i * small_ / large_
+        # Floor, weight, ceiling
+        j, w, k = int(j), j % 1, min(int(j) + 1, small_)
+        # Points
+        pj, pk = small[j], small[k]
+        # Tangents
+        mj, mk = c_ * ms[j], c_ * ms[k]
+        # Interpolation
+        large[i] = h00(w) * pj + h10(w) * mj + h01(w) * pk + h11(w) * mk
+    return large
+
+# Plot interpolation
+main()
+
