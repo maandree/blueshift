@@ -101,7 +101,7 @@ def cubicly_interpolate_ramp(r, g, b, tension = 0):
     return (R, G, B)
 
 
-def monotonic_cubicly_interpolate_ramp(r, g, b, tension = 0):
+def monotonicly_cubicly_interpolate_ramp(r, g, b, tension = 0):
     '''
     Interpolate ramps to the size of the output axes using
     monotone cubic Hermite spline and the Fritsch–Carlson method
