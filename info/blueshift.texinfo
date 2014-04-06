@@ -1570,6 +1570,19 @@ parameter: @code{tension}, those default value
 is 0. It is a floating point value that should
 be between 0 and 1.
 
+@item monotonicly_cubicly_interpolate_ramp
+Scale up using monotone cubic Hermite
+interpolation, and the Fritsch–Carlson method.
+
+Does not overshoot, but regular cubic
+interpolation with uses linear replacement
+for overshot areas is better.
+
+This function have one additional, optional,
+parameter: @code{tension}, those default value
+is 0. It is a floating point value that should
+be between 0 and 1.
+
 @end table
 
 All functions are will using linear
