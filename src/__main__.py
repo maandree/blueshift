@@ -674,7 +674,7 @@ else:
     if config_file is None:
         # Possible auto-selected configuration scripts,
         # earlier ones have precedence, we can only select one.
-        for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '$~/.config/%/%rc', '$~/.%c', '/etc/%rc'):
+        for file in ('$XDG_CONFIG_HOME/%/%rc', '$HOME/.config/%/%rc', '$HOME/.%rc', '$~/.config/%/%rc', '$~/.%rc', '/etc/%rc'):
             # Expand short-hands
             file = file.replace('/', os.sep).replace('%', 'blueshift')
             # Expand environment variables
