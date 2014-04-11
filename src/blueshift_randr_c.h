@@ -30,12 +30,12 @@
 /**
  * The major version of RandR the program expects
  */
-#define RANDR_VERSION_MAJOR  1U
+#define RANDR_VERSION_MAJOR  1
 
 /**
  * The minor version of RandR the program expects
  */
-#define RANDR_VERSION_MINOR  3U
+#define RANDR_VERSION_MINOR  3
 
 
 
@@ -47,7 +47,7 @@ typedef struct blueshift_randr_crtc
   /**
    * Size of colour curves on the X-axis
    */
-  unsigned int curve_size;
+  uint16_t curve_size;
   
   /**
    * CRT controller

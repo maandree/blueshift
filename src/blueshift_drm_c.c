@@ -114,14 +114,14 @@ int blueshift_drm_open_card(int card_index)
     }
   
   if (card_connection_reuse_ptr)
-    rc = *(card_connection_reusables + --card_connection_reuse_ptr);
+    rc = (int)*(card_connection_reusables + --card_connection_reuse_ptr);
   else
     {
       if (card_connection_size == 0)
 	card_connections = malloc((card_connection_size = 8) * sizeof(card_connection));
       else if (card_connection_ptr == card_connection_size)
 	card_connections = realloc(card_connections, (card_connection_size <<= 1) * sizeof(card_connection));
-      rc = card_connection_ptr++;
+      rc = (int)(card_connection_ptr++);
     }
   
   (card_connections + rc)->fd = fd;
@@ -162,7 +162,7 @@ void blueshift_drm_close_card(int connection)
     free(card->connectors);
   close(card->fd);
   
-  if ((size_t)connection + 1U == card_connection_reuse_ptr)
+  if ((size_t)connection + 1 == card_connection_reuse_ptr)
     card_connection_reuse_ptr--;
   else
     {
@@ -422,10 +422,10 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
       drmModePropertyRes* prop = drmModeGetProperty(fd, connector->props[prop_i]);
       if (!strcmp("EDID", prop->name))
 	{
-	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(fd, connector->prop_values[prop_i]);
+	  drmModePropertyBlobRes* blob = drmModeGetPropertyBlob(fd, (uint32_t)(connector->prop_values[prop_i]));
 	  if (hexadecimal)
 	    {
-	      uint32_t n = size / 2;
+	      uint32_t n = (uint32_t)size / 2;
 	      uint32_t i;
 	      rc += blob->length;
 	      if (n < blob->length)
@@ -438,7 +438,7 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
 	    }
 	  else
 	    {
-	      uint32_t len = blob->length < size ? blob->length : size;
+	      uint32_t len = blob->length < size ? blob->length : (uint32_t)size;
 	      memcpy(edid, blob->data, (size_t)len * sizeof(char));
 	    }
 	  drmModeFreePropertyBlob(blob);

@@ -101,7 +101,7 @@ void blueshift_drm_close_card(int connection);
  * @param   connection  The identifier for the connection to the card
  * @return              The number of CRTC:s on the opened card
  */
-int blueshift_drm_crtc_count(int connection);
+int blueshift_drm_crtc_count(int connection) __attribute__((pure));
 
 /**
  * Return the number of connectors on the opened card
@@ -109,7 +109,7 @@ int blueshift_drm_crtc_count(int connection);
  * @param   connection  The identifier for the connection to the card
  * @return              The number of connectors on the opened card
  */
-int blueshift_drm_connector_count(int connection);
+int blueshift_drm_connector_count(int connection) __attribute__((pure));
 
 /**
  * Return the size of the gamma ramps on a CRTC
@@ -169,7 +169,7 @@ void blueshift_drm_close_connector(int connection, int connector_index);
  * @param   connector_index  The index of the connector
  * @return                   The physical width of the monitor in millimetres, 0 if unknown or not connected
  */
-int blueshift_drm_get_width(int connection, int connector_index);
+int blueshift_drm_get_width(int connection, int connector_index) __attribute__((pure));
 
 /**
  * Get the physical height the monitor connected to a connector
@@ -178,7 +178,7 @@ int blueshift_drm_get_width(int connection, int connector_index);
  * @param   connector_index  The index of the connector
  * @return                   The physical height of the monitor in millimetres, 0 if unknown or not connected
  */
-int blueshift_drm_get_height(int connection, int connector_index);
+int blueshift_drm_get_height(int connection, int connector_index) __attribute__((pure));
 
 /**
  * Get whether a monitor is connected to a connector
@@ -187,7 +187,7 @@ int blueshift_drm_get_height(int connection, int connector_index);
  * @param   connector_index  The index of the connector
  * @return                   1 if there is a connection, 0 otherwise, -1 if unknown
  */
-int blueshift_drm_is_connected(int connection, int connector_index);
+int blueshift_drm_is_connected(int connection, int connector_index) __attribute__((pure));
 
 /**
  * Get the index of the CRTC of the monitor connected to a connector
@@ -205,7 +205,7 @@ int blueshift_drm_get_crtc(int connection, int connector_index);
  * @param   connector_index  The index of the connector
  * @return                   The connector type by index, 0 for unknown
  */
-int blueshift_drm_get_connector_type_index(int connection, int connector_index);
+int blueshift_drm_get_connector_type_index(int connection, int connector_index) __attribute__((pure));
 
 /**
  * Get the name of the type of a connector
@@ -215,7 +215,7 @@ int blueshift_drm_get_connector_type_index(int connection, int connector_index);
  * @return                   The connector type by name, "Unknown" if not identifiable,
  *                           "Unrecognised" if Blueshift does not recognise it.
  */
-const char* blueshift_drm_get_connector_type_name(int connection, int connector_index);
+const char* blueshift_drm_get_connector_type_name(int connection, int connector_index) __attribute__((pure));
 
 /**
  * Get the extended display identification data for the monitor connected to a connector

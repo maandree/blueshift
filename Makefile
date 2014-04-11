@@ -49,13 +49,17 @@ PKGCONFIG ?= pkg-config
 OPTIMISE ?= -Og -g
 # Warnings settings for C code compilation
 WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs \
-       -Wfloat-equal -Wmissing-prototypes -Wmissing-declarations -Wtrampolines -Wnested-externs \
-       -Wno-variadic-macros -Wdeclaration-after-statement -Wundef -Wpacked -Wunsafe-loop-optimizations \
-       -Wbad-function-cast -Wwrite-strings -Wlogical-op -Wstrict-prototypes -Wold-style-definition \
-       -Wvector-operation-performance -Wstack-protector -Wunsuffixed-float-constants -Wcast-align \
-       -Wsync-nand
+       -Wtrampolines -Wfloat-equal -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
+       -Wno-variadic-macros -Wsync-nand -Wunsafe-loop-optimizations -Wcast-align \
+       -Wdeclaration-after-statement -Wundef -Wbad-function-cast -Wwrite-strings -Wlogical-op \
+       -Wstrict-prototypes -Wold-style-definition -Wpacked -Wvector-operation-performance \
+       -Wunsuffixed-float-constants -Wsuggest-attribute=const -Wsuggest-attribute=noreturn \
+       -Wsuggest-attribute=format -Wnormalized=nfkc
 # Warnings violated by Cython and therefore only use for C and not Cython
-CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow
+CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow \
+        -Wconversion -Wsuggest-attribute=pure
+#not used: -Wtraditional (tranditional C function definitions are ridiculous)
+#not used because of libxcb's API: -Waggregate-return, -Wtraditional-conversion (also useless)
 # The C standard for C code compilation
 STD = c99
 LIBS_idcrtc = xcb-randr

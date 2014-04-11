@@ -201,11 +201,25 @@ uint16_t* blueshift_randr_read(int use_crtc)
   G_size = xcb_randr_get_crtc_gamma_green_length(gamma_get_reply);
   B_size = xcb_randr_get_crtc_gamma_blue_length(gamma_get_reply);
   
+  if ((R_size < 2) || (G_size < 2) || (B_size < 2))
+    {
+      fprintf(stderr, "RandR CRTC gamma query returned impossibly small ramps\n");
+      xcb_disconnect(connection);
+      return NULL;
+    }
+  
+  if ((R_size | G_size | B_size) > UINT16_MAX)
+    {
+      fprintf(stderr, "RandR CRTC gamma query returned unexpectedly large ramps\n");
+      xcb_disconnect(connection);
+      return NULL;
+    }
+  
   R_gamma = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
   G_gamma = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
   B_gamma = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
   
-  r_gamma = malloc((3U + (size_t)R_size + (size_t)G_size + (size_t)B_size) * sizeof(uint16_t));
+  r_gamma = malloc((3 + (size_t)R_size + (size_t)G_size + (size_t)B_size) * sizeof(uint16_t));
   g_gamma = r_gamma + R_size + 1;
   b_gamma = g_gamma + G_size + 1;
   if (r_gamma == NULL)
@@ -216,9 +230,9 @@ uint16_t* blueshift_randr_read(int use_crtc)
       return NULL;
     }
   
-  *r_gamma++ = R_size;
-  *g_gamma++ = G_size;
-  *b_gamma++ = B_size;
+  *r_gamma++ = (uint16_t)R_size;
+  *g_gamma++ = (uint16_t)G_size;
+  *b_gamma++ = (uint16_t)B_size;
   
   for (i = 0; i < R_size; i++)  *(r_gamma + i) = *(R_gamma + i);
   for (i = 0; i < G_size; i++)  *(g_gamma + i) = *(G_gamma + i);

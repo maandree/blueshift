@@ -42,11 +42,11 @@ static xcb_generic_error_t* error;
  * @param   argv  Command line arguments
  * @return        Zero on success
  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstack-protector"
-int main(int argc, char** argv)
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Wstack-protector"
+int main(int argc, char **argv)
 {
-#pragma GCC diagnostic pop
+ #pragma GCC diagnostic pop
   char* display = NULL;
   xcb_screen_iterator_t iter;
   int screen_count;
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
 	  xcb_get_atom_name_reply_t* name_reply;
 	  char* name;
 	  char* name_;
-	  size_t len;
+	  uint32_t len;
 	  xcb_get_property_cookie_t prop_cookie;
 	  xcb_get_property_reply_t* prop_reply;
 	  int monitor;
@@ -154,7 +154,7 @@ int main(int argc, char** argv)
 	  /* Extract the atom name from the data structure that holds it. */
 	  name_ = xcb_get_atom_name_name(name_reply);
 	  /* As well as the length of the name; it is not NUL-termianted.*/
-	  len = (size_t)xcb_get_atom_name_name_length(name_reply);
+	  len = (uint32_t)xcb_get_atom_name_name_length(name_reply);
 	  
 	  /* NUL-terminate the atom name, */
 	  name = alloca((len + 1U) * sizeof(char));
