@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 	  uint8_t* name;
 	  int name_len;
 	  
-	  /* Acquire information abou the output. */
+	  /* Acquire information about the output. */
 	  out_cookie = xcb_randr_get_output_info(connection, outputs[output_i], res_reply->config_timestamp);
 	  out_reply = xcb_randr_get_output_info_reply(connection, out_cookie, &error);
 	  
