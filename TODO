@@ -1,5 +1,4 @@
 High priority:
-	Add support for monitor hotplugging
 	Add models for calculating fade and refresh rate parameters
 	Test with multiple X screens
 
