@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     {
       /* If not possible, print an error message and
          close the connection to the display. */
-      fprintf(stderr, "RandR version query returned %i", error ? error->error_code : -1);
+      fprintf(stderr, "RandR version query returned %i\n", error ? error->error_code : -1);
       xcb_disconnect(connection);
       return 1;
     }
