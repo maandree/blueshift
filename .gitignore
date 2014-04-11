@@ -13,6 +13,7 @@ obj/
 *.o
 *.so
 *.out
+*.su
 *.gch
 *.zip
 __pycache__/
