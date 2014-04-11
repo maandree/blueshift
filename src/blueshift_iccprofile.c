@@ -50,7 +50,6 @@ int main(int argc, char **argv)
   char* display = NULL;
   xcb_screen_iterator_t iter;
   int screen_count;
-  xcb_screen_t* screens;
   int screen_i;
   
   
@@ -83,20 +82,21 @@ int main(int argc, char **argv)
   
   /* Acquire a list of all screens in the display, */
   iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
-  /* count the list, */
+  /* count the list. */
   screen_count = iter.rem;
-  /* and start at the first screen. */
-  screens = iter.data;
   
   for (screen_i = 0; screen_i < screen_count; screen_i++)
     {
       /* For each screen */
-      xcb_screen_t* screen = screens + screen_i;
+      xcb_screen_t* screen = iter.data;
       
       xcb_list_properties_cookie_t list_cookie;
       xcb_list_properties_reply_t* list_reply;
       xcb_atom_t* atoms;
       xcb_atom_t* atoms_end;
+      
+      /* We have acquired the screen, got to next in preperate for next iteration. */
+      xcb_screen_next(&iter);
       
       
       /* Get root window properties */

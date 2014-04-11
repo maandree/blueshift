@@ -46,7 +46,7 @@ EXECLIBS = $(foreach E,$(EXECS),blueshift_$(E))
 # The installed pkg-config command
 PKGCONFIG ?= pkg-config
 # Optimisation settings for C code compilation
-OPTIMISE ?= -Og -g
+OPTIMISE ?= -O6 -g
 # Warnings settings for C code compilation
 WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs \
        -Wtrampolines -Wfloat-equal -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
@@ -55,11 +55,11 @@ WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissi
        -Wstrict-prototypes -Wold-style-definition -Wpacked -Wvector-operation-performance \
        -Wunsuffixed-float-constants -Wsuggest-attribute=const -Wsuggest-attribute=noreturn \
        -Wsuggest-attribute=format -Wnormalized=nfkc \
-       -fstrict-aliasing -fstrict-overflow -fipa-pure-const -ftree-vrp -fstack-usage \
-       -funsafe-loop-optimizations
+       -fstrict-aliasing -fipa-pure-const -ftree-vrp -fstack-usage -funsafe-loop-optimizations
 # Warnings violated by Cython and therefore only use for C and not Cython
 CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow=5 \
-        -Wconversion -Wsuggest-attribute=pure -Wswitch-default -Wstrict-aliasing=1
+        -Wconversion -Wsuggest-attribute=pure -Wswitch-default -Wstrict-aliasing=1 \
+        -fstrict-overflow
 #not used: -Wtraditional (tranditional C function definitions are ridiculous),
 #          -Wpadded (useless for this project), -Wc++-compat (bad practice)
 #not used because of libxcb's API: -Waggregate-return, -Wtraditional-conversion (also useless)

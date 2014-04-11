@@ -66,7 +66,6 @@ int main(int argc, char** argv)
   xcb_randr_query_version_reply_t* randr_version;
   xcb_screen_iterator_t iter;
   int screen_count;
-  xcb_screen_t* screens;
   int screen_i;
   int i;
   
@@ -119,22 +118,23 @@ int main(int argc, char** argv)
   
   /* Acquire a list of all screens in the display, */
   iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
-  /* count the list, */
+  /* count the list. */
   screen_count = iter.rem;
-  /* and start at the first screen. */
-  screens = iter.data;
   
   /* Print the number available screens. */
   printf("Screen count: %i\n", screen_count);
   for (screen_i = 0; screen_i < screen_count; screen_i++)
     {
       /* For each screen */
-      xcb_screen_t* screen = screens + screen_i;
+      xcb_screen_t* screen = iter.data;
       xcb_randr_get_screen_resources_current_cookie_t res_cookie;
       xcb_randr_get_screen_resources_current_reply_t* res_reply;
       xcb_randr_output_t* outputs;
       xcb_randr_crtc_t* crtcs;
       int output_i;
+      
+      /* We have acquired the screen, got to next in preperate for next iteration. */
+      xcb_screen_next(&iter);
       
       /* Print the screen index. */
       printf("Screen: %i\n", screen_i);

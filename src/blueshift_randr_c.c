@@ -65,6 +65,7 @@ int blueshift_randr_open(int use_screen, char* display)
   xcb_randr_get_crtc_gamma_size_reply_t* gamma_size_reply;
   xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie;
   xcb_randr_get_crtc_gamma_reply_t* gamma_get_reply;
+  int iter_i;
   
   
   
@@ -101,7 +102,9 @@ int blueshift_randr_open(int use_screen, char* display)
   /* Get X resources */
   
   iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
-  screen = iter.data + use_screen;
+  for (iter_i = 0; iter_i < use_screen; iter_i++)
+    xcb_screen_next(&iter);
+  screen = iter.data;
   
   res_cookie = xcb_randr_get_screen_resources_current(connection, screen->root);
   res_reply = xcb_randr_get_screen_resources_current_reply(connection, res_cookie, &error);
