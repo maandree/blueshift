@@ -68,7 +68,6 @@ int blueshift_randr_open(int use_screen, char* display)
   int iter_i;
   
   
-  
   /* Get X connection */
   
   connection = xcb_connect(display, NULL);
