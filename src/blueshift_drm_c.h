@@ -26,9 +26,13 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <alloca.h>
+#include <limits.h>
 
 #ifndef O_CLOEXEC
 #  define O_CLOEXEC  02000000
+#endif
+#ifndef PATH_MAX
+#  define PATH_MAX  4096
 #endif
 
 /* Requires video group */
