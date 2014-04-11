@@ -54,10 +54,12 @@ WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissi
        -Wdeclaration-after-statement -Wundef -Wbad-function-cast -Wwrite-strings -Wlogical-op \
        -Wstrict-prototypes -Wold-style-definition -Wpacked -Wvector-operation-performance \
        -Wunsuffixed-float-constants -Wsuggest-attribute=const -Wsuggest-attribute=noreturn \
-       -Wsuggest-attribute=format -Wnormalized=nfkc
+       -Wsuggest-attribute=format -Wnormalized=nfkc \
+       -fstrict-aliasing -fstrict-overflow -fipa-pure-const -ftree-vrp -fstack-usage \
+       -funsafe-loop-optimizations
 # Warnings violated by Cython and therefore only use for C and not Cython
-CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow \
-        -Wconversion -Wsuggest-attribute=pure -Wswitch-default
+CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow=5 \
+        -Wconversion -Wsuggest-attribute=pure -Wswitch-default -Wstrict-aliasing=1
 #not used: -Wtraditional (tranditional C function definitions are ridiculous),
 #          -Wpadded (useless for this project), -Wc++-compat (bad practice)
 #not used because of libxcb's API: -Waggregate-return, -Wtraditional-conversion (also useless)
