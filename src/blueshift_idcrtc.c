@@ -197,7 +197,7 @@ int main(int argc, char** argv)
 	  /* Print the index, in the scope of the screen, of the output. */
 	  printf("  Output: %i\n", output_i);
 	  
-	  /* We use intention not for computer-readability, but
+	  /* We use indention not for computer-readability, but
 	     exclusively for human-readability, especially for
 	     debugging. */
 	  
