@@ -57,8 +57,9 @@ WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissi
        -Wsuggest-attribute=format -Wnormalized=nfkc
 # Warnings violated by Cython and therefore only use for C and not Cython
 CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow \
-        -Wconversion -Wsuggest-attribute=pure
-#not used: -Wtraditional (tranditional C function definitions are ridiculous)
+        -Wconversion -Wsuggest-attribute=pure -Wswitch-default
+#not used: -Wtraditional (tranditional C function definitions are ridiculous),
+#          -Wpadded (useless for this project), -Wc++-compat (bad practice)
 #not used because of libxcb's API: -Waggregate-return, -Wtraditional-conversion (also useless)
 # The C standard for C code compilation
 STD = c99
