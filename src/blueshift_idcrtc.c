@@ -316,11 +316,17 @@ int main(int argc, char** argv)
 			unsigned char* atom_data_;
 			char* atom_data;
 			
-			/* Acquire the property's value, we know that it is 128 byte long. */
+			/* Acquire the property's value, we know(*) that it is 128 byte long. */
 			atom_cookie = xcb_randr_get_output_property(connection, outputs[output_i], *atoms,
 								    XCB_GET_PROPERTY_TYPE_ANY, 0, 128, 0, 0);
 			
 			atom_reply = xcb_randr_get_output_property_reply(connection, atom_cookie, &error);
+			
+			/* (*) EDID version 1.0 through 1.4 define it as 128 bytes long,
+			       but version 2.0 define it as 256 bytes long. However,
+			       version 2.0 is rare(?) and has been deprecated and replaced
+			       byte version 1.3 (I guess that is with a new version epoch,
+			       but I do not know.) */ 
 			
 			if (error)
 			  {
