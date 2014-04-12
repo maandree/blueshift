@@ -403,7 +403,7 @@ const char* blueshift_drm_get_connector_type_name(int connection, int connector_
  * 
  * @param   connection       The identifier for the connection to the card
  * @param   connector_index  The index of the connector
- * @param   edid             Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
+ * @param   edid             Storage location for the EDID, it should be 256 bytes, 512 bytes + zero termination if hex
  * @param   size             The size allocated to `edid` excluding your zero termination
  * @param   hexadecimal      Whether to convert to hexadecimal representation, this is preferable
  * @return                   The length of the found value, 0 if none, as if hex is false

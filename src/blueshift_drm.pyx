@@ -185,7 +185,9 @@ Get the extended display identification data for the monitor connected to a conn
 
 @param   connection       The identifier for the connection to the card
 @param   connector_index  The index of the connector
-@param   edid             Storage location for the EDID, it should be 128 bytes, 256 bytes + zero termination if hex
+@param   edid             Storage location for the EDID, it should be 128 bytes,
+                          or 256 bytes if you are counting on the depricated EDID 2.0,
+                          If hexadecimal, twice that + zero termiation.
 @param   size             The size allocated to `edid` excluding your zero termination
 @param   hexadecimal      Whether to convert to hexadecimal representation, this is preferable
 @return                   The length of the found value, 0 if none, as if hex is false
@@ -519,6 +521,9 @@ def drm_get_edid(int connection, int connector_index):
     # Prototype side of the hexadecimal representation
     # of the EDID, should be exact
     size = 256
+    # It could be twice that, but we will not base
+    # our start value on something that is unlikely.
+    
     # Allocate storage space for the EDID, with one
     # extra character for NUL-termination
     edid = <char*>malloc((size + 1) * sizeof(char))
