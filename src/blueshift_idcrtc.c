@@ -325,7 +325,7 @@ int main(int argc, char** argv)
 			/* (*) EDID version 1.0 through 1.4 define it as 128 bytes long,
 			       but version 2.0 define it as 256 bytes long. However,
 			       version 2.0 is rare(?) and has been deprecated and replaced
-			       byte version 1.3 (I guess that is with a new version epoch,
+			       by version 1.3 (I guess that is with a new version epoch,
 			       but I do not know.) */ 
 			
 			if (error)
