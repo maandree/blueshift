@@ -316,9 +316,9 @@ int main(int argc, char** argv)
 			unsigned char* atom_data_;
 			char* atom_data;
 			
-			/* Acquire the property's value, we know(*) that it is 128 byte long. */
+			/* Acquire the property's value, we know that it is either 128 or 256 byte long. */
 			atom_cookie = xcb_randr_get_output_property(connection, outputs[output_i], *atoms,
-								    XCB_GET_PROPERTY_TYPE_ANY, 0, 128, 0, 0);
+								    XCB_GET_PROPERTY_TYPE_ANY, 0, 256, 0, 0);
 			
 			atom_reply = xcb_randr_get_output_property_reply(connection, atom_cookie, &error);
 			
@@ -347,7 +347,7 @@ int main(int argc, char** argv)
 			
 			/* Extract the property's value, */
 			atom_data_ = xcb_randr_get_output_property_data(atom_reply);
-			/* and its actual length, it is still probably 128 byte, it should be that. */
+			/* and its actual length. */
 			length = xcb_randr_get_output_property_data_length(atom_reply);
 			
 			/* Convert to hexadecimal representation. */
