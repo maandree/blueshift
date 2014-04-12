@@ -260,7 +260,7 @@ int main(int argc, char** argv)
 		
 		/* Get output atoms */
 		
-		/* Extract the properties for the data structure that holds them, */
+		/* Extract the properties form the data structure that holds them, */
 		atoms = xcb_randr_list_output_properties_atoms(prop_reply);
 		/* and get the last one so that we can iterate over them nicely. */
 		atoms_end = atoms + xcb_randr_list_output_properties_atoms_length(prop_reply);
@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 		    char* atom_name_;
 		    int atom_name_len;
 		    
-		    /* Acuire the atom name. */
+		    /* Aqcuire the atom name. */
 		    atom_name_cookie = xcb_get_atom_name(connection, *atoms);
 		    atom_name_reply = xcb_get_atom_name_reply(connection, atom_name_cookie, &error);
 		    
