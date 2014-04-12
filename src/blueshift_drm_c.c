@@ -444,7 +444,7 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
 	      memcpy(edid, blob->data, (size_t)len * sizeof(char));
 	    }
 	  drmModeFreePropertyBlob(blob);
-	  prop_i = connector->count_props; /* stop the for-loop */
+	  prop_i = prop_n; /* stop the for-loop */
 	}
       drmModeFreeProperty(prop);
     }
