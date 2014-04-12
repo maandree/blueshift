@@ -430,7 +430,7 @@ long blueshift_drm_get_edid(int connection, int connector_index, char* edid, lon
 	      uint32_t n = (uint32_t)size / 2;
 	      uint32_t i;
 	      rc += blob->length;
-	      if (n < blob->length)
+	      if (n > blob->length)
 		n = blob->length;
 	      for (i = 0; i < n ; i++)
 		{
