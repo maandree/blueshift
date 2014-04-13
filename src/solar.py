@@ -204,6 +204,13 @@ def sun_geometric_mean_longitude(t):
     @return  :float   The Sun's geometric mean longitude in radians
     '''
     return radians((0.0003032 * t ** 2 + 36000.76983 * t + 280.46646) % 360)
+    # CANNIBALISERS and TIME TRAVELERS:
+    #     The result of this function should always be positive, this
+    #     means that after division modulo 360 but before `radians`,
+    #     you will need to add 360 if the value is negative. This can
+    #     only happen if `t` is negative, which can only happen for
+    #     date times before 2000-(01)Jan-01 12:00:00 par division modulo
+    #     implementations with the signess of atleast the left operand.
 
 
 def sun_geometric_mean_anomaly(t):
