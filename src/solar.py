@@ -208,8 +208,8 @@ def sun_geometric_mean_longitude(t):
     #     The result of this function should always be positive, this
     #     means that after division modulo 360 but before `radians`,
     #     you will need to add 360 if the value is negative. This can
-    #     only happen if `t` is negative, which can only happen for
-    #     date times before 2000-(01)Jan-01 12:00:00 par division modulo
+    #     only happen if `t` is negative, which can only happen for date
+    #     times before 2000-(01)Jan-01 12:00:00 UTC par division modulo
     #     implementations with the signess of atleast the left operand.
 
 
