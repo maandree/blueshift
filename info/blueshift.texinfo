@@ -1060,7 +1060,7 @@ precision of 0,01.
 The value correlates exactly with @code{gamma},
 and is @code{None} if and only if @code{gamma}
 is @code{None}. More precisely, it is the value
-of @code{gamma} divided by gamma calibrated
+of @code{gamma} divided by the gamma calibrated
 monitors should have: 2,2. This value can be
 used for gamma correction if you do not have
 more exact values to use.
