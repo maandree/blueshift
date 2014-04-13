@@ -522,7 +522,6 @@ class EDID: # TODO demo and document this
             self.gamma_correction = self.gamma / 2.2
         if not sum(edid) % 256 == 0:
             raise Exception('Incorrect EDID checksum')
-        
 
 
 def list_screens(method = 'randr', display = None):
