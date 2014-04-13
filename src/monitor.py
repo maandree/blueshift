@@ -530,7 +530,7 @@ def list_screens(method = 'randr', display = None):
     Retrieve informantion about all screens, outputs and CRTC:s
     
     @param   method:str    The listing method: 'randr' for RandR (under X),
-                                             'drm' for DRM (under TTY)
+                                               'drm' for DRM (under TTY)
     @param   display:str?  The display to use, `None` for the current one
     @return  :Screens      An instance of a datastructure with the relevant information
     '''
