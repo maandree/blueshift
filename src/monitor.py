@@ -498,7 +498,7 @@ class Output:
         return '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
 
 
-class EDID: # TODO demo this
+class EDID:
     '''
     Data structure for parsed EDID:s
     

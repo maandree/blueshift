@@ -41,19 +41,24 @@ temp = 6500
 outputs = list_screens('drm' if ttymode else 'randr').find_by_connected(True)
 
 # EDID of the primary monitors
-edid_0 = '00ffffffffffff0010ac00504d5730372f0c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff00364432353232424c3730574d0a00ea'
+edid_0 = '00ffffffffffff0010ac00504d5730372f0c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff00364432353232424c3730574d0a00eaXXXXX'
 
 # EDID of the secondary monitor
-edid_1 = '00ffffffffffff0010ac005045413035320c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff003644323532324339353041450a0039'
+edid_1 = '00ffffffffffff0010ac005045413035320c01030e281e962b0cc9a057479b2712484ca44380a959a94f615971594559c28f31590101863d00c05100304040a013006c231100001e000000fd0030aa1e821d000a202020202020000000fc0044454c4c2050313133300a2020000000ff003644323532324339353041450a0039XXXXX'
 
 # Gamma of the monitors
 gammas = [(1.16, 1.15, 1.11), (1.10, 1.16, 1.10)]
+
+# Beginning of possible warning messages.
+warn_size = 'Warning: unknown monitor at %s and size of %i mm by %i mm'
+warn_nosize = 'Warning: unknown monitor at %s and unknown size'
 
 # Configure each monitor.
 for output in outputs:
     # Data that identifies the monitor.
     edid = output.edid
     monitor = (output.name, output.widthmm, output.heightmm, edid is not None)
+    known_size = (output.widthmm is not None) and (output.heightmm is not None)
     
     # Default gamma settings.
     monitor_gamma = (1, 1, 1)
@@ -63,8 +68,23 @@ for output in outputs:
     elif (monitor == ('VGA-0',  364, 291, False)) or (edid == edid_1):  monitor_gamma = gammas[1]  # using RandR
     elif (monitor == ('DVII-0', 400, 300, False)) or (edid == edid_0):  monitor_gamma = gammas[0]  # using DRM
     elif (monitor == ('VGA-0',  400, 300, False)) or (edid == edid_1):  monitor_gamma = gammas[1]  # using DRM
+    elif edid is not None:
+        # Base gamma corrections on the EDID.
+        try:
+            edid_parsed = EDID(edid)
+            monitor_gamma = (edid_parsed.gamma_correction,)
+            msg = '%s using automatic gamma correction, estimated gamma was %.2f'
+            msg %= (warn_size, edid_parsed.gamma)
+            print(msg % (monitor[0], edid_parsed.widthmm, edid_parsed.heightmm))
+        except:
+            if not known_size:
+                print('%s and with unsupported EDID' % warn_nosize % monitor[0])
+            else:
+                print('%s with unsupported EDID' % warn_size % monitor[:3])
+    elif not known_size:
+        print('%s and without an EDID' % warn_nosize % monitor[0])
     else:
-        print('Warning: unknown monitor at %s at size of %i mm by %i mm' % monitor[:3])
+        print('%s without an EDID' % warn_size % monitor[:3])
     
     # Perform adjustments.
     start_over()
