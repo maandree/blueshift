@@ -953,13 +953,13 @@ to a monitor.
 
 @item widthmm
 The physical width of the monitor, measured
-in millimetres. @code{None} if unknown or if
-not connected.
+in millimetres. @code{None} if unknown, not
+defined or if not connected.
 
 @item heightmm
 The physical height of the monitor, measured
-in millimetres. @code{None} if unknown or if
-not connected.
+in millimetres. @code{None} if unknown, not
+defined or if not connected.
 
 @item crtc
 The CRT controller index. @code{None} if not
@@ -975,6 +975,14 @@ the monitor in lower case hexadecimal representations.
 is used it is probably found because it is needed
 for plug and play support of the monitor.
 @end table
+
+The width and height are unknown if the monitor
+does not specify them in the EDID if using DRM.
+They are not defined the output is a projector.
+If using RandR this values are probably not
+correct, but the EDID can be parsed, which is
+want is done by DRM. The EDID can only specify
+whole centrimeters up to 255 cm.
 
 @code{Screens} and @code{Screen} provide a set
 of functions for finding the output, and traversal
@@ -1012,6 +1020,52 @@ identification data.
 These functions returns a list of matching
 @code{Output}:s. The list is empty if non are
 found.
+
+Using the class @code{EDID} it is possible to
+parse the extended display identification data
+of an output. @code{EDID} as a constructor that
+takes one argument: the EDID as stored by
+@code{Output} in its variable @code{edid}.
+This class can only parse EDID structure revision
+1.3, which is way all monitors produced 2000 or
+later should use. If the supplied EDID does
+not meet this requirement an exception will be
+raised by the constructor.
+
+An instance of @code{EDID} currently have
+the following variables:
+
+@table @code
+@item widthmm
+The physical width of the monitor, measured
+in millimetres. @code{None} if not, e.g. a
+projector. This value is between 10 mm and 2550
+mm inclusively and is always zero modulo 10 mm.
+
+@item heightmm
+The physical height of the monitor, measured
+in millimetres. @code{None} if not, e.g. a
+projector. This value is @code{None} exactly
+when the value of @code{widthmm} is @code{None}.
+This value is between 10 mm and 2550 mm
+inclusively and is always zero modulo 10 mm.
+
+@item gamma
+The monitor's estimated gamma characteristics,
+@code{None} if not specified. The range of this
+value is 1,00 to 3,55 inclusively, with a
+precision of 0,01.
+
+@item gamma_correction
+The value correlates exactly with @code{gamma},
+and is @code{None} if and only if @code{gamma}
+is @code{None}. More precisely, it is the value
+of @code{gamma} divided by gamma calibrated
+monitors should have: 2,2. This value can be
+used for gamma correction if you do not have
+more exact values to use.
+@end table
+
 
 
 @node Backlight

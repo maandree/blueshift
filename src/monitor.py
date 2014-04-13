@@ -473,8 +473,8 @@ class Output:
     
     @variable  name:str        The name of the output
     @variable  connected:bool  Whether the outout is known to be connected
-    @variable  widthmm:int?    The physical width of the monitor, measured in millimetres, `None` if unknown or not connected
-    @variable  heigthmm:int?   The physical height of the monitor, measured in millimetres, `None` if unknown or not connected
+    @variable  widthmm:int?    The physical width of the monitor, measured in millimetres, `None` if unknown, not defined or not connected
+    @variable  heigthmm:int?   The physical height of the monitor, measured in millimetres, `None` if unknown, not defined or not connected
     @variable  crtc:int?       The CRTC index, `None` if not connected
     @variable  screen:int?     The screen index, `None` if none
     @variable  edid:str?       Extended display identification data, `None` if none
@@ -498,28 +498,51 @@ class Output:
         return '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
 
 
-class EDID: # TODO demo and document this
+class EDID: # TODO demo this
+    '''
+    Data structure for parsed EDID:s
+    
+    @var  widthmm:int?             The physical width of the monitor, measured in millimetres, `None` if not defined
+    @var  heightmm:int?            The physical height of the monitor, measured in millimetres, `None` if not defined or not connected
+    @var  gamma:float?             The monitor's estimated gamma characteristics, `None` if not specified
+    @var  gamma_correction:float?  Gamma correction to use unless you know more exact values, calculated from `gamma`
+    '''
     def __init__(self, edid):
+        '''
+        Constructor, parses an EDID
+        
+        @param      edid:str    The edid to parse, in hexadecimal representation
+        @exception  :Exception  Raised when the EDID is not of a support format
+        '''
+        # Check the length of the EDID
         if not len(edid) == 256:
             raise Exception('EDID version not support, length mismatch')
+        # Check the EDID:s magic number
         if not edid[:16].upper() == '00FFFFFFFFFFFF00':
             raise Exception('EDID version not support, magic number mismatch')
+        # Convert to raw byte representation
         edid = [int(edid[i * 2 : i * 2 + 2], 16) for i in range(128)]
+        # Check EDID structure version and revision
         if not edid[18] == 1:
             raise Exception('EDID version not support, version mismatch, only 1.3 supported')
         if not edid[19] == 3:
             raise Exception('EDID version not support, revision mismatch, only 1.3 supported')
+        # Get the maximum displayable image dimension
         self.widthmm = edid[21] * 10
         self.heightmm = edid[22] * 10
         if (self.widthmm == 0) or (self.heightmm == 0):
+            # If either is zero, it is undefined, e.g. a projector
             self.widthmm = None
             self.heightmm = None
+        # Get the gamma characteristics
         if (edid[23] == 255):
+            # Not specified if FFh
             self.gamma = None
             self.gamma_correction = None
         else:
             self.gamma = (edid[23] + 100) / 100
             self.gamma_correction = self.gamma / 2.2
+        # Check the EDID checksum
         if not sum(edid) % 256 == 0:
             raise Exception('Incorrect EDID checksum')
 
