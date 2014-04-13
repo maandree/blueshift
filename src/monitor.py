@@ -498,6 +498,33 @@ class Output:
         return '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
 
 
+class EDID: # TODO demo and document this
+    def __init__(self, edid):
+        if not len(edid) == 256:
+            raise Exception('EDID version not support, length mismatch')
+        if not edid[:16].upper() == '00FFFFFFFFFFFF00':
+            raise Exception('EDID version not support, magic number mismatch')
+        edid = [int(edid[i * 2 : i * 2 + 2], 16) for i in range(128)]
+        if not edid[18] == 1:
+            raise Exception('EDID version not support, version mismatch, only 1.3 supported')
+        if not edid[19] == 3:
+            raise Exception('EDID version not support, revision mismatch, only 1.3 supported')
+        self.widthmm = edid[21] * 10
+        self.heightmm = edid[22] * 10
+        if (self.widthmm == 0) or (self.heightmm == 0):
+            self.widthmm = None
+            self.heightmm = None
+        if (edid[23] == 255):
+            self.gamma = None
+            self.gamma_correction = None
+        else:
+            self.gamma = (edid[23] + 100) / 100
+            self.gamma_correction = self.gamma / 2.2
+        if not sum(edid) % 256 == 0:
+            raise Exception('Incorrect EDID checksum')
+        
+
+
 def list_screens(method = 'randr', display = None):
     '''
     Retrieve informantion about all screens, outputs and CRTC:s
