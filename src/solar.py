@@ -211,6 +211,13 @@ def sun_geometric_mean_longitude(t):
     #     only happen if `t` is negative, which can only happen for date
     #     times before 2000-(01)Jan-01 12:00:00 UTC par division modulo
     #     implementations with the signess of atleast the left operand.
+    #     More precively, it happens between cirka 1970-(01)Jan-11
+    #     16:09:02 UTC and cirka -374702470660351740 seconds before
+    #     January 1, 1970 00:00 UTC, which is so far back in time
+    #     it cannot be reliable pinned down to the right year, but it
+    #     is without a shadow of a doubt looooong before the Earth
+    #     was formed, is right up there with the age of the  Milky Way
+    #     and the universe itself.
 
 
 def sun_geometric_mean_anomaly(t):
