@@ -37,7 +37,11 @@ COMMAND ?= blueshift
 PKGNAME ?= blueshift
 
 # Bindings for display server access
+ifeq ($(FAKE_W32),y)
+SERVER_BINDINGS ?= randr vidmode drm w32gdi
+else
 SERVER_BINDINGS ?= randr vidmode drm
+endif
 # Executable bindings for display server access
 EXECS ?= idcrtc iccprofile
 
@@ -70,6 +74,11 @@ LIBS_iccprofile = xcb
 LIBS_randr = xcb-randr
 LIBS_vidmode = x11 xxf86vm
 LIBS_drm = libdrm
+ifeq ($(FAKE_W32),y)
+LIBS_w32gdi = $(LIBS_randr)
+else
+LIBS_w32gdi =
+endif
 LIBS = python3 $(foreach B,$(SERVER_BINDINGS) $(EXECS),$(LIBS_$(B)))
 FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
 
@@ -114,6 +123,7 @@ bin/blueshift_iccprofile: obj/blueshift_iccprofile.o
 bin/blueshift_drm.so: LIBS_=LIBS_drm
 bin/blueshift_randr.so: LIBS_=LIBS_randr
 bin/blueshift_vidmode.so: LIBS_=LIBS_vidmode
+bin/blueshift_w32gdi.so: LIBS_=LIBS_w32gdi
 bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -o $@ $^
@@ -129,6 +139,11 @@ obj/%_c.o: src/%_c.c src/%_c.h
 obj/%.o: obj/%.c
 	@mkdir -p obj
 	$(CC) $(FLAGS) -c -o $@ $<
+
+ifeq ($(FAKE_W32),y)
+obj/blueshift_w32gdi_c.o: FLAGS+=-DFAKE_W32GDI obj/fake_w32gdi.o obj/fake_w32gdi.h
+endif
+obj/fake_w32gdi.o: obj/fake_w32gdi.h
 
 
 # Build rules for Cython source files
