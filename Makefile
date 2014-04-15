@@ -56,7 +56,7 @@ PKGCONFIG ?= pkg-config
 OPTIMISE ?= -O6 -g
 # Warnings settings for C code compilation
 WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs \
-       -Wtrampolines -Wfloat-equal -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
+       -Wtrampolines -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
        -Wno-variadic-macros -Wsync-nand -Wunsafe-loop-optimizations -Wcast-align \
        -Wdeclaration-after-statement -Wundef -Wbad-function-cast -Wwrite-strings -Wlogical-op \
        -Wstrict-prototypes -Wold-style-definition -Wpacked -Wvector-operation-performance \
@@ -66,7 +66,7 @@ WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissi
 # Warnings violated by Cython and therefore only use for C and not Cython
 CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow=5 \
         -Wconversion -Wsuggest-attribute=pure -Wswitch-default -Wstrict-aliasing=1 \
-        -fstrict-overflow
+        -fstrict-overflow -Wfloat-equal
 #not used: -Wtraditional (tranditional C function definitions are ridiculous),
 #          -Wpadded (useless for this project), -Wc++-compat (bad practice)
 #not used because of libxcb's API: -Waggregate-return, -Wtraditional-conversion (also useless)
@@ -380,5 +380,6 @@ uninstall:
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_{randr,vidmode,drm}.c blueshift.{info,pdf,ps,dvi}
+	-rm -r bin obj src/blueshift_{randr,vidmode,drm,w32gid,quartz}.c \
+	       blueshift.{info,pdf,ps,dvi} *.su src/*.su
 

@@ -20,6 +20,8 @@ __pycache__/
 /src/blueshift_randr.c
 /src/blueshift_vidmode.c
 /src/blueshift_drm.c
+/src/blueshift_w32gdi.c
+/src/blueshift_quartz.c
 *.info
 *.pdf
 *.dvi
