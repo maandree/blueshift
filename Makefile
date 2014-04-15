@@ -37,11 +37,14 @@ COMMAND ?= blueshift
 PKGNAME ?= blueshift
 
 # Bindings for display server access
+DEFAULT_SERVER_BINDINGS = randr vidmode drm
 ifeq ($(FAKE_W32),y)
-SERVER_BINDINGS ?= randr vidmode drm w32gdi
-else
-SERVER_BINDINGS ?= randr vidmode drm
+DEFAULT_SERVER_BINDINGS += w32gdi
 endif
+ifeq ($(FAKE_MAC),y)
+DEFAULT_SERVER_BINDINGS += quartz
+endif
+SERVER_BINDINGS ?= $(DEFAULT_SERVER_BINDINGS)
 # Executable bindings for display server access
 EXECS ?= idcrtc iccprofile
 
@@ -74,10 +77,13 @@ LIBS_iccprofile = xcb
 LIBS_randr = xcb-randr
 LIBS_vidmode = x11 xxf86vm
 LIBS_drm = libdrm
+LIBS_w32gdi =
+LIBS_quartz =
 ifeq ($(FAKE_W32),y)
 LIBS_w32gdi = $(LIBS_randr)
-else
-LIBS_w32gdi =
+endif
+ifeq ($(FAKE_MAC),y)
+LIBS_quartz = $(LIBS_randr)
 endif
 LIBS = python3 $(foreach B,$(SERVER_BINDINGS) $(EXECS),$(LIBS_$(B)))
 FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
@@ -124,6 +130,7 @@ bin/blueshift_drm.so: LIBS_=LIBS_drm
 bin/blueshift_randr.so: LIBS_=LIBS_randr
 bin/blueshift_vidmode.so: LIBS_=LIBS_vidmode
 bin/blueshift_w32gdi.so: LIBS_=LIBS_w32gdi
+bin/blueshift_quartz.so: LIBS_=LIBS_quartz
 bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -o $@ $^
@@ -149,6 +156,13 @@ obj/blueshift_w32gdi_c.o: src/blueshift_w32gdi_c.c src/blueshift_w32gdi_c.h \
                           obj/fake_w32gdi.o src/fake_w32gdi.h
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -DFAKE_W32GDI -o $@ $^
+endif
+
+ifeq ($(FAKE_MAC),y)
+obj/blueshift_quartz_c.o: src/blueshift_quartz_c.c src/blueshift_quartz_c.h \
+                          obj/fake_quartz.o src/fake_quartz.h
+	@mkdir -p bin
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -DFAKE_QUARTZ -o $@ $^
 endif
 
 
