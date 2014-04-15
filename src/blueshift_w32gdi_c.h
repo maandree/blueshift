@@ -63,7 +63,7 @@ uint16_t* blueshift_w32gdi_read(int use_crtc);
 /**
  * Apply stage of colour curve control
  * 
- * @param   use_crtc   The CRTC to use, -1 if all
+ * @param   use_crtc   The CRTC to use, -1 for all
  * @param   rgb_curve  The concatenation of the red, the green and the blue colour curves
  * @return             Zero on success
  */
