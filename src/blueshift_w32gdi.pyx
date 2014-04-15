@@ -83,7 +83,7 @@ def w32gdi_open():
     return blueshift_w32gdi_open()
 
 
-def w32gdi_crtcs_count():
+def w32gdi_crtc_count():
     '''
     Get the number of CRTC:s on the system
     

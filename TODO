@@ -19,6 +19,9 @@ Low priority:
 	Use curve sizes returned from RandR/VidMode/...
 	  (Not too important, it is hardcoded in X to only allow 256)
 	Use Robertson's method
+	Screen count function for VidMode should be added
+	CRTC count function for W32 GDI should be documented
+	W32 GDI support should be documented
 
 Future stuff:
 	How is it looking on the DirectFB front?

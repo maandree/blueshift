@@ -45,6 +45,13 @@ except:
     # Not compiled with DRM support
     pass
 
+## Load W32 GDI module
+try:
+    from blueshift_w32gdi import *
+except:
+    # Not compiled with W32 GDI support
+    pass
+
 
 randr_opened = None
 '''
@@ -53,7 +60,12 @@ randr_opened = None
 
 vidmode_opened = None
 '''
-:(int, str)?  The index of the, with vidmode, opened X screen and X display, if any
+:(int, str)?  The index of the, with VidMode, opened X screen and X display, if any
+'''
+
+w32gdi_opened = False
+'''
+:bool  Whether W32 GDI is in use
 '''
 
 
@@ -61,17 +73,21 @@ def close_c_bindings():
     '''
     Close all C bindings and let them free resources and close connections
     '''
-    global randr_opened, vidmode_opened
+    global randr_opened, vidmode_opened, w32gdi_opened
     if randr_opened is not None:
         # Close RandR connection if open
         from blueshift_randr import randr_close
         randr_opened = None
         randr_close()
     if vidmode_opened is not None:
-        # Close vidmode connection if open
+        # Close VidMode connection if open
         from blueshift_vidmode import vidmode_close
         vidmode_opened = None
         vidmode_close()
+    if w32gdi_opened:
+        # Close W32 GDI connection if open
+        w32gdi_opened = False
+        w32gdi_close()
     # Close DRM connection if open
     drm_manager.close()
 
@@ -112,16 +128,16 @@ def vidmode_get(crtc = 0, screen = 0, display = None):
     '''
     from blueshift_vidmode import vidmode_open, vidmode_read, vidmode_close
     global vidmode_opened
-    # Open new vidmode connection if non is open or one is open to the wrong screen or display
+    # Open new VidMode connection if non is open or one is open to the wrong screen or display
     if (vidmode_opened is None) or not (vidmode_opened == (screen, display)):
-        # Close vidmode connection, if any, because its is connected to the wrong screen or display
+        # Close VidMode connection, if any, because its is connected to the wrong screen or display
         if vidmode_opened is not None:
             vidmode_close()
-        # Open vidmode connection
+        # Open VidMode connection
         if vidmode_open(screen, display if display is None else display.encode('utf-8')):
             vidmode_opened = (screen, display)
         else:
-            raise Exception('Cannot open vidmode connection')
+            raise Exception('Cannot open VidMode connection')
     # Read current curves and create function
     return ramps_to_function(*(vidmode_read()))
 
@@ -139,6 +155,25 @@ def drm_get(crtc = 0, screen = 0, display = None):
     connection = drm_manager.open_card(screen)
     # Read current curves and create function
     return ramps_to_function(*(drm_get_gamma_ramps(connection, crtc, i_size)))
+
+
+def w32gdi_get(crtc = 0, screen = 0, display = None):
+    '''
+    Gets the current colour curves using W32 GDI
+    
+    @param   crtc:int      The CRTC of the monitor to read from
+    @param   screen:int    Dummy parameter for compatibility with `randr_get`, `vidmode_get` and `drm_get`
+    @param   display:str?  Dummy parameter for compatibility with `randr_get` and `vidmode_get`
+    @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
+    '''
+    global w32gdi_opened
+    # Open W32 GDI connection if necessary
+    if not w32gdi_opened:
+        w32gdi_opened = True
+        if (not w32gdi_open() == 0):
+            raise Exception("Could not open W32 GDI connection")
+    # Read current curves and create function
+    return ramps_to_function(*(w32gdi_read(crtc)))
 
 
 def randr(*crtcs, screen = 0, display = None):
@@ -195,11 +230,11 @@ def vidmode(*crtcs, screen = 0, display = None):
         if vidmode_open(screen, display if display is None else display.encode('utf-8')):
             vidmode_opened = (screen, display)
         else:
-            raise Exception('Cannot open vidmode connection')
+            raise Exception('Cannot open VidMode connection')
     try:
         # Apply adjustments
         if not vidmode_apply(R_curve, G_curve, B_curve) == 0:
-            raise Exception('Cannot use vidmode to apply colour adjustments')
+            raise Exception('Cannot use VidMode to apply colour adjustments')
     except OverflowError:
         pass # Happens on exit by TERM signal
 
@@ -223,6 +258,32 @@ def drm(*crtcs, screen = 0, display = None):
             crtcs = range(drm_crtc_count(connection))
         # Apply adjustments
         drm_set_gamma_ramps(connection, list(crtcs), i_size, R_curve, G_curve, B_curve)
+    except OverflowError:
+        pass # Happens on exit by TERM signal
+
+
+def w32gdi(*crtcs, screen = 0, display = None):
+    '''
+    Applies colour curves using DRM
+    
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    Dummy parameter for compatibility with `randr`, `vidmode` and `drm`
+    @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
+    '''
+    global w32gdi_opened
+    # Open W32 GDI connection if necessary
+    if not w32gdi_opened:
+        w32gdi_opened = True
+        if (not w32gdi_open() == 0):
+            raise Exception("Could not open W32 GDI connection")
+    # Convert curves to [0, 0xFFFF] integer lists
+    (R_curve, G_curve, B_curve) = translate_to_integers()
+    try:
+        # Select all CRTC:s if none have been selected
+        if len(crtcs) == 0:
+            crtcs = range(w32gdi_crtc_count())
+        # Apply adjustments
+        w32gdi_apply(list(crtcs), R_curve, G_curve, B_curve)
     except OverflowError:
         pass # Happens on exit by TERM signal
 
@@ -556,8 +617,8 @@ def list_screens(method = 'randr', display = None):
     @param   display:str?  The display to use, `None` for the current one
     @return  :Screens      An instance of a datastructure with the relevant information
     '''
-    if method == 'randr':  return list_screens_randr(display = display)
-    if method == 'drm':    return list_screens_drm()
+    if method == 'randr':   return list_screens_randr(display = display)
+    if method == 'drm':     return list_screens_drm()
     raise Exception('Invalid method: %s' % method)
 
 
