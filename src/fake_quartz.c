@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -123,17 +124,18 @@ CGError CGSetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
   
   for (i = 0; i < 256; i++)
     {
-      v = red[i] * UINT16_MAX;
-      r_int[i] = v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v;
+      v = (int32_t)(red[i] * UINT16_MAX);
+      r_int[i] = (uint16_t)(v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v);
       
-      v = green[i] * UINT16_MAX;
-      g_int[i] = v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v;
+      v = (int32_t)(green[i] * UINT16_MAX);
+      g_int[i] = (uint16_t)(v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v);
       
-      v = blue[i] * UINT16_MAX;
-      b_int[i] = v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v;
+      v = (int32_t)(blue[i] * UINT16_MAX);
+      b_int[i] = (uint16_t)(v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v);
     }
   
-  gamma_cookie = xcb_randr_set_crtc_gamma_checked(conn, crtcs[display], gamma_size, r_int, g_int, b_int);
+  gamma_cookie = xcb_randr_set_crtc_gamma_checked(conn, crtcs[display],
+						  (uint16_t)gamma_size, r_int, g_int, b_int);
   return xcb_request_check(conn, gamma_cookie) == NULL ? kCGErrorSuccess : ~kCGErrorSuccess;
 }
 
@@ -196,6 +198,7 @@ void CGDisplayRestoreColorSyncSettings(void)
 
 uint32_t CGDisplayGammaTableCapacity(CGDirectDisplayID display)
 {
+  (void) display;
   return 256;
 }
 

@@ -51,7 +51,7 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
 
 void CGDisplayRestoreColorSyncSettings(void);
 
-uint32_t CGDisplayGammaTableCapacity(CGDirectDisplayID display);
+uint32_t CGDisplayGammaTableCapacity(CGDirectDisplayID display) __attribute__((const));
 
 
 /* The follow part most only be used when this module is used,
