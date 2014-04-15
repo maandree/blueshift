@@ -4,8 +4,8 @@ on the cursor. It does not seem to be possible to
 listen for changes in the visible cursor and edit it.
 This can sometimes be circumvented by disabling
 hardware cursors in xorg.conf.
-  Issue listen in the issue tracker:
-    https://github.com/maandree/blueshift/issues/3
+  A patch for X.org is available:
+    http://lists.x.org/archives/xorg-devel/2014-April/041873.html
 
 The colour curves are strictly independent, it is for
 example not possible to swap red and blue, or adjust
