@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "fake-w32gdi.h"
+#include "fake_w32gdi.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,8 +86,7 @@ BOOL SetDeviceGammaRamp(HDC hDC, LPVOID lpRamp)
 				     ((uint16_t *)lpRamp) + 0 * GAMMA_RAMP_SIZE,
 				     ((uint16_t *)lpRamp) + 1 * GAMMA_RAMP_SIZE,
 				     ((uint16_t *)lpRamp) + 2 * GAMMA_RAMP_SIZE);
-  xcb_generic_error_t* error = xcb_request_check(conn, gamma_cookie);
-  return error == NULL ? TRUE : FALSE;
+  return xcb_request_check(conn, gamma_cookie) == NULL ? TRUE : FALSE;
 }
 
 
@@ -121,13 +120,15 @@ BOOL GetDeviceGammaRamp(HDC hDC, LPVOID lpRamp)
 /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd183490(v=vs.85).aspx */
 HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void *lpszOutput, void *lpInitData)
 {
+  int crtc_index;
+  
   (void) lpszOutput;
   (void) lpInitData;
   
   if (strcmp(lpszDriver, "DISPLAY"))
     return NULL;
   
-  int crtc_index = atoi(lpszDevice);
+  crtc_index = atoi(lpszDevice);
   
   if (dc_count == 0)
     {
@@ -170,9 +171,10 @@ HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void *lpszOutput, void *lpI
 /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd162609(v=vs.85).aspx */
 BOOL EnumDisplayDevices(LPCTSTR lpDevice, DWORD iDevNum, PDISPLAY_DEVICE lpDisplayDevice, DWORD dwFlags)
 {
+  size_t count = (size_t)crtc_count;
+  
   (void) dwFlags;
   
-  size_t count = (size_t)crtc_count;
   if (lpDevice != NULL)
     {
       fprintf(stderr, "lpDevice (argument 1) for EnumDisplayDevices should be NULL\n");

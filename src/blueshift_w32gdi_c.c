@@ -38,6 +38,7 @@ static HDC* crtcs;
 int blueshift_w32gdi_open(void)
 {
   int c;
+  HDC hDC;
   DISPLAY_DEVICE display;
   display.cb = sizeof(DISPLAY_DEVICE);
   
@@ -47,7 +48,7 @@ int blueshift_w32gdi_open(void)
   
   if (crtc_count == 0)
     {
-      crtcs == NULL;
+      crtcs = NULL;
       return 0;
     }
   
@@ -73,8 +74,8 @@ int blueshift_w32gdi_open(void)
 	  crtc_count = c;
 	  return 1;
 	}
-      *(crtcs + c) = CreateDC(TEXT("DISPLAY"), display.DeviceName, NULL, NULL);
-      if (*(crtcs + c) == NULL)
+      hDC = *(crtcs + c) = CreateDC(TEXT("DISPLAY"), display.DeviceName, NULL, NULL);
+      if (hDC == NULL)
 	{
 	  fprintf(stderr, "Unable to open device context\n");
 	  crtc_count = c;
@@ -85,7 +86,7 @@ int blueshift_w32gdi_open(void)
       if (GetDeviceCaps(hDC, COLORMGMTCAPS) != CM_GAMMA_RAMP)
 	{
 	  fprintf(stderr, "CRTC %i does not support gamma ramps\n", c);
-	  ReleaseDC(NULL, *(crtcs + c));
+	  ReleaseDC(NULL, hDC);
 	  crtc_count = c;
 	  return 1;
 	}
@@ -171,6 +172,7 @@ int blueshift_w32gdi_apply(int use_crtc, uint16_t* rgb_curves)
  */
 void blueshift_w32gdi_close(void)
 {
+  int c;
   for (c = 0; c < crtc_count; c++)
     ReleaseDC(NULL, *(crtcs + c));
   if (crtcs != NULL)

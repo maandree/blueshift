@@ -21,7 +21,7 @@
 # define WINVER  0x0500
 #endif
 #ifdef FAKE_W32GDI
-#  include "fake-w32gdi.h"
+#  include "fake_w32gdi.h"
 #else
 #  include <windows.h>
 #  include <wingdi.h>

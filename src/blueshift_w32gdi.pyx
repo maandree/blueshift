@@ -92,7 +92,7 @@ def w32gdi_read(int use_crtc):
     '''
     cdef uint16_t* got
     # Read the current curves
-    got = blueshift_w32_read(use_crtc)
+    got = blueshift_w32gdi_read(use_crtc)
     if got is NULL:
         raise Exception()
     # Convert to Python integer lists
@@ -127,7 +127,7 @@ def w32gdi_apply(crtc_indices, r_curve, g_curve, b_curve):
     # For each selected CRTC,
     for crtc_index in crtc_indices:
         # apply curves.
-        rc |= blueshift_w32gdi_apply(crtc_index, r_c, g_c, b_c)
+        rc |= blueshift_w32gdi_apply(crtc_index, rgb_c)
     return rc
 
 

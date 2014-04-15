@@ -132,6 +132,10 @@ obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
 
+obj/%.o: src/%.c src/%.h
+	@mkdir -p obj
+	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
+
 obj/%_c.o: src/%_c.c src/%_c.h
 	@mkdir -p obj
 	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
@@ -141,9 +145,11 @@ obj/%.o: obj/%.c
 	$(CC) $(FLAGS) -c -o $@ $<
 
 ifeq ($(FAKE_W32),y)
-obj/blueshift_w32gdi_c.o: FLAGS+=-DFAKE_W32GDI obj/fake_w32gdi.o obj/fake_w32gdi.h
+obj/blueshift_w32gdi_c.o: src/blueshift_w32gdi_c.c src/blueshift_w32gdi_c.h \
+                          obj/fake_w32gdi.o src/fake_w32gdi.h
+	@mkdir -p bin
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -DFAKE_W32GDI -o $@ $^
 endif
-obj/fake_w32gdi.o: obj/fake_w32gdi.h
 
 
 # Build rules for Cython source files
