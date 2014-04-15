@@ -60,6 +60,12 @@ cdef extern void blueshift_quartz_close()
 Resource freeing stage of colour curve control
 '''
 
+cdef extern void blueshift_quartz_restore()
+'''
+Restore all gamma curves (on each and every CRTC on the system)
+to the settings on ColorSync
+'''
+
 
 
 cdef float* r_c
@@ -164,4 +170,12 @@ def quartz_close():
     free(b_c)
     # Close free all resources in the native code
     blueshift_quartz_close()
+
+
+def quartz_restore():
+    '''
+    Restore all gamma curves (on each and every CRTC on the system)
+    to the settings on ColorSync
+    '''
+    blueshift_quartz_restore()
 

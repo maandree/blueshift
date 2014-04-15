@@ -47,7 +47,7 @@ CGError CGSetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
 				    const CGGammaValue* green, const CGGammaValue* blue);
 
 CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_size, CGGammaValue* red,
-				    CGGammaValue* green, CGGammaValue* blue, uint32_t *gamma_size_out);
+				    CGGammaValue* green, CGGammaValue* blue, uint32_t* gamma_size_out);
 
 void CGDisplayRestoreColorSyncSettings(void);
 

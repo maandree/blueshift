@@ -123,14 +123,14 @@ CGError CGSetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
   
   for (i = 0; i < 256; i++)
     {
-      v = red[i] * (UINT16_MAX - 1);
-      r_int[i] = v < 0 ? 0 : v >= UINT16_MAX : (UINT16_MAX - 1) : v;
+      v = red[i] * UINT16_MAX;
+      r_int[i] = v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v;
       
-      v = green[i] * (UINT16_MAX - 1);
-      g_int[i] = v < 0 ? 0 : v >= UINT16_MAX : (UINT16_MAX - 1) : v;
+      v = green[i] * UINT16_MAX;
+      g_int[i] = v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v;
       
-      v = blue[i] * (UINT16_MAX - 1);
-      b_int[i] = v < 0 ? 0 : v >= UINT16_MAX : (UINT16_MAX - 1) : v;
+      v = blue[i] * UINT16_MAX;
+      b_int[i] = v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v;
     }
   
   gamma_cookie = xcb_randr_set_crtc_gamma_checked(conn, crtcs[display], gamma_size, r_int, g_int, b_int);
@@ -147,6 +147,7 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
   uint16_t* r_int;
   uint16_t* g_int;
   uint16_t* b_int;
+  long i;
   
   if (gamma_size != 256)
     {
@@ -156,7 +157,7 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
   
   *gamma_size_out = 256;
   
-  gamma_cookie = xcb_randr_get_crtc_gamma(conn, crtcs[i]);
+  gamma_cookie = xcb_randr_get_crtc_gamma(conn, crtcs[display]);
   gamma_reply = xcb_randr_get_crtc_gamma_reply(conn, gamma_cookie, &error);
   
   if (error)
@@ -171,9 +172,9 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
   
   for (i = 0; i < 256; i++)
     {
-      red[i]   = (CGGammaValue)(r_int[i]) / (UINT16_MAX - 1);
-      green[i] = (CGGammaValue)(g_int[i]) / (UINT16_MAX - 1);
-      blue[i]  = (CGGammaValue)(b_int[i]) / (UINT16_MAX - 1);
+      red[i]   = (CGGammaValue)(r_int[i]) / UINT16_MAX;
+      green[i] = (CGGammaValue)(g_int[i]) / UINT16_MAX;
+      blue[i]  = (CGGammaValue)(b_int[i]) / UINT16_MAX;
     }
   
   return kCGErrorSuccess;

@@ -25,8 +25,13 @@
 #  include "fake_quartz.h"
 #else
 #  include <CoreGraphics/CGDirectDisplay.h>
+#  include <CoreGraphics/CGError.h>
 #endif
 
+
+#ifndef FAKE_QUARTZ
+#  define close_fake_quartz()  /* Do nothing */
+#endif
 
 
 /**
@@ -68,6 +73,12 @@ int blueshift_quartz_apply(int use_crtc, float* r_curves, float* g_curves, float
  * Resource freeing stage of colour curve control
  */
 void blueshift_quartz_close(void);
+
+/**
+ * Restore all gamma curves (on each and every CRTC on the system)
+ * to the settings on ColorSync
+ */
+void blueshift_quartz_restore(void);
 
 
 #endif
