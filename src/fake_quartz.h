@@ -41,7 +41,7 @@ typedef float CGGammaValue;
 typedef uint32_t CGDirectDisplayID;
 
 
-CGError CGGetActiveDisplayList(uint32_t max_size, CGDirectDisplayID* displays_out, uint32_t* count_out);
+CGError CGGetOnlineDisplayList(uint32_t max_size, CGDirectDisplayID* displays_out, uint32_t* count_out);
 
 CGError CGSetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_size, const CGGammaValue* red,
 				    const CGGammaValue* green, const CGGammaValue* blue);
@@ -52,6 +52,14 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
 void CGDisplayRestoreColorSyncSettings(void);
 
 uint32_t CGDisplayGammaTableCapacity(CGDirectDisplayID display);
+
+
+/* The follow part most only be used when this module is used,
+   it cannot be used when the real CoreGraphics is used.
+   CoreGraphics does not have this function, it is added so
+   that there is a way to cleanly close the X connection
+   and free resources needed by this module. */
+void close_fake_quartz(void);
 
 
 #endif
