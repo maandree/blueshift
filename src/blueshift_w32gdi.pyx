@@ -83,6 +83,15 @@ def w32gdi_open():
     return blueshift_w32gdi_open()
 
 
+def w32gdi_crtcs_count():
+    '''
+    Get the number of CRTC:s on the system
+    
+    @return  The number of CRTC:s on the system
+    '''
+    return blueshift_w32gdi_crtc_count()
+
+
 def w32gdi_read(int use_crtc):
     '''
     Gets the current colour curves
