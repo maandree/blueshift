@@ -248,7 +248,7 @@ uint16_t* blueshift_randr_read(int use_crtc)
 /**
  * Apply stage of colour curve control
  * 
- * @param   use_crtc  The CRTC to use, -1 of all
+ * @param   use_crtc  The CRTC to use, -1 if all
  * @param   r_curve   The red colour curve
  * @param   g_curve   The green colour curve
  * @param   b_curve   The blue colour curve
