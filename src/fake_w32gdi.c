@@ -118,7 +118,7 @@ BOOL GetDeviceGammaRamp(HDC hDC, LPVOID lpRamp)
 
 
 /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd183490(v=vs.85).aspx */
-HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void *lpszOutput, void *lpInitData)
+HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void* lpszOutput, void* lpInitData)
 {
   int crtc_index;
   
@@ -132,7 +132,7 @@ HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void *lpszOutput, void *lpI
   
   if (dc_count == 0)
     {
-      xcb_generic_error_t *error;
+      xcb_generic_error_t* error;
       xcb_screen_iterator_t iter;
       xcb_randr_get_screen_resources_current_cookie_t res_cookie;
       

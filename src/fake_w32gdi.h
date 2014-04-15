@@ -24,10 +24,10 @@
 typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef int BOOL;
-typedef void *HDC;
-typedef void *HWND;
-typedef void *LPVOID;
-typedef const char *LPCTSTR;
+typedef void* HDC;
+typedef void* HWND;
+typedef void* LPVOID;
+typedef const char* LPCTSTR;
 typedef char TCHAR;
 #define TRUE  1
 #define FALSE 0
@@ -53,7 +53,7 @@ BOOL GetDeviceGammaRamp(HDC hDC, LPVOID lpRamp);
 
 
 /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd183490(v=vs.85).aspx */
-HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void *lpszOutput, void *lpInitData);
+HDC CreateDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, void* lpszOutput, void* lpInitData);
 #define TEXT(X) ((LPCTSTR)(X))
 
 /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd183569(v=vs.85).aspx */
@@ -62,7 +62,7 @@ typedef struct {
 	TCHAR DeviceName[32];
 	DWORD StateFlags;
 } DISPLAY_DEVICE;
-typedef DISPLAY_DEVICE *PDISPLAY_DEVICE;
+typedef DISPLAY_DEVICE* PDISPLAY_DEVICE;
 #define DISPLAY_DEVICE_ACTIVE 1
 
 /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd162609(v=vs.85).aspx */
