@@ -78,6 +78,8 @@ int blueshift_quartz_open(void)
 	      return -1;
 	    }
 	}
+      else
+	break;
     }
   
   if (crtc_count > 0)
