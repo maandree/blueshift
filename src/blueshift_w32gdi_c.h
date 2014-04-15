@@ -14,6 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef BLUESHIFT_W32GDI_C_H
+#define BLUESHIFT_W32GDI_C_H
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -73,4 +77,7 @@ int blueshift_w32gdi_apply(int use_crtc, uint16_t* rgb_curves);
  * Resource freeing stage of colour curve control
  */
 void blueshift_w32gdi_close(void);
+
+
+#endif
 
