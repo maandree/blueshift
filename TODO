@@ -24,8 +24,10 @@ Future stuff:
 	How is it looking on the DirectFB front?
 	Test on the BSD:s
 	Add support for the BSD:s' TTY:s
-	Add reactos support (this way windows might get supported without my
-	  computer or soul being violated with proprietary software.)
+	Test on ReactOS support (this way windows might get supported without
+	  my computer or soul being violated with proprietary software.)
+	  (Does ReactOS support support gamma ramps? It does not,
+	  it should be enough that everything else works.)
 	Make an example that warns about UPS states
 	  (not too important, you should have that in /etc/inittab)
 

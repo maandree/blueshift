@@ -7,6 +7,9 @@ RUNTIME DEPENDENCIES:
 	libxcb (opt-out)
 	    For RandR support and CRTC listing and ICC profile listing under X
 	
+	libxcb (opt-in)
+	    For testing Windows support on GNU/Linux under X.
+	
 	libx11, libxxf86vm (opt-out)
 	    For VidMode support under X
 	
@@ -18,7 +21,7 @@ RUNTIME DEPENDENCIES:
 	
 	linux, adjbacklight (optional)
 	    For permission-hasslefree backlight adjustments via sysfs
-
+	
 	wget (optional)
 	    For weather conditions, default command
 
@@ -28,10 +31,10 @@ MAKE DEPENDENCIES:
 	cython
 	gcc
 	python3
-	libxcb (opt-out, see runtime dependencies)
-	libx11 (opt-out, see runtime dependencies)
+	libxcb     (opt-out/out-in, see runtime dependencies)
+	libx11     (opt-out, see runtime dependencies)
 	libxxf86vm (opt-out, see runtime dependencies)
-	libdrm (opt-out, see runtime dependencies)
+	libdrm     (opt-out, see runtime dependencies)
 	make
 	coreutils
 	sed
