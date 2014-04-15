@@ -22,6 +22,7 @@ Low priority:
 	Screen count function for VidMode should be added
 	CRTC count function for W32 GDI should be documented
 	W32 GDI support should be documented
+	Quartz support should be documented
 
 Future stuff:
 	How is it looking on the DirectFB front?
@@ -31,6 +32,7 @@ Future stuff:
 	  my computer or soul being violated with proprietary software.)
 	  (Does ReactOS support support gamma ramps? It does not,
 	  it should be enough that everything else works.)
+	If there anyway to test Quartz without Mac OS X proper, test Quartz
 	Make an example that warns about UPS states
 	  (not too important, you should have that in /etc/inittab)
 
