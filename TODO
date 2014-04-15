@@ -17,6 +17,7 @@ Low priority:
 	  https://en.wikipedia.org/wiki/Stairstep_interpolation
 	  https://en.wikipedia.org/wiki/Hermite_interpolation
 	Use curve sizes returned from RandR/VidMode/...
+	  (Not too important, it is hardcoded in X to only allow 256)
 	Use Robertson's method
 
 Future stuff:
