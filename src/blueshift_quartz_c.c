@@ -183,7 +183,7 @@ uint16_t* blueshift_quartz_read(int use_crtc)
       rc += gamma_size;
       for (i = 0; i < gamma_size; i++)
 	{
-	  int32_t v = blue[i] * UINT16_MAX;
+	  int32_t v = green[i] * UINT16_MAX;
 	  rc[i] = (uint16_t)(v < 0 ? 0 : v > UINT16_MAX ? UINT16_MAX : v);
 	}
       rc += gamma_size;

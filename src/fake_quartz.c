@@ -90,9 +90,13 @@ CGError CGGetOnlineDisplayList(uint32_t max_size, CGDirectDisplayID* displays_ou
 	      return ~kCGErrorSuccess;
 	    }
 	  
-	  memcpy(original_ramps + (0 + 3 * i) * 256, xcb_randr_get_crtc_gamma_red(gamma_reply), 256);
-	  memcpy(original_ramps + (1 + 3 * i) * 256, xcb_randr_get_crtc_gamma_green(gamma_reply), 256);
-	  memcpy(original_ramps + (2 + 3 * i) * 256, xcb_randr_get_crtc_gamma_blue(gamma_reply), 256);
+#define __DEST(C)  original_ramps + (C + 3 * i) * 256
+#define __SRC(C)  xcb_randr_get_crtc_gamma_##C(gamma_reply)
+	  memcpy(__DEST(0), __SRC(red),   256 * sizeof(uint16_t));
+	  memcpy(__DEST(1), __SRC(green), 256 * sizeof(uint16_t));
+	  memcpy(__DEST(2), __SRC(blue),  256 * sizeof(uint16_t));
+#undef __SRC
+#undef __DEST
 	  
 	  free(gamma_reply);
 	}
@@ -185,13 +189,19 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
 
 void CGDisplayRestoreColorSyncSettings(void)
 {
+  xcb_generic_error_t* error;
+  xcb_void_cookie_t gamma_cookie;
   uint32_t i;
+  
   for (i = 0; i < crtc_count; i++)
     {
-      xcb_randr_set_crtc_gamma(conn, crtcs[i], 255,
-			       original_ramps + (0 + 3 * i) * 256,
-			       original_ramps + (1 + 3 * i) * 256,
-			       original_ramps + (2 + 3 * i) * 256);
+      gamma_cookie = xcb_randr_set_crtc_gamma_checked(conn, crtcs[i], 256,
+						      original_ramps + (0 + 3 * i) * 256,
+						      original_ramps + (1 + 3 * i) * 256,
+						      original_ramps + (2 + 3 * i) * 256);
+      error = xcb_request_check(conn, gamma_cookie);
+      if (error)
+	fprintf(stderr, "Quartz gamma reset emulation with RandR returned %i\n", error->error_code);
     }
 }
 
