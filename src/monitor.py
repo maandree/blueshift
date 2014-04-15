@@ -52,6 +52,13 @@ except:
     # Not compiled with W32 GDI support
     pass
 
+## Load Quartz module
+try:
+    from blueshift_quartz import *
+except:
+    # Not compiled with Quartz support
+    pass
+
 
 randr_opened = None
 '''
@@ -68,12 +75,17 @@ w32gdi_opened = False
 :bool  Whether W32 GDI is in use
 '''
 
+quartz_opened = False
+'''
+:bool  Whether Quartz is in use
+'''
+
 
 def close_c_bindings():
     '''
     Close all C bindings and let them free resources and close connections
     '''
-    global randr_opened, vidmode_opened, w32gdi_opened
+    global randr_opened, vidmode_opened, w32gdi_opened, quartz_opened
     if randr_opened is not None:
         # Close RandR connection if open
         from blueshift_randr import randr_close
@@ -88,6 +100,10 @@ def close_c_bindings():
         # Close W32 GDI connection if open
         w32gdi_opened = False
         w32gdi_close()
+    if quartz_opened:
+        # Close Quartz connection if open
+        quartz_opened = False
+        quartz_close()
     # Close DRM connection if open
     drm_manager.close()
 
@@ -174,6 +190,25 @@ def w32gdi_get(crtc = 0, screen = 0, display = None):
             raise Exception("Could not open W32 GDI connection")
     # Read current curves and create function
     return ramps_to_function(*(w32gdi_read(crtc)))
+
+
+def quartz_get(crtc = 0, screen = 0, display = None):
+    '''
+    Gets the current colour curves using Quartz
+    
+    @param   crtc:int      The CRTC of the monitor to read from
+    @param   screen:int    Dummy parameter for compatibility with `randr_get`, `vidmode_get` and `drm_get`
+    @param   display:str?  Dummy parameter for compatibility with `randr_get` and `vidmode_get`
+    @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
+    '''
+    global quartz_opened
+    # Open Quartz connection if necessary
+    if not quartz_opened:
+        quartz_opened = True
+        if (not quartz_open() == 0):
+            raise Exception("Could not open Quartz connection")
+    # Read current curves and create function
+    return ramps_to_function(*(quartz_read(crtc)))
 
 
 def randr(*crtcs, screen = 0, display = None):
@@ -264,7 +299,7 @@ def drm(*crtcs, screen = 0, display = None):
 
 def w32gdi(*crtcs, screen = 0, display = None):
     '''
-    Applies colour curves using DRM
+    Applies colour curves using W32 GDI
     
     @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
     @param  screen:int    Dummy parameter for compatibility with `randr`, `vidmode` and `drm`
@@ -284,6 +319,32 @@ def w32gdi(*crtcs, screen = 0, display = None):
             crtcs = range(w32gdi_crtc_count())
         # Apply adjustments
         w32gdi_apply(list(crtcs), R_curve, G_curve, B_curve)
+    except OverflowError:
+        pass # Happens on exit by TERM signal
+
+
+def quartz(*crtcs, screen = 0, display = None):
+    '''
+    Applies colour curves using Quartz
+    
+    @param  crtcs:*int    The CRT controllers to use, all are used if none are specified
+    @param  screen:int    Dummy parameter for compatibility with `randr`, `vidmode` and `drm`
+    @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
+    '''
+    global quartz_opened
+    # Open Quartz connection if necessary
+    if not quartz_opened:
+        quartz_opened = True
+        if (not quartz_open() == 0):
+            raise Exception("Could not open Quartz connection")
+    # Convert curves to [0, 0xFFFF] integer lists
+    (R_curve, G_curve, B_curve) = translate_to_integers()
+    try:
+        # Select all CRTC:s if none have been selected
+        if len(crtcs) == 0:
+            crtcs = range(quartz_crtc_count())
+        # Apply adjustments
+        quartz_apply(list(crtcs), R_curve, G_curve, B_curve)
     except OverflowError:
         pass # Happens on exit by TERM signal
 
