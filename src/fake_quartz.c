@@ -153,7 +153,7 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
   
   if (gamma_size != 256)
     {
-      fprintf(stderr, "Gamma size should be 256\n");
+      fprintf(stderr, "Gamma size should be 256, got %u\n", gamma_size);
       abort();
     }
   

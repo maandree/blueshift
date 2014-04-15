@@ -42,6 +42,7 @@ static uint32_t* gamma_sizes = NULL;
 int blueshift_quartz_open(void)
 {
   uint32_t cap = 4;
+  uint32_t i;
   CGError r;
   
   crtcs = malloc((size_t)cap * sizeof(CGDirectDisplayID));
@@ -91,6 +92,18 @@ int blueshift_quartz_open(void)
 	  free(crtcs);
 	  close_fake_quartz();
 	  return -1;
+	}
+      for (i = 0; i < crtc_count; i++)
+	{
+	  gamma_sizes[i] = CGDisplayGammaTableCapacity(crtcs[i]);
+	  if (gamma_sizes[i] < 2)
+	    {
+	      fprintf(stderr, "Quartz reported impossibly small gamma ramps.\n");
+	      free(gamma_sizes);
+	      free(crtcs);
+	      close_fake_quartz();
+	      return -1;
+	    }
 	}
     }
   
