@@ -44,13 +44,15 @@ Gets the current colour curves
                    needs to be free:d. `NULL` on error.
 '''
 
-cdef extern int blueshift_quartz_apply(int use_crtc, uint16_t* rgb_curves)
+cdef extern int blueshift_quartz_apply(int use_crtc, float* r_curves, float* g_curves, float* b_curves)
 '''
 Apply stage of colour curve control
 
-@param   use_crtc   The CRTC to use, -1 for all
-@param   rgb_curve  The concatenation of the red, the green and the blue colour curves
-@return             Zero on success
+@param   use_crtc  The CRTC to use, -1 for all
+@param   r_curve   The red colour curve
+@param   g_curve   The green colour curve
+@param   b_curve   The blue colour curve
+@return            Zero on success
 '''
 
 cdef extern void blueshift_quartz_close()
@@ -60,9 +62,19 @@ Resource freeing stage of colour curve control
 
 
 
-cdef uint16_t* rgb_c
+cdef float* r_c
 '''
-Storage space for the colour curves in C native data structure
+Storage space for the red colour curve in C native data structure
+'''
+
+cdef float* g_c
+'''
+Storage space for the green colour curve in C native data structure
+'''
+
+cdef float* b_c
+'''
+Storage space for the blue colour curve in C native data structure
 '''
 
 
@@ -73,11 +85,13 @@ def quartz_open():
     
     @return  :int  Zero on success
     '''
-    global rgb_c
+    global r_c, g_c, b_c
     # Allocate the storage space for the C native colour curves
-    rgb_c = <uint16_t*>malloc(3 * 256 * sizeof(uint16_t))
+    r_c = <float*>malloc(256 * sizeof(float))
+    g_c = <float*>malloc(256 * sizeof(float))
+    b_c = <float*>malloc(256 * sizeof(float))
     # Check for out-of-memory error
-    if (rgb_c is NULL):
+    if (r_c is NULL) or (g_c is NULL) or (b_c is NULL):
         raise MemoryError()
     # Start using Quartz
     return blueshift_quartz_open()
@@ -122,21 +136,21 @@ def quartz_apply(crtc_indices, r_curve, g_curve, b_curve):
     Apply stage of colour curve control
     
     @param   crtc_indices:list<int>  The indices of the CRTC:s to control, -1 for all
-    @param   r_curve:list<int>       The red colour curve
-    @param   g_curve:list<int>       The green colour curve
-    @param   b_curve:list<int>       The blue colour curve
+    @param   r_curve:list<float>     The red colour curve
+    @param   g_curve:list<float>     The green colour curve
+    @param   b_curve:list<float>     The blue colour curve
     @return                          Zero on success
     '''
-    # Convert curves to 16-bit C integers
+    # Convert curves to C floats
     for i in range(256):
-        rgb_c[0 * 256 + i] = r_curve[i] & 0xFFFF
-        rgb_c[1 * 256 + i] = g_curve[i] & 0xFFFF
-        rgb_c[2 * 256 + i] = b_curve[i] & 0xFFFF
+        r_c[i] = r_curve[i]
+        g_c[i] = g_curve[i]
+        b_c[i] = b_curve[i]
     rc = 0
     # For each selected CRTC,
     for crtc_index in crtc_indices:
         # apply curves.
-        rc |= blueshift_quartz_apply(crtc_index, rgb_c)
+        rc |= blueshift_quartz_apply(crtc_index, r_c, g_c, b_c)
     return rc
 
 
@@ -145,7 +159,9 @@ def quartz_close():
     Resource freeing stage of colour curve control
     '''
     # Free the storage space for the colour curves
-    free(rgb_c)
+    free(r_c)
+    free(g_c)
+    free(b_c)
     # Close free all resources in the native code
     blueshift_quartz_close()
 

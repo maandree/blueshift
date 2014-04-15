@@ -56,11 +56,13 @@ uint16_t* blueshift_quartz_read(int use_crtc);
 /**
  * Apply stage of colour curve control
  * 
- * @param   use_crtc   The CRTC to use, -1 for all
- * @param   rgb_curve  The concatenation of the red, the green and the blue colour curves
- * @return             Zero on success
+ * @param   use_crtc  The CRTC to use, -1 for all
+ * @param   r_curve   The red colour curve
+ * @param   g_curve   The green colour curve
+ * @param   b_curve   The blue colour curve
+ * @return            Zero on success
  */
-int blueshift_quartz_apply(int use_crtc, uint16_t* rgb_curves);
+int blueshift_quartz_apply(int use_crtc, float* r_curves, float* g_curves, float* b_curves);
 
 /**
  * Resource freeing stage of colour curve control

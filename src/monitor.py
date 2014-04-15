@@ -337,14 +337,12 @@ def quartz(*crtcs, screen = 0, display = None):
         quartz_opened = True
         if (not quartz_open() == 0):
             raise Exception("Could not open Quartz connection")
-    # Convert curves to [0, 0xFFFF] integer lists
-    (R_curve, G_curve, B_curve) = translate_to_integers()
     try:
         # Select all CRTC:s if none have been selected
         if len(crtcs) == 0:
             crtcs = range(quartz_crtc_count())
         # Apply adjustments
-        quartz_apply(list(crtcs), R_curve, G_curve, B_curve)
+        quartz_apply(list(crtcs), r_curve, g_curve, b_curve)
     except OverflowError:
         pass # Happens on exit by TERM signal
 
