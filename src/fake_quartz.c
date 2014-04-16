@@ -183,6 +183,7 @@ CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
       blue[i]  = (CGGammaValue)(b_int[i]) / UINT16_MAX;
     }
   
+  free(gamma_reply);
   return kCGErrorSuccess;
 }
 
