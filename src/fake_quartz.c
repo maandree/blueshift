@@ -145,7 +145,7 @@ CGError CGSetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_si
 
 
 CGError CGGetDisplayTransferByTable(CGDirectDisplayID display, uint32_t gamma_size, CGGammaValue* red,
-				    CGGammaValue* green, CGGammaValue* blue, uint32_t *gamma_size_out)
+				    CGGammaValue* green, CGGammaValue* blue, uint32_t* gamma_size_out)
 {
   xcb_randr_get_crtc_gamma_cookie_t gamma_cookie;
   xcb_randr_get_crtc_gamma_reply_t* gamma_reply;
