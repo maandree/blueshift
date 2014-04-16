@@ -66,7 +66,7 @@ int blueshift_quartz_open(void)
 	  cap <<= 1;
 	  if (cap == 0) /* We could also test ~0, but it is still too many. */
 	    {
-	      fprintf(stderr, "A impossible number of CRTC:s are available according to Quartz\n");
+	      fprintf(stderr, "An impossible number of CRTC:s are available according to Quartz\n");
 	      free(crtcs);
 	      close_fake_quartz();
 	      return -1;
