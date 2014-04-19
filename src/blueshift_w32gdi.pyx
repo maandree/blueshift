@@ -87,7 +87,7 @@ def w32gdi_crtc_count():
     '''
     Get the number of CRTC:s on the system
     
-    @return  The number of CRTC:s on the system
+    @return  :int  The number of CRTC:s on the system
     '''
     return blueshift_w32gdi_crtc_count()
 
@@ -125,7 +125,7 @@ def w32gdi_apply(crtc_indices, r_curve, g_curve, b_curve):
     @param   r_curve:list<int>       The red colour curve
     @param   g_curve:list<int>       The green colour curve
     @param   b_curve:list<int>       The blue colour curve
-    @return                          Zero on success
+    @return  :int                    Zero on success
     '''
     # Convert curves to 16-bit C integers
     for i in range(256):

@@ -131,7 +131,7 @@ def vidmode_apply(r_curve, g_curve, b_curve):
     @param   r_curve:list<int>  The red colour curve
     @param   g_curve:list<int>  The green colour curve
     @param   b_curve:list<int>  The blue colour curve
-    @return                     Zero on success
+    @return  :int               Zero on success
     '''
     # Convert curves to 16-bit C integers
     for i in range(256):

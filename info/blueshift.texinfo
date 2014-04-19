@@ -248,12 +248,14 @@ comma separated list, and multiple options
 may be used. It is best to start one
 instance per monitor with colour calibration.
 
-Be aware than under X — using RandR — the
-primary monitor is reported to have the
-zeroth CRTC. But under TTY — using DRM —
-this is no concept of primary monitors,
-and thus the CRTC indices can slightly
-different.
+Be aware than under X — using the Resize and
+Rotate (RandR) extension@footnote{Don't be
+fooled by the name, it can actually do anything
+that has to do with monitor control.} — the
+primary monitor is reported to have the zeroth
+CRTC. But under TTY — using DRM — this is no
+concept of primary monitors, and thus the CRTC
+indices can slightly different.
 @end table
 
 @option{-g}, @option{-b}, @option{+b}, and
@@ -1553,6 +1555,83 @@ connectors in DRM contected, but for this
 function it will still be called outputs
 for API compatibility with the RandR
 version) by be different.
+
+Blueshift also have support for running
+under Windows, using Windows Graphics
+Device Interface (Windows GDI) and Mac
+OS X, using Quartz via Core Graphics.
+However, this has only been tested on
+GNU/Linux under X with compatibility
+layers written, for Blueshift and
+Redshift, from documentation; and are
+not support beyond this documentation.
+@footnote{The reason for this is simple:
+the are proprietary operating systems
+that would never touch because of the
+fact that they are proprietary and that
+they are GUI orientated, as well as
+I would not like to pay for those
+shortcomings.}
+
+Windows GDI is used similarly to RandR.
+To apply the adjustments invoke the
+function @code{w32gdi}, optionally with
+the indices of the CRTC:s to perform the
+adjustment on. If no CRTC is selected,
+the adjustment will be applied on all
+CRTC:s. To create a function that applies
+the adjustments that are applied currently
+[when the function is created] on top of
+the current adjustments [when the create
+function is invoked] use the function
+@code{w32gdi_get}, optionally with the
+index of the CRTC to read from. If not
+CRTC is selected CRTC 0 will be used.
+For compatibility with the other methods,
+@code{w32gdi} and @code{w32gdi_get} have
+two dummy parameters: @code{screen} and
+@code{display}.
+
+Quartz is used in the same way as Windows
+GDI, except the functions are named
+@code{quartz} and @code{quartz_get},
+respectively.
+
+@c TODO resolve this (Windows and Mac OS X)
+Be aware than the following may change
+in a future version of Blueshift as support
+for Windows and Mac OS X increases.
+
+Both Windows GDI and Quartz have support
+for getting the number of available CRTC:s.
+It is however not as full featured as for
+RandR and DRM so @code{list_screens} cannot
+be used. Instead, use the functions
+@code{w32gdi_crtc_count} and
+@code{quartz_crtc_count}, respectively.
+They take no arguments and return an integer
+with the number of available CRTC:s.
+
+Quartz also have support for resetting the
+adjustment on each and every monitor on the
+system to this on ColorSync. To perform
+this action run the function
+@code{quartz_restore}. It takes no arguments
+and does not return any value.
+
+Again, the support for Windows and Mac OS X, is
+minimal. For now, if you want to use either of
+@code{w32gdi_crtc_count}, @code{quartz_crtc_count}
+and @code{quartz_restore} before Windows GDI
+or Quartz have been used via @code{w32gdi},
+@code{w32gdi_get}, @code{quartz} or @code{quartz_get},
+you will have to initialise them. The easiest
+way to do this is to just run @code{w32gdi_get}
+or @code{quartz_get}. Another way to do this
+is to run @code{w32gdi_open} or @code{quartz_open}
+and when done run @code{w32gdi_close} or
+@code{quartz_close}. Neither of these functions
+take any arguments nor returns any value.
 
 
 @node Optimising

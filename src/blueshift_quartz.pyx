@@ -107,7 +107,7 @@ def quartz_crtc_count():
     '''
     Get the number of CRTC:s on the system
     
-    @return  The number of CRTC:s on the system
+    @return  :int  The number of CRTC:s on the system
     '''
     return blueshift_quartz_crtc_count()
 
@@ -145,7 +145,7 @@ def quartz_apply(crtc_indices, r_curve, g_curve, b_curve):
     @param   r_curve:list<float>     The red colour curve
     @param   g_curve:list<float>     The green colour curve
     @param   b_curve:list<float>     The blue colour curve
-    @return                          Zero on success
+    @return  :int                    Zero on success
     '''
     # Convert curves to C floats
     for i in range(256):
