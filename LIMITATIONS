@@ -7,6 +7,7 @@ hardware cursors in xorg.conf.
   A patch for X.org is available:
     http://lists.x.org/archives/xorg-devel/2014-April/041873.html
     http://lists.x.org/archives/xorg-devel/2014-April/041985.html
+    http://lists.x.org/archives/xorg-devel/2014-April/041991.html
 
 The colour curves are strictly independent, it is for
 example not possible to swap red and blue, or adjust
