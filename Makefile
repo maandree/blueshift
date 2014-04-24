@@ -177,12 +177,12 @@ obj/%.c: src/%.pyx
 # Build rules for Python source files
 
 bin/blueshift: obj/blueshift.zip
+	@mkdir -p bin
 	echo '#!$(SHEBANG)' > $@
 	cat $< >> $@
 	chmod a+x $@
 
 obj/blueshift.zip: $(foreach F,$(PYFILES),obj/$(F))
-	@mkdir -p bin
 	cd obj && zip ../$@ $(foreach F,$(PYFILES),$(F))
 
 obj/%.py: src/%.py
