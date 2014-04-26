@@ -36,8 +36,11 @@ monitors = [0, 1]
 gammas = [[1.16, 1.15, 1.11],
           [1.10, 1.16, 1.10]]
 
-# The colour temperature for normal programs
+# The colour temperature for normal applications
 standard_temperature = 3500
+
+# The brightness for normal applications
+standard_brightness = 0.8
 
 # Acquire connection to X
 x_display = Xlib.display.Display()
@@ -157,14 +160,19 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     for monitor in range(len(monitors)):
         start_over()
         temp = standard_temperature
+        bright = standard_brightness
         
         if window[0] in ('Dooble', 'claws-mail'):
             temp = 2000
+            bright = 0.5
         elif window[0] == 'inkscape':
             temp = 6500
+            bright = 1.0
         elif window[0].startswith('gimp-'): # continues with the version number
             temp = 6500
+            bright = 1.0
         
+        cie_brightness(bright)
         temperature(temp, lambda t : clip_whitepoint(divide_by_maximum(cmf_10deg(t))))
         gamma(*gammas[monitor])
         randr(monitors[monitor])
