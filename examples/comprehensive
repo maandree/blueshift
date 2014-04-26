@@ -91,8 +91,8 @@ download_command = None
 
 
 # Method for applying colour curves in X.
-#apply_curves_x = randr
-apply_curves_x = vidmode
+apply_curves_x = randr
+#apply_curves_x = vidmode
 
 # Method for applying colour curves in TTY.
 apply_curves_tty_ = drm
@@ -173,7 +173,7 @@ weather_modifiers = { 'clear'         : 1.00
 visibility_max = 4
 
 
-# The (zero-based) index of the monitors (CRTC:s) to apply
+# The (zero-based) indices of the monitors (CRTC:s) to apply
 # settings to. An empty list means that all monitors are used,
 # but all monitors will have the same settings.
 monitors = []

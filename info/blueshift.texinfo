@@ -2119,6 +2119,14 @@ multithreaded configurations script.
 This is a samll example demonstrates how to include
 weather conditions in your configuration scripts.
 
+@item x-window-focus
+This example can be used (hopefully@footnote{It has
+been tested on xmonad and twm, and the feature is
+window manager dependent}) any X window manager.
+It identifies what window is in focus, by class
+@footnote{Class is almost the same thing as application.}
+or title, and applies appropriate adjustments.
+
 @item xmobar
 This example can be used in @command{xmobar} to display
 the Sun's elevation and to what degree it is day time.

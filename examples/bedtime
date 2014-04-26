@@ -56,7 +56,7 @@ time_wakeup_saturday  = ('13:00', '14:00')
 time_wakeup_sunday    = ('13:00', '14:00')
 
 
-# The (zero-based) index of the monitors (CRTC:s) to apply
+# The (zero-based) indices of the monitors (CRTC:s) to apply
 # settings to. An empty list means that all monitors are used,
 # but all monitors will have the same settings.
 monitors = []
