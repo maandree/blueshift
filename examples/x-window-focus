@@ -2,7 +2,7 @@
 
 # This configuration scripts can change the adjustment settings
 # depending on that window is in focus, by class or title.
-# However this is actually Window Manager dependent and have
+# However this is actually window manager dependent and have
 # only been tested on twm and xmonad.
 
 
