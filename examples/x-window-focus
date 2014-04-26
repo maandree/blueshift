@@ -129,7 +129,11 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
         
         # Get window specifications
         wm_class = window.get_wm_class()
-        wm_name = window.get_wm_name()
+        wm_name = None
+        try:
+            wm_name = window.get_wm_name()
+        except:
+            pass ## Buf in python3-xlib (?)
         if (wm_class is None) and (wm_name is None):
             x_display.next_event()
             return
