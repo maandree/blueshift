@@ -31,7 +31,7 @@ MAKE DEPENDENCIES:
 	cython
 	gcc
 	python3
-	libxcb     (opt-out/out-in, see runtime dependencies)
+	libxcb     (opt-out/opt-in, see runtime dependencies)
 	libx11     (opt-out, see runtime dependencies)
 	libxxf86vm (opt-out, see runtime dependencies)
 	libdrm     (opt-out, see runtime dependencies)
