@@ -85,8 +85,24 @@ endif
 ifeq ($(FAKE_MAC),y)
 LIBS_quartz = $(LIBS_randr)
 endif
+LD_idcrtc =
+LD_iccprofile =
+LD_randr =
+LD_vidmode =
+LD_drm =
+LD_w32gdi =
+F_ApplicationServices = /System/Library/Frameworks/ApplicationServices.framework
+I_ApplicationServices = $(F_ApplicationServices)/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Headers
+LD_quartz = -I$(I_ApplicationServices) -F$(F_ApplicationServices) -framework ApplicationServices
+ifeq ($(FAKE_W32),y)
+LD_w32gdi = $(LD_randr)
+endif
+ifeq ($(FAKE_MAC),y)
+LD_quartz = $(LD_randr)
+endif
 LIBS = python3 $(foreach B,$(SERVER_BINDINGS) $(EXECS),$(LIBS_$(B)))
-FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
+FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) \
+        -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
 
 # Resource files
 DATAFILES = 2deg 10deg redshift redshift_old
@@ -119,12 +135,12 @@ command: $(foreach C,$(CBINDINGS),bin/$(C)) $(foreach E,$(EXECLIBS),bin/$(E)) bi
 bin/blueshift_idcrtc: LIBS_=LIBS_idcrtc
 bin/blueshift_idcrtc: obj/blueshift_idcrtc.o
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) -o $@ $^
 
 bin/blueshift_iccprofile: LIBS_=LIBS_iccprofile
 bin/blueshift_iccprofile: obj/blueshift_iccprofile.o
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) -o $@ $^
 
 bin/blueshift_drm.so: LIBS_=LIBS_drm
 bin/blueshift_randr.so: LIBS_=LIBS_randr
@@ -133,7 +149,7 @@ bin/blueshift_w32gdi.so: LIBS_=LIBS_w32gdi
 bin/blueshift_quartz.so: LIBS_=LIBS_quartz
 bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -o $@ $^
 
 obj/%.o: src/%.c
 	@mkdir -p obj
@@ -155,14 +171,14 @@ ifeq ($(FAKE_W32),y)
 obj/blueshift_w32gdi_c.o: src/blueshift_w32gdi_c.c src/blueshift_w32gdi_c.h \
                           obj/fake_w32gdi.o src/fake_w32gdi.h
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -DFAKE_W32GDI -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -DFAKE_W32GDI -o $@ $^
 endif
 
 ifeq ($(FAKE_MAC),y)
 obj/blueshift_quartz_c.o: src/blueshift_quartz_c.c src/blueshift_quartz_c.h \
                           obj/fake_quartz.o src/fake_quartz.h
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $($(LIBS_))) -shared -DFAKE_QUARTZ -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -DFAKE_QUARTZ -o $@ $^
 endif
 
 
