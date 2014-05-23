@@ -203,7 +203,7 @@ int main(int argc, char** argv)
 	  
 	  /* Extract the output name from the data structure that holds it. */
 	  name = xcb_randr_get_output_info_name(out_reply);
-	  /* As well as the length of the name; it is not NUL-termianted.*/
+	  /* As well as the length of the name; it is not NUL-termianted. */
 	  name_len = out_reply->name_len;
 	  
 	  /* Print the output name, we specified length, so that
