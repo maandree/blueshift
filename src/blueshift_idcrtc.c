@@ -215,7 +215,7 @@ int main(int argc, char** argv)
 	  switch (out_reply->connection)
 	    {
 	    case XCB_RANDR_CONNECTION_CONNECTED:
-	      /* IF connectioned, do stuff! */
+	      /* If connectioned, do stuff! */
 	      {
 		xcb_randr_list_output_properties_cookie_t prop_cookie;
 		xcb_randr_list_output_properties_reply_t* prop_reply;
