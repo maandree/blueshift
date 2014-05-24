@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 		    char* atom_name_;
 		    int atom_name_len;
 		    
-		    /* Aqcuire the atom name. */
+		    /* Acquire the atom name. */
 		    atom_name_cookie = xcb_get_atom_name(connection, *atoms);
 		    atom_name_reply = xcb_get_atom_name_reply(connection, atom_name_cookie, &error);
 		    
