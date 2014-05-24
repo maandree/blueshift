@@ -8,6 +8,8 @@ hardware cursors in xorg.conf.
     http://lists.x.org/archives/xorg-devel/2014-April/041873.html
     http://lists.x.org/archives/xorg-devel/2014-April/041985.html
     http://lists.x.org/archives/xorg-devel/2014-April/041991.html
+    For Arch Linux user, and users of deviations thereof, can install
+      xorg-server-hwcursor-gamma from the Arch User Repository.
 
 The colour curves are strictly independent, it is for
 example not possible to swap red and blue, or adjust
