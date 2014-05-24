@@ -133,7 +133,7 @@ int main(int argc, char** argv)
       xcb_randr_crtc_t* crtcs;
       int output_i;
       
-      /* We have acquired the screen, got to next in preperate for next iteration. */
+      /* We have acquired the screen, go to next in preperation for next iteration. */
       xcb_screen_next(&iter);
       
       /* Print the screen index. */
