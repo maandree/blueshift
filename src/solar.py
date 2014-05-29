@@ -216,7 +216,7 @@ def sun_geometric_mean_longitude(t):
     #     January 1, 1970 00:00 UTC, which is so far back in time
     #     it cannot be reliable pinned down to the right year, but it
     #     is without a shadow of a doubt looooong before the Earth
-    #     was formed, is right up there with the age of the  Milky Way
+    #     was formed, is right up there with the age of the Milky Way
     #     and the universe itself.
 
 
