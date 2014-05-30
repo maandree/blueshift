@@ -451,6 +451,7 @@ def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     @param   t:float?         The time in Julian Centuries, `None` for the current time
     '''
     epsilon = 0.000001
+    t = julian_centuries() if t is None else t
     t1 = t2 = t
     e1 = e0 = solar_elevation(latitude, longitude, t)
     while True:
