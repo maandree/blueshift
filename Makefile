@@ -132,24 +132,13 @@ command: $(foreach C,$(CBINDINGS),bin/$(C)) $(foreach E,$(EXECLIBS),bin/$(E)) bi
 
 # Build rules for C source files
 
-bin/blueshift_idcrtc: L=idcrtc
-bin/blueshift_idcrtc: obj/blueshift_idcrtc.o
+bin/blueshift_%: obj/blueshift_%.o
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$*)) $(LD_$*) -o $@ $^
 
-bin/blueshift_iccprofile: L=iccprofile
-bin/blueshift_iccprofile: obj/blueshift_iccprofile.o
+bin/blueshift_%.so: obj/blueshift_%.o obj/blueshift_%_c.o
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) -o $@ $^
-
-bin/blueshift_drm.so: L=drm
-bin/blueshift_randr.so: L=randr
-bin/blueshift_vidmode.so: L=vidmode
-bin/blueshift_w32gdi.so: L=w32gdi
-bin/blueshift_quartz.so: L=quartz
-bin/%.so: obj/%.o obj/%_c.o
-	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -o $@ $^
+	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$*)) $(LD_$*) -shared -o $@ $^
 
 obj/%.o: src/%.c
 	@mkdir -p obj
@@ -168,6 +157,7 @@ obj/%.o: obj/%.c
 	$(CC) $(FLAGS) -c -o $@ $<
 
 ifeq ($(FAKE_W32),y)
+obj/blueshift_w32gdi_c.o: L=w32gdi
 obj/blueshift_w32gdi_c.o: src/blueshift_w32gdi_c.c src/blueshift_w32gdi_c.h \
                           obj/fake_w32gdi.o src/fake_w32gdi.h
 	@mkdir -p bin
@@ -175,6 +165,7 @@ obj/blueshift_w32gdi_c.o: src/blueshift_w32gdi_c.c src/blueshift_w32gdi_c.h \
 endif
 
 ifeq ($(FAKE_MAC),y)
+obj/blueshift_quartz_c.o: L=quartz
 obj/blueshift_quartz_c.o: src/blueshift_quartz_c.c src/blueshift_quartz_c.h \
                           obj/fake_quartz.o src/fake_quartz.h
 	@mkdir -p bin
