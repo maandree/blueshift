@@ -1262,12 +1262,12 @@ point. It has three optional, additional, parameters:
 The time in Julian Centuries.
 
 @item low = -6.0
-The Suns elevation at the limit to high night, that
+The Sun's elevation at the limit to high night, that
 is, the highest possible position (measured in degrees)
 of the Sun before it becomes visible.
 
 @item high = 3.0
-The Suns elevation at the limit to high day, that is,
+The Sun's elevation at the limit to high day, that is,
 the lowest possible position (measured in degrees) of
 the before it starts becoming less visible (twilight.)
 @end table
@@ -1365,12 +1365,42 @@ Calculates the time the Sun has the apparent elevation
 time the closest the solar noon.
 
 @item solar_elevation_from_time(t, latitude, longitude)
-Calculates the Suns elevation, in degrees, as apparent from the
+Calculates the Sun's elevation, in degrees, as apparent from the
 geographical position (@code{latitude}, @code{longitude}).
 
 @item solar_elevation(latitude, longitude, t = None)
 Calculates the same thing as @code{solar_elevation_from_time},
 except the time is optional and defaults to the current time.
+
+@item future_past_elevation(delta, latitude, longitude, elevation, t = None)
+Calculates the next or previous point in time the Sun's
+elevation will be @code{elevation} degrees or was
+@code{elevation} degrees at the geographical position
+(@code{latitude}, @code{longitude}). The calculated
+timepoint may actually be the current time, @code{t}.
+If not time point can be found within a Julian year
+@code{None} will be returned. This function uses
+interpolation to determine time point, because inverting
+@code{solar_elevation} is unfeasible to do algebraically;
+@code{delta} specified the size of the steps between the
+timepoints that are tested to determine the timespan in
+which to do the interpolation.
+
+@item future_elevation(latitude, longitude, elevation, t = None)
+Calculates the next point in time the Sun's elevation will
+be @code{elevation} degrees at the geographical position
+(@code{latitude}, @code{longitude}). The calculated
+timepoint may actually be the current time, @code{t}.
+If not time point can be found within a Julian year
+@code{None} will be returned. This function uses
+
+@item past_elevation(latitude, longitude, elevation, t = None)
+Calculates the previous point in time the Sun's elevation was
+@code{elevation} degrees at the geographical position
+(@code{latitude}, @code{longitude}). The calculated
+timepoint may actually be the current time, @code{t}.
+If not time point can be found within a Julian year
+@code{None} will be returned. This function uses
 @end table
 
 For all functions beneath @code{degrees}, @code{t} is the
@@ -1770,10 +1800,6 @@ questions''.
 
 The predefined colour temperatures, in
 order of warmness, are:
-
-@c XXX can we use a proper kelvin symbol instead
-@c     of K, that is, K with all three stroked
-@c     intersecting (the K [U+212A] symbol)?
 
 @table @code
 @item K_F_LUX_W32_EMBER = 1200 K
@@ -2273,7 +2299,7 @@ until the user terminates Blueshift.
 Running Blueshift such at it applies adjustments
 and than exits.
 
- @item Panicgate
+@item Panicgate
 Applying adjustments immediately without
 transitioning. This terminology is borrowed
 from OpenNTPD.
