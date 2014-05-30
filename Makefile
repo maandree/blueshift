@@ -132,21 +132,21 @@ command: $(foreach C,$(CBINDINGS),bin/$(C)) $(foreach E,$(EXECLIBS),bin/$(E)) bi
 
 # Build rules for C source files
 
-bin/blueshift_idcrtc: LIBS_=LIBS_idcrtc
+bin/blueshift_idcrtc: L=idcrtc
 bin/blueshift_idcrtc: obj/blueshift_idcrtc.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) -o $@ $^
 
-bin/blueshift_iccprofile: LIBS_=LIBS_iccprofile
+bin/blueshift_iccprofile: L=iccprofile
 bin/blueshift_iccprofile: obj/blueshift_iccprofile.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) -o $@ $^
 
-bin/blueshift_drm.so: LIBS_=LIBS_drm
-bin/blueshift_randr.so: LIBS_=LIBS_randr
-bin/blueshift_vidmode.so: LIBS_=LIBS_vidmode
-bin/blueshift_w32gdi.so: LIBS_=LIBS_w32gdi
-bin/blueshift_quartz.so: LIBS_=LIBS_quartz
+bin/blueshift_drm.so: L=drm
+bin/blueshift_randr.so: L=randr
+bin/blueshift_vidmode.so: L=vidmode
+bin/blueshift_w32gdi.so: L=w32gdi
+bin/blueshift_quartz.so: L=quartz
 bin/%.so: obj/%.o obj/%_c.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -o $@ $^
