@@ -73,7 +73,7 @@ def sun(latitude, longitude, t = None, low = -6.0, high = 3.0):
     @param   t:float?         The time in Julian Centuries, `None` for current time
     @param   low:float        The 100 % night limit elevation of the Sun (highest when not visible)
     @param   high:float       The 100 % day limit elevation of the Sun (lowest while fully visible)
-    @return  :float           The visibilty of the sun, 0 during the night, 1 during the day,
+    @return  :float           The visibilty of the Sun, 0 during the night, 1 during the day,
                               between 0 and 1 during twilight. Other values will not occur.
     '''
     t = julian_centuries() if t is None else t
@@ -341,7 +341,7 @@ def hour_angle_from_elevation(latitude, declination, elevation):
     
     @param   longitude:float    The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   declination:float  The declination, in degrees
-    @param   hour_angle:float   The suns elevation, in degrees
+    @param   hour_angle:float   The Sun's elevation, in degrees
     @return  :float             The solar hour angle, in degrees
     '''
     if elevation == 0:
@@ -360,7 +360,7 @@ def elevation_from_hour_angle(latitude, declination, hour_angle):
     @param   longitude:float    The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   declination:float  The declination, in degrees
     @param   hour_angle:float   The solar hour angle, in degrees
-    @return  :float             The suns elevation, in degrees
+    @return  :float             The Sun's elevation, in degrees
     '''
     rc = math.cos(radians(latitude))
     rc *= math.cos(hour_angle) * math.cos(declination)
@@ -408,12 +408,12 @@ def time_of_solar_elevation(t, noon, latitude, longitude, elevation):
 
 def solar_elevation_from_time(t, latitude, longitude):
     '''
-    Calculates the Suns elevation as apparent from a geographical position
+    Calculates the Sun's elevation as apparent from a geographical position
     
     @param   t:float          The time in Julian Centuries
     @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
-    @return  :float           The suns apparent at the specified time as seen from the specified position,
+    @return  :float           The Sun's apparent at the specified time as seen from the specified position,
                               measured in degrees
     '''
     rc = julian_centuries_to_julian_day(t)
@@ -425,12 +425,12 @@ def solar_elevation_from_time(t, latitude, longitude):
 
 def solar_elevation(latitude, longitude, t = None):
     '''
-    Calculates the Suns elevation as apparent from a geographical position
+    Calculates the Sun's elevation as apparent from a geographical position
     
     @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   t:float?         The time in Julian Centuries, `None` for the current time
-    @return  :float           The suns apparent at the specified time as seen from the specified position,
+    @return  :float           The Sun's apparent at the specified time as seen from the specified position,
                               measured in degrees
     '''
     rc = julian_centuries() if t is None else t
