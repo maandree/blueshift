@@ -437,3 +437,73 @@ def solar_elevation(latitude, longitude, t = None):
     rc = solar_elevation_from_time(rc, latitude, longitude)
     return degrees(rc)
 
+
+# Reversing `solar_elevation` is unfeasible, so we iterative methods
+
+def future_past_elevation(delta, latitude, longitude, elevation, t = None):
+    '''
+    Predict the time point of the next or previous time the Sun reaches or reached a specific elevation
+    
+    @param   delta:float      Iteration step size, negative for past event, positive for future event
+    @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation:float  The elevation of interest
+    @param   t:float?         The time in Julian Centuries, `None` for the current time
+    '''
+    epsilon = 0.000001
+    t1 = t2 = t
+    e1 = e0 = solar_elevation(latitude, longitude, t)
+    while True:
+        if abs(t2 - t) > 0.01:
+            return None
+        t2 += delta
+        e2 = solar_elevation(latitude, longitude, t2)
+        if (e1 <= elevation <= e2) or ((elevation >= e1 >= e2) and (elevation <= e0)):
+            break
+        if (e1 >= elevation >= e2) or ((elevation <= e1 <= e2) and (elevation >= e0)):
+            break
+        t1 = t2
+        e2 = e1
+    for _itr in range(1000):
+        tm = (t1 + t2) / 2
+        e1 = solar_elevation(latitude, longitude, t1)
+        e2 = solar_elevation(latitude, longitude, t2)
+        em = solar_elevation(latitude, longitude, tm)
+        if abs(e1 - e2) < epsilon:
+            return tm if abs(em - elevation) < epsilon else None
+        if e1 < e2:
+            if elevation < em:
+                t2 = tm
+            else:
+                t1 = tm
+        elif e1 > e2:
+            if elevation > em:
+                t2 = tm
+            else:
+                t1 = tm
+    return None
+
+
+def future_elevation(latitude, longitude, elevation, t = None):
+    '''
+    Predict the time point of the next time the Sun reaches a specific elevation
+    
+    @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation:float  The elevation of interest
+    @param   t:float?         The time in Julian Centuries, `None` for the current time
+    '''
+    return future_past_elevation(0.01 / 2000, latitude, longitude, elevation, t)
+    
+
+def past_elevation(latitude, longitude, elevation, t = None):
+    '''
+    Predict the time point of the previous time the Sun reached a specific elevation
+    
+    @param   latitude:float   The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation:float  The elevation of interest
+    @param   t:float?         The time in Julian Centuries, `None` for the current time
+    '''
+    return future_past_elevation(0.01 / -2000, latitude, longitude, elevation, t)
+
