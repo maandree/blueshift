@@ -1,7 +1,7 @@
 # Maintainer: Mattias Andrée <`base64 -d`(bWFhbmRyZWUK)@member.fsf.org>
 
 pkgname=blueshift
-pkgver=1.17.1
+pkgver=1.18
 pkgrel=1
 pkgdesc="An extensible and highly configurable alternative to redshift"
 arch=(i686 x86_64)
@@ -14,7 +14,7 @@ optdepends=('adjbacklight: for backlight adjustments without root requirements'
 makedepends=(cython gcc python3 libxcb libxxf86vm libx11 libdrm make coreutils sed zip texinfo auto-auto-complete)
 install=blueshift.install
 source=($url/archive/$pkgver.tar.gz)
-sha256sums=(2adda5f6e9404c4ebb9bc56739e15bb842a88298ee41bc736ab52e65cd2eb5e7)
+sha256sums=(aa44b079c6b83be9d00335f75b1b60aae5386719bdf1baf9925e5995ec86edeb)
 
 
 build() {
