@@ -441,11 +441,14 @@ def solar_elevation(latitude, longitude, t = None):
 def have_sunrise_and_sunset(latitude, t = None):
     t = julian_centuries() if t is None else t
     d = degrees(solar_declination(t))
-    latitude = abs(latitude) ## Covert everything to the Northern hemisphere
+    ## Covert everything to the Northern hemisphere
+    latitude = abs(latitude)
     if d >= 0:
-        return -90 + d < latitude < 90 - d ## Northern summer
+        ## Northern summer
+        return -90 + d < latitude < 90 - d
     else:
-        return -90 - d < latitude < 90 + d ## Northern winter
+        ## Northern winter
+        return -90 - d < latitude < 90 + d
 
 
 # TODO document
@@ -570,16 +573,19 @@ def past_elevation(latitude, longitude, elevation, t = None):
     return future_past_elevation(0.01 / -2000, latitude, longitude, elevation, t)
 
 
+# TODO document
 def future_past_elevation_derivative(delta, latitude, longitude, elevation_derivative, t = None):
     fun = lambda t : solar_elevation(latitude, longitude, t)
     dfun = lambda t : (fun(t + e) - fun(t - e)) / 2
     return solar_prediction(delta, elevation_derivative, dfun, t = t)
 
 
+# TODO document
 def future_elevation_derivative(latitude, longitude, elevation_derivative, t = None):
     return future_past_elevation_derivative(0.01 / 2000, latitude, longitude, elevation_derivative, t)
     
 
+# TODO document
 def past_elevation_derivative(latitude, longitude, elevation_derivative, t = None):
     return future_past_elevation_derivative(0.01 / -2000, latitude, longitude, elevation_derivative, t)
 
@@ -606,6 +612,7 @@ def sunrise_equation(latitude, longitude, t = None):
     return (julian_day_to_julian_centuries(sunset), julian_day_to_julian_centuries(sunrise))
 
 
+# TODO document
 def ptime(t):
     import datetime
     print(str(datetime.datetime.fromtimestamp(int(julian_centuries_to_epoch(t)))))
