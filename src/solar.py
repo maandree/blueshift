@@ -463,40 +463,44 @@ def is_winter(latitude, t = None):
 
 
 # TODO document
-def future_past_equinox(delta, t = None):
-    epsilon = 0.000001
+def solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t = None):
     t = julian_centuries() if t is None else t
     t1 = t2 = t
-    d1 = d0 = solar_declination(t)
+    v1 = v0 = fun(t)
     while True:
-        if abs(t2 - t) > 0.01:
+        if abs(t2 - t) > span:
             return None
         t2 += delta
-        d2 = solar_declination(t2)
-        if (d1 <= 0 <= d2) or ((0 >= d1 >= d2) and (0 <= d0)):
+        v2 = fun(t2)
+        if (v1 <= requested <= v2) or ((requested >= v1 >= v2) and (requested <= v0)):
             break
-        if (d1 >= 0 >= d2) or ((0 <= d1 <= d2) and (0 >= d0)):
+        if (v1 >= requested >= v2) or ((requested <= v1 <= v2) and (requested >= v0)):
             break
         t1 = t2
-        d2 = d1
+        v2 = v1
     for _itr in range(1000):
         tm = (t1 + t2) / 2
-        d1 = solar_declination(t1)
-        d2 = solar_declination(t2)
-        dm = solar_declination(tm)
-        if abs(d1 - d2) < epsilon:
-            return tm if abs(dm) < epsilon else None
-        if d1 < d2:
-            if 0 < dm:
+        v1 = fun(t1)
+        v2 = fun(t2)
+        vm = fun(tm)
+        if abs(v1 - v2) < epsilon:
+            return tm if abs(vm) < epsilon else None
+        if v1 < v2:
+            if requested < vm:
                 t2 = tm
             else:
                 t1 = tm
-        elif d1 > d2:
-            if 0 > dm:
+        elif v1 > v2:
+            if requested > vm:
                 t2 = tm
             else:
                 t1 = tm
     return None
+
+
+# TODO document
+def future_past_equinox(delta, t = None):
+    return solar_prediction(delta, 0, solar_declination, t = t)
 
 
 # TODO document
@@ -520,39 +524,7 @@ def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     @param   t:float?         The time in Julian Centuries, `None` for the current time
     @return  :float           The calculated time point, `None` if none were found within a year
     '''
-    epsilon = 0.000001
-    t = julian_centuries() if t is None else t
-    t1 = t2 = t
-    e1 = e0 = solar_elevation(latitude, longitude, t)
-    while True:
-        if abs(t2 - t) > 0.01:
-            return None
-        t2 += delta
-        e2 = solar_elevation(latitude, longitude, t2)
-        if (e1 <= elevation <= e2) or ((elevation >= e1 >= e2) and (elevation <= e0)):
-            break
-        if (e1 >= elevation >= e2) or ((elevation <= e1 <= e2) and (elevation >= e0)):
-            break
-        t1 = t2
-        e2 = e1
-    for _itr in range(1000):
-        tm = (t1 + t2) / 2
-        e1 = solar_elevation(latitude, longitude, t1)
-        e2 = solar_elevation(latitude, longitude, t2)
-        em = solar_elevation(latitude, longitude, tm)
-        if abs(e1 - e2) < epsilon:
-            return tm if abs(em - elevation) < epsilon else None
-        if e1 < e2:
-            if elevation < em:
-                t2 = tm
-            else:
-                t1 = tm
-        elif e1 > e2:
-            if elevation > em:
-                t2 = tm
-            else:
-                t1 = tm
-    return None
+    return solar_prediction(delta, elevation, lambda t : solar_elevation(latitude, longitude, t), t = t)
 
 
 def future_elevation(latitude, longitude, elevation, t = None):
