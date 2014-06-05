@@ -21,6 +21,7 @@ Low priority:
 	  (Not too important, it is hardcoded in X to only allow 256)
 	Use Robertson's method
 	Screen count function for VidMode should be added
+	Demo solar predictions
 
 Future stuff:
 	How is it looking on the DirectFB front?
