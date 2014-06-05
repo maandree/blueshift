@@ -468,7 +468,6 @@ def solar_elevation(latitude, longitude, t = None):
 
 
 
-# TODO document
 def have_sunrise_and_sunset(latitude, t = None):
     '''
     Determine whether solar declination currently is
@@ -494,7 +493,6 @@ def have_sunrise_and_sunset(latitude, t = None):
         return -90 - d < latitude < 90 + d
 
 
-# TODO document
 def is_summer(latitude, t = None):
     '''
     Determine whether it is summer
@@ -511,7 +509,6 @@ def is_summer(latitude, t = None):
     return (d > 0) == (latitude > 0)
 
 
-# TODO document
 def is_winter(latitude, t = None):
     '''
     Determine whether it is winter
@@ -529,7 +526,6 @@ def is_winter(latitude, t = None):
 
 
 
-# TODO document
 def solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t = None):
     '''
     Predict the time point of the next or previous
@@ -583,7 +579,6 @@ def solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t =
 
 
 
-# TODO document
 def future_past_equinox(delta, t = None):
     '''
     Predict the time point of the next or previous equinox
@@ -597,7 +592,6 @@ def future_past_equinox(delta, t = None):
     return solar_prediction(delta, 0, solar_declination, t = t)
 
 
-# TODO document
 def future_equinox(t = None):
     '''
     Predict the time point of the next equinox
@@ -611,7 +605,6 @@ def future_equinox(t = None):
     return future_past_equinox(0.01 / 2000, t)
     
 
-# TODO document
 def past_equinox(t = None):
     '''
     Predict the time point of the previous equinox
@@ -626,7 +619,6 @@ def past_equinox(t = None):
 
 
 
-# TODO document
 def future_past_solstice(delta, t = None):
     '''
     Predict the time point of the next or previous solstice
@@ -643,7 +635,6 @@ def future_past_solstice(delta, t = None):
     return solar_prediction(delta, 0, dfun, t = t)
 
 
-# TODO document
 def future_solstice(t = None):
     '''
     Predict the time point of the next solstice
@@ -655,7 +646,6 @@ def future_solstice(t = None):
     return future_past_solstice(0.01 / 2000, t)
     
 
-# TODO document
 def past_solstice(t = None):
     '''
     Predict the time point of the previous solstice
@@ -726,7 +716,6 @@ def past_elevation(latitude, longitude, elevation, t = None):
 
 
 
-# TODO document
 def future_past_elevation_derivative(delta, latitude, longitude, derivative, t = None):
     '''
     Predict the time point of the next or previous time the
@@ -749,7 +738,6 @@ def future_past_elevation_derivative(delta, latitude, longitude, derivative, t =
     return solar_prediction(delta, derivative, dfun, t = t)
 
 
-# TODO document
 def future_elevation_derivative(latitude, longitude, derivative, t = None):
     '''
     Predict the time point of the next time the
@@ -768,7 +756,6 @@ def future_elevation_derivative(latitude, longitude, derivative, t = None):
     return future_past_elevation_derivative(0.01 / 2000, latitude, longitude, derivative, t)
     
 
-# TODO document
 def past_elevation_derivative(latitude, longitude, derivative, t = None):
     '''
     Predict the time point of the previous time
@@ -831,7 +818,6 @@ def sunrise_equation(latitude, longitude, t = None):
 
 
 
-# TODO document
 def ptime(t):
     '''
     Print a time stamp in human-readable local time

@@ -1372,6 +1372,15 @@ geographical position (@code{latitude}, @code{longitude}).
 Calculates the same thing as @code{solar_elevation_from_time},
 except the time is optional and defaults to the current time.
 
+@item have_sunrise_and_sunset(latitude, t = None)
+Determine whether you have sunrise and sunsets.
+
+@item is_summer(latitude, t = None)
+Determine whether it is summer.
+
+@item is_winter(latitude, t = None)
+Determine whether it is winter.
+
 @item future_past_elevation(delta, latitude, longitude, elevation, t = None)
 Calculates the next or previous point in time the Sun's
 elevation will be @code{elevation} degrees or was
@@ -1379,12 +1388,12 @@ elevation will be @code{elevation} degrees or was
 (@code{latitude}, @code{longitude}). The calculated
 timepoint may actually be the current time, @code{t}.
 If not time point can be found within a Julian year
-@code{None} will be returned. This function uses
-interpolation to determine time point, because inverting
+@code{None} will be returned. This function uses binary
+search to determine time point, because inverting
 @code{solar_elevation} is unfeasible to do algebraically;
 @code{delta} specified the size of the steps between the
 timepoints that are tested to determine the timespan in
-which to do the interpolation.
+which to do the binary search.
 
 @item future_elevation(latitude, longitude, elevation, t = None)
 Calculates the next point in time the Sun's elevation will
@@ -1401,6 +1410,61 @@ Calculates the previous point in time the Sun's elevation was
 timepoint may actually be the current time, @code{t}.
 If not time point can be found within a Julian year
 @code{None} will be returned. This function uses
+
+@item future_past_elevation_derivative(delta, latitude, longitude, derivative, t = None)
+Similar to @code{future_past_elevation}, but calculates the
+time point for a first derivative of the solar elevation.
+
+@item future_elevation_derivative(latitude, longitude, derivative, t = None)
+Similar to @code{future_elevation}, but calculates the
+time point for a first derivative of the solar elevation.
+
+@item past_elevation_derivative(latitude, longitude, derivative, t = None)
+Similar to @code{past_elevation}, but calculates the
+time point for a first derivative of the solar elevation.
+
+@item future_past_equinox(delta, t = None)
+Similar to @code{future_past_elevation}, but calculates the
+time point for an equinox. The result cannot be @code{None}.
+
+@item future_equinox(t = None)
+Similar to @code{future_elevation}, but calculates the
+time point for an equinox. The result cannot be @code{None}.
+
+@item past_equinox(t = None)
+Similar to @code{past_elevation}, but calculates the
+time point for an equinox. The result cannot be @code{None}.
+
+@item future_past_solstice(delta, t = None)
+Similar to @code{future_past_elevation}, but calculates the
+time point for a solstice. The result cannot be @code{None}.
+
+@item future_solstice(t = None)
+Similar to @code{future_elevation}, but calculates the
+time point for a solstice. The result cannot be @code{None}.
+
+@item past_solstice(t = None)
+Similar to @code{past_elevation}, but calculates the
+time point for a solstice. The result cannot be @code{None}.
+
+@item solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t = None)
+Predict the time point of the next or previous
+time an arbitrary condition is meet by way of
+binary searching. This conditions is satisfied if
+@code{fun} of a timepoint equals @code{requested}
+with a tolerance of @code{epsilon}.
+@code{delta} specified the size of the steps between the
+timepoints that are tested to determine the timespan in
+which to do the binary search. This timespan is limited
+to @code{span} with is a timespan in Julian Centuries;
+0,01 is approximately one Gregorian year.
+If no satisfactory timepoint can be found
+within the specified span @code{None} is returned.
+
+@item ptime(t)
+Prints a time, input in the Julian Centuries format,
+as a human-readable local time.
+
 @end table
 
 For all functions beneath @code{degrees}, @code{t} is the
