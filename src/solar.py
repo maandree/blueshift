@@ -462,6 +462,53 @@ def is_winter(latitude, t = None):
     return not ((d > 0) == (latitude > 0))
 
 
+# TODO document and demo
+def future_past_equinox(delta, t = None):
+    epsilon = 0.000001
+    t = julian_centuries() if t is None else t
+    t1 = t2 = t
+    d1 = d0 = solar_declination(t)
+    while True:
+        if abs(t2 - t) > 0.01:
+            return None
+        t2 += delta
+        d2 = solar_declination(t2)
+        if (d1 <= 0 <= d2) or ((0 >= d1 >= d2) and (0 <= d0)):
+            break
+        if (d1 >= 0 >= d2) or ((0 <= d1 <= d2) and (0 >= d0)):
+            break
+        t1 = t2
+        d2 = d1
+    for _itr in range(1000):
+        tm = (t1 + t2) / 2
+        d1 = solar_declination(t1)
+        d2 = solar_declination(t2)
+        dm = solar_declination(tm)
+        if abs(d1 - d2) < epsilon:
+            return tm if abs(dm) < epsilon else None
+        if d1 < d2:
+            if 0 < dm:
+                t2 = tm
+            else:
+                t1 = tm
+        elif d1 > d2:
+            if 0 > dm:
+                t2 = tm
+            else:
+                t1 = tm
+    return None
+
+
+# TODO document and demo
+def future_equinox(t = None):
+    return future_past_equinox(0.01 / 2000, t)
+    
+
+# TODO document and demo
+def past_equinox(t = None):
+    return future_past_equinox(0.01 / -2000, t)
+
+
 def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     '''
     Predict the time point of the next or previous time the Sun reaches or reached a specific elevation
@@ -471,6 +518,7 @@ def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   elevation:float  The elevation of interest
     @param   t:float?         The time in Julian Centuries, `None` for the current time
+    @return  :float           The calculated time point, `None` if none were found within a year
     '''
     epsilon = 0.000001
     t = julian_centuries() if t is None else t
@@ -515,6 +563,7 @@ def future_elevation(latitude, longitude, elevation, t = None):
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   elevation:float  The elevation of interest
     @param   t:float?         The time in Julian Centuries, `None` for the current time
+    @return  :float           The calculated time point, `None` if none were found within a year
     '''
     return future_past_elevation(0.01 / 2000, latitude, longitude, elevation, t)
     
@@ -527,6 +576,7 @@ def past_elevation(latitude, longitude, elevation, t = None):
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   elevation:float  The elevation of interest
     @param   t:float?         The time in Julian Centuries, `None` for the current time
+    @return  :float           The calculated time point, `None` if none were found within a year
     '''
     return future_past_elevation(0.01 / -2000, latitude, longitude, elevation, t)
 
