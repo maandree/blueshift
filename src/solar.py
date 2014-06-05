@@ -448,21 +448,21 @@ def have_sunrise_and_sunset(latitude, t = None):
         return -90 - d < latitude < 90 + d ## Northern winter
 
 
-# TODO document and demo
+# TODO document
 def is_summer(latitude, t = None):
     t = julian_centuries() if t is None else t
     d = solar_declination(t)
     return (d > 0) == (latitude > 0)
 
 
-# TODO document and demo
+# TODO document
 def is_winter(latitude, t = None):
     t = julian_centuries() if t is None else t
     d = solar_declination(t)
     return not ((d > 0) == (latitude > 0))
 
 
-# TODO document and demo
+# TODO document
 def future_past_equinox(delta, t = None):
     epsilon = 0.000001
     t = julian_centuries() if t is None else t
@@ -499,12 +499,12 @@ def future_past_equinox(delta, t = None):
     return None
 
 
-# TODO document and demo
+# TODO document
 def future_equinox(t = None):
     return future_past_equinox(0.01 / 2000, t)
     
 
-# TODO document and demo
+# TODO document
 def past_equinox(t = None):
     return future_past_equinox(0.01 / -2000, t)
 
@@ -581,7 +581,7 @@ def past_elevation(latitude, longitude, elevation, t = None):
     return future_past_elevation(0.01 / -2000, latitude, longitude, elevation, t)
 
 
-# TODO: This algorithm is inprecise, gives an incorrent sunrise and I do not fully know its behaviour
+# TODO: This algorithm is imprecise, gives an incorrent sunrise and I do not fully know its behaviour
 def sunrise_equation(latitude, longitude, t = None):
     j_cent = julian_centuries() if t is None else t
     j_date = julian_centuries_to_julian_day(j_cent)
@@ -601,3 +601,4 @@ def sunrise_equation(latitude, longitude, t = None):
     sunset = 2451545.0009 + (hour_angle + longitude) / 360 + j_cycle + solar_transit - approx_solar_noon
     sunrise = 2 * solar_transit - sunset
     return (julian_day_to_julian_centuries(sunset), julian_day_to_julian_centuries(sunrise))
+
