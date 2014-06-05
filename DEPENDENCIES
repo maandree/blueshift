@@ -2,6 +2,8 @@ RUNTIME DEPENDENCIES:
 
 	python3
 
+	solar-python
+
 	argparser-python (required but can function partially if missing)
 	
 	libxcb (opt-out)
@@ -45,6 +47,7 @@ MAKE DEPENDENCIES:
 
 DEPENDENCY SOURCES:
 
+	solar-python          https://github.com/maandree/solar-python
 	argparser-python      https://github.com/maandree/argparser
 	adjbacklight          https://github.com/maandree/adjbacklight
 	auto-auto-complete    https://github.com/maandree/auto-auto-complete

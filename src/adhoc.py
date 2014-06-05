@@ -41,7 +41,7 @@ if (rgb_temperatures is None) and (cie_temperatures is None):
     # to 3700 K during the day, and 6500 K (neutral) during
     # the night. Do not use CIE xyY, hence set cie_temperatures
     # to 6500 K (neutral).
-    rgb_temperatures = ['3700', '6500']
+    rgb_temperatures = ['3500', '5500']
     cie_temperatures = ['6500', '6500']
 else:
     # If cie_temperatures is specified but not rgb_temperatures,

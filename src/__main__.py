@@ -561,7 +561,7 @@ if have_argparser:
                        None, True, ArgParser.standard_abbreviations())
     
     # Populate parser with possible options
-    dn = '\nUse twice or daytime and nighttime respectively'
+    dn = '\nUse twice for daytime and nighttime respectively'
     parser.add_argumented(['-c', '--configurations'], 0, 'FILE', 'Select configuration file')
     parser.add_argumentless(['-p', '--panic-gate', '--panicgate'], 0, 'Skip transition into initial settings')
     parser.add_argumented(['-g', '--gamma'], 0, 'RGB|R:G:B', 'Set gamma correction' + dn)
