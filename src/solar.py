@@ -513,6 +513,23 @@ def past_equinox(t = None):
     return future_past_equinox(0.01 / -2000, t)
 
 
+# TODO document
+def future_past_solstice(delta, t = None):
+    e = 0.0001
+    fun = lambda t : (solar_declination(t - e) - solar_declination(t + e)) / 2
+    return solar_prediction(delta, 0, fun, t = t)
+
+
+# TODO document
+def future_solstice(t = None):
+    return future_past_solstice(0.01 / 2000, t)
+    
+
+# TODO document
+def past_solstice(t = None):
+    return future_past_solstice(0.01 / -2000, t)
+
+
 def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     '''
     Predict the time point of the next or previous time the Sun reaches or reached a specific elevation
@@ -573,4 +590,9 @@ def sunrise_equation(latitude, longitude, t = None):
     sunset = 2451545.0009 + (hour_angle + longitude) / 360 + j_cycle + solar_transit - approx_solar_noon
     sunrise = 2 * solar_transit - sunset
     return (julian_day_to_julian_centuries(sunset), julian_day_to_julian_centuries(sunrise))
+
+
+def ptime(t):
+    import datetime
+    print(str(datetime.datetime.fromtimestamp(int(julian_centuries_to_epoch(t)))))
 
