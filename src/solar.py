@@ -203,7 +203,7 @@ def sun_geometric_mean_longitude(t):
     @return  :float   The Sun's geometric mean longitude in radians
     '''
     return radians((0.0003032 * t ** 2 + 36000.76983 * t + 280.46646) % 360)
-    # CANNIBALISERS and TIME TRAVELERS:
+    # CANNIBALISERS:
     #     The result of this function should always be positive, this
     #     means that after division modulo 360 but before `radians`,
     #     you will need to add 360 if the value is negative. This can
@@ -437,8 +437,17 @@ def solar_elevation(latitude, longitude, t = None):
     return degrees(rc)
 
 
-# TODO document and demo
+
+# TODO document
 def have_sunrise_and_sunset(latitude, t = None):
+    '''
+    Determine whether solar declination currently is so that there can be sunrises and sunsets.
+    If not, you either have 24-hour daytime or 24-hour nighttime.
+    
+    @param   latitude:float  The latitude in degrees northwards from the equator, negative for southwards
+    @param   t:float?        The time in Julian Centuries, `None` for the current time
+    @return                  Whether there can be sunrises and sunsets where you are located
+    '''
     t = julian_centuries() if t is None else t
     d = degrees(solar_declination(t))
     ## Covert everything to the Northern hemisphere
@@ -453,6 +462,13 @@ def have_sunrise_and_sunset(latitude, t = None):
 
 # TODO document
 def is_summer(latitude, t = None):
+    '''
+    Determine whether it is summer
+    
+    @param   latitude:float  The latitude in degrees northwards from the equator, negative for southwards
+    @param   t:float?        The time in Julian Centuries, `None` for the current time
+    @return                  Whether it is summer on the hemisphere you are located on
+    '''
     t = julian_centuries() if t is None else t
     d = solar_declination(t)
     return (d > 0) == (latitude > 0)
@@ -460,13 +476,32 @@ def is_summer(latitude, t = None):
 
 # TODO document
 def is_winter(latitude, t = None):
+    '''
+    Determine whether it is winter
+    
+    @param   latitude:float  The latitude in degrees northwards from the equator, negative for southwards
+    @param   t:float?        The time in Julian Centuries, `None` for the current time
+    @return                  Whether it is winter on the hemisphere you are located on
+    '''
     t = julian_centuries() if t is None else t
     d = solar_declination(t)
     return not ((d > 0) == (latitude > 0))
 
 
+
 # TODO document
 def solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t = None):
+    '''
+    Predict the time point of the next or previous time an arbitrary condition is meet
+    
+    @param   delta:float          Iteration step size, negative for past event, positive for future event
+    @param   requested:float      The value returned by `fun` for which to calculate the time point of occurrence
+    @param   fun:(t:float)→float  Function that calculate the data of interest
+    @param   epsilon:float        Error tolerance for `requested`
+    @param   span:float           The number of Julian centuries (0,01 for one year) to restrict the search to
+    @param   t:float?             The time in Julian Centuries, `None` for the current time
+    @return  :float?              The calculated time point, `None` if none were found within the specified time span
+    '''
     t = julian_centuries() if t is None else t
     t1 = t2 = t
     v1 = v0 = fun(t)
@@ -501,23 +536,53 @@ def solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t =
     return None
 
 
+
 # TODO document
 def future_past_equinox(delta, t = None):
+    '''
+    Predict the time point of the next or previous equinox
+    
+    @param   delta:float  Iteration step size, negative for past event, positive for future event
+    @param   t:float?     The time in Julian Centuries, `None` for the current time
+    @return  :float       The calculated time point
+    '''
     return solar_prediction(delta, 0, solar_declination, t = t)
 
 
 # TODO document
 def future_equinox(t = None):
+    '''
+    Predict the time point of the next equinox
+    
+    @param   delta:float  Iteration step size, negative for past event, positive for future event
+    @param   t:float?     The time in Julian Centuries, `None` for the current time
+    @return  :float       The calculated time point
+    '''
     return future_past_equinox(0.01 / 2000, t)
     
 
 # TODO document
 def past_equinox(t = None):
+    '''
+    Predict the time point of the previous equinox
+    
+    @param   delta:float  Iteration step size, negative for past event, positive for future event
+    @param   t:float?     The time in Julian Centuries, `None` for the current time
+    @return  :float       The calculated time point
+    '''
     return future_past_equinox(0.01 / -2000, t)
+
 
 
 # TODO document
 def future_past_solstice(delta, t = None):
+    '''
+    Predict the time point of the next or previous solstice
+    
+    @param   delta:float  Iteration step size, negative for past event, positive for future event
+    @param   t:float?     The time in Julian Centuries, `None` for the current time
+    @return  :float       The calculated time point
+    '''
     e = 0.00001
     fun = lambda t : (solar_declination(t + e) - solar_declination(t - e)) / 2
     return solar_prediction(delta, 0, fun, t = t)
@@ -525,12 +590,25 @@ def future_past_solstice(delta, t = None):
 
 # TODO document
 def future_solstice(t = None):
+    '''
+    Predict the time point of the next solstice
+    
+    @param   t:float?  The time in Julian Centuries, `None` for the current time
+    @return  :float    The calculated time point
+    '''
     return future_past_solstice(0.01 / 2000, t)
     
 
 # TODO document
 def past_solstice(t = None):
+    '''
+    Predict the time point of the previous solstice
+    
+    @param   t:float?  The time in Julian Centuries, `None` for the current time
+    @return  :float    The calculated time point
+    '''
     return future_past_solstice(0.01 / -2000, t)
+
 
 
 def future_past_elevation(delta, latitude, longitude, elevation, t = None):
@@ -542,7 +620,7 @@ def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   elevation:float  The elevation of interest
     @param   t:float?         The time in Julian Centuries, `None` for the current time
-    @return  :float           The calculated time point, `None` if none were found within a year
+    @return  :float?          The calculated time point, `None` if none were found within a year
     '''
     return solar_prediction(delta, elevation, lambda t : solar_elevation(latitude, longitude, t), t = t)
 
@@ -555,7 +633,7 @@ def future_elevation(latitude, longitude, elevation, t = None):
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   elevation:float  The elevation of interest
     @param   t:float?         The time in Julian Centuries, `None` for the current time
-    @return  :float           The calculated time point, `None` if none were found within a year
+    @return  :float?          The calculated time point, `None` if none were found within a year
     '''
     return future_past_elevation(0.01 / 2000, latitude, longitude, elevation, t)
     
@@ -568,13 +646,24 @@ def past_elevation(latitude, longitude, elevation, t = None):
     @param   longitude:float  The longitude in degrees eastwards from Greenwich, negative for westwards
     @param   elevation:float  The elevation of interest
     @param   t:float?         The time in Julian Centuries, `None` for the current time
-    @return  :float           The calculated time point, `None` if none were found within a year
+    @return  :float?          The calculated time point, `None` if none were found within a year
     '''
     return future_past_elevation(0.01 / -2000, latitude, longitude, elevation, t)
 
 
+
 # TODO document
 def future_past_elevation_derivative(delta, latitude, longitude, elevation_derivative, t = None):
+    '''
+    Predict the time point of the next or previous time the Sun reaches or reached a specific elevation derivative
+    
+    @param   delta:float                 Iteration step size, negative for past event, positive for future event
+    @param   latitude:float              The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float             The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation_derivative:float  The elevation derivative value of interest
+    @param   t:float?                    The time in Julian Centuries, `None` for the current time
+    @return  :float?                     The calculated time point, `None` if none were found within a year
+    '''
     fun = lambda t : solar_elevation(latitude, longitude, t)
     dfun = lambda t : (fun(t + e) - fun(t - e)) / 2
     return solar_prediction(delta, elevation_derivative, dfun, t = t)
@@ -582,12 +671,31 @@ def future_past_elevation_derivative(delta, latitude, longitude, elevation_deriv
 
 # TODO document
 def future_elevation_derivative(latitude, longitude, elevation_derivative, t = None):
+    '''
+    Predict the time point of the next time the Sun reaches a specific elevation derivative
+    
+    @param   latitude:float              The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float             The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation_derivative:float  The elevation derivative value of interest
+    @param   t:float?                    The time in Julian Centuries, `None` for the current time
+    @return  :float?                     The calculated time point, `None` if none were found within a year
+    '''
     return future_past_elevation_derivative(0.01 / 2000, latitude, longitude, elevation_derivative, t)
     
 
 # TODO document
 def past_elevation_derivative(latitude, longitude, elevation_derivative, t = None):
+    '''
+    Predict the time point of the previous time the Sun reached a specific elevation derivative
+    
+    @param   latitude:float              The latitude in degrees northwards from the equator, negative for southwards
+    @param   longitude:float             The longitude in degrees eastwards from Greenwich, negative for westwards
+    @param   elevation_derivative:float  The elevation derivative value of interest
+    @param   t:float?                    The time in Julian Centuries, `None` for the current time
+    @return  :float?                     The calculated time point, `None` if none were found within a year
+    '''
     return future_past_elevation_derivative(0.01 / -2000, latitude, longitude, elevation_derivative, t)
+
 
 
 # TODO: This algorithm is imprecise, gives an incorrent sunrise and I do not fully know its behaviour
@@ -612,8 +720,16 @@ def sunrise_equation(latitude, longitude, t = None):
     return (julian_day_to_julian_centuries(sunset), julian_day_to_julian_centuries(sunrise))
 
 
+
 # TODO document
 def ptime(t):
+    '''
+    Print a time stamp in human-readable local time
+    
+    This function is intended for testing
+    
+    @param  t  The time stamp in Julian Centuries
+    '''
     import datetime
     print(str(datetime.datetime.fromtimestamp(int(julian_centuries_to_epoch(t)))))
 
