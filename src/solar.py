@@ -448,6 +448,20 @@ def have_sunrise_and_sunset(latitude, t = None):
         return -90 - d < latitude < 90 + d ## Northern winter
 
 
+# TODO document and demo
+def is_summer(latitude, t = None):
+    t = julian_centuries() if t is None else t
+    d = solar_declination(t)
+    return (d > 0) == (latitude > 0)
+
+
+# TODO document and demo
+def is_winter(latitude, t = None):
+    t = julian_centuries() if t is None else t
+    d = solar_declination(t)
+    return not ((d > 0) == (latitude > 0))
+
+
 def future_past_elevation(delta, latitude, longitude, elevation, t = None):
     '''
     Predict the time point of the next or previous time the Sun reaches or reached a specific elevation
