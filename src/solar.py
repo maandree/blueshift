@@ -437,12 +437,15 @@ def solar_elevation(latitude, longitude, t = None):
     return degrees(rc)
 
 
-# TODO test, document and demo
+# TODO document and demo
 def have_sunrise_and_sunset(latitude, t = None):
     t = julian_centuries() if t is None else t
     d = degrees(solar_declination(t))
-    latitude = abs(latitude)
-    return (-90 + d < latitude < 90 - d) or (-90 - d < latitude < 90 + d)
+    latitude = abs(latitude) ## Covert everything to the Northern hemisphere
+    if d >= 0:
+        return -90 + d < latitude < 90 - d ## Northern summer
+    else:
+        return -90 - d < latitude < 90 + d ## Northern winter
 
 
 def future_past_elevation(delta, latitude, longitude, elevation, t = None):
