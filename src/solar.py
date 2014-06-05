@@ -516,7 +516,7 @@ def past_equinox(t = None):
 # TODO document
 def future_past_solstice(delta, t = None):
     e = 0.00001
-    fun = lambda t : (solar_declination(t - e) - solar_declination(t + e)) / 2
+    fun = lambda t : (solar_declination(t + e) - solar_declination(t - e)) / 2
     return solar_prediction(delta, 0, fun, t = t)
 
 
@@ -568,6 +568,20 @@ def past_elevation(latitude, longitude, elevation, t = None):
     @return  :float           The calculated time point, `None` if none were found within a year
     '''
     return future_past_elevation(0.01 / -2000, latitude, longitude, elevation, t)
+
+
+def future_past_elevation_derivative(delta, latitude, longitude, elevation_derivative, t = None):
+    fun = lambda t : solar_elevation(latitude, longitude, t)
+    dfun = lambda t : (fun(t + e) - fun(t - e)) / 2
+    return solar_prediction(delta, elevation_derivative, dfun, t = t)
+
+
+def future_elevation_derivative(latitude, longitude, elevation_derivative, t = None):
+    return future_past_elevation_derivative(0.01 / 2000, latitude, longitude, elevation_derivative, t)
+    
+
+def past_elevation_derivative(latitude, longitude, elevation_derivative, t = None):
+    return future_past_elevation_derivative(0.01 / -2000, latitude, longitude, elevation_derivative, t)
 
 
 # TODO: This algorithm is imprecise, gives an incorrent sunrise and I do not fully know its behaviour
