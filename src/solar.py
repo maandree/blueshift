@@ -515,7 +515,7 @@ def past_equinox(t = None):
 
 # TODO document
 def future_past_solstice(delta, t = None):
-    e = 0.0001
+    e = 0.00001
     fun = lambda t : (solar_declination(t - e) - solar_declination(t + e)) / 2
     return solar_prediction(delta, 0, fun, t = t)
 
