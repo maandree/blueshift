@@ -1509,6 +1509,17 @@ The Sun's lowest and highest elevation during
 astronomical twilight, measured in degrees.
 @end table
 
+Blueshift provides a constant for the apparent
+size of the Sun: @code{SOLAR_APPARENT_RADIUS}.
+This constant can for example be used to get a
+more accurate time when the night begins: rather
+than simply saying that the night begins when
+the Sun's apparent elevation is zero, you can say
+that it begins when the Sun is no longer visible
+at all, which is when the Sun's apparent elevation
+is minus @code{SOLAR_APPARENT_RADIUS}. This value
+is approximate.
+
 
 @node Weather
 @section Weather
