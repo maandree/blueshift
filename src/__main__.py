@@ -81,7 +81,7 @@ setproctitle(sys.argv[0])
 global i_size, o_size, r_curve, g_curve, b_curve, clip_result, reset, panicgate, reset_on_error
 global periodically, wait_period, fadein_time, fadeout_time, fadein_steps, fadeout_steps
 global monitor_controller, running, continuous_run, panic, _globals_, conf_storage, parser
-global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2, DATADIR, LIBDIR, LIBEXECDIR
+global signal_SIGTERM, signal_SIGUSR1, signal_SIGUSR2, DATADIR, LIBEXECDIR
 
 
 ## Open all modules that the configuration

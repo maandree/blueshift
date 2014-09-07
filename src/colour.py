@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # This module implements functions from convertions between colour spaces
-# and comparion of colours
+# and comparion of colours.
 
 
 def linear_to_standard(*colour):

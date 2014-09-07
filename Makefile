@@ -8,16 +8,12 @@
 PREFIX ?= /usr
 # The command path excluding prefix
 BIN ?= /bin
-# The library path excluding prefix
-LIB ?= /lib
 # The executable library path excluding prefix
 LIBEXEC ?= /libexec
 # The resource path excluding prefix
 DATA ?= /share
 # The command path including prefix
 BINDIR ?= $(PREFIX)$(BIN)
-# The library path including prefix
-LIBDIR ?= $(PREFIX)$(LIB)
 # The executable library path including prefix
 LIBEXECDIR ?= $(PREFIX)$(LIBEXEC)
 # The resource path including prefix
@@ -36,81 +32,42 @@ COMMAND ?= blueshift
 # The name of the package as it should be installed
 PKGNAME ?= blueshift
 
-# Bindings for display server access
-DEFAULT_SERVER_BINDINGS = randr vidmode drm
-ifeq ($(FAKE_W32),y)
-DEFAULT_SERVER_BINDINGS += w32gdi
-endif
-ifeq ($(FAKE_MAC),y)
-DEFAULT_SERVER_BINDINGS += quartz
-endif
-SERVER_BINDINGS ?= $(DEFAULT_SERVER_BINDINGS)
 # Executable bindings for display server access
-EXECS ?= idcrtc iccprofile
+EXECS ?= iccprofile
 
 # Executable library files
 EXECLIBS = $(foreach E,$(EXECS),blueshift_$(E))
 # The installed pkg-config command
 PKGCONFIG ?= pkg-config
 # Optimisation settings for C code compilation
-OPTIMISE ?= -O6 -g
+OPTIMISE ?= -O3 -g
 # Warnings settings for C code compilation
-WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs \
-       -Wtrampolines -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
-       -Wno-variadic-macros -Wsync-nand -Wunsafe-loop-optimizations -Wcast-align \
-       -Wdeclaration-after-statement -Wundef -Wbad-function-cast -Wwrite-strings -Wlogical-op \
-       -Wstrict-prototypes -Wold-style-definition -Wpacked -Wvector-operation-performance \
-       -Wunsuffixed-float-constants -Wsuggest-attribute=const -Wsuggest-attribute=noreturn \
-       -Wsuggest-attribute=format -Wnormalized=nfkc \
-       -fstrict-aliasing -fipa-pure-const -ftree-vrp -fstack-usage -funsafe-loop-optimizations
-# Warnings violated by Cython and therefore only use for C and not Cython
-CWARN = -Wshadow -Wredundant-decls -Winline -Wcast-qual -Wsign-conversion -Wstrict-overflow=5 \
-        -Wconversion -Wsuggest-attribute=pure -Wswitch-default -Wstrict-aliasing=1 \
-        -fstrict-overflow -Wfloat-equal
+WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs      \
+       -Wtrampolines -Wmissing-prototypes -Wmissing-declarations -Wnested-externs                    \
+       -Wno-variadic-macros -Wsync-nand -Wunsafe-loop-optimizations -Wcast-align                     \
+       -Wdeclaration-after-statement -Wundef -Wbad-function-cast -Wwrite-strings -Wlogical-op        \
+       -Wstrict-prototypes -Wold-style-definition -Wpacked -Wvector-operation-performance            \
+       -Wunsuffixed-float-constants -Wsuggest-attribute=const -Wsuggest-attribute=noreturn           \
+       -Wsuggest-attribute=format -Wnormalized=nfkc -fstrict-aliasing -fipa-pure-const -ftree-vrp    \
+       -fstack-usage -funsafe-loop-optimizations -Wshadow -Wredundant-decls -Winline -Wcast-qual     \
+       -Wsign-conversion -Wstrict-overflow=5 -Wconversion -Wsuggest-attribute=pure -Wswitch-default  \
+       -Wstrict-aliasing=1 -fstrict-overflow -Wfloat-equal
 #not used: -Wtraditional (tranditional C function definitions are ridiculous),
 #          -Wpadded (useless for this project), -Wc++-compat (bad practice)
 #not used because of libxcb's API: -Waggregate-return, -Wtraditional-conversion (also useless)
 # The C standard for C code compilation
 STD = c99
-LIBS_idcrtc = xcb-randr
 LIBS_iccprofile = xcb
-LIBS_randr = xcb-randr
-LIBS_vidmode = x11 xxf86vm
-LIBS_drm = libdrm
-LIBS_w32gdi =
-LIBS_quartz =
-ifeq ($(FAKE_W32),y)
-LIBS_w32gdi = $(LIBS_randr)
-endif
-ifeq ($(FAKE_MAC),y)
-LIBS_quartz = $(LIBS_randr)
-endif
-LD_idcrtc =
 LD_iccprofile =
-LD_randr =
-LD_vidmode =
-LD_drm =
-LD_w32gdi =
-F_ApplicationServices = /System/Library/Frameworks/ApplicationServices.framework
-I_ApplicationServices = $(F_ApplicationServices)/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Headers
-LD_quartz = -I$(I_ApplicationServices) -F$(F_ApplicationServices) -framework ApplicationServices
-ifeq ($(FAKE_W32),y)
-LD_w32gdi = $(LD_randr)
-endif
-ifeq ($(FAKE_MAC),y)
-LD_quartz = $(LD_randr)
-endif
-LIBS = python3 $(foreach B,$(SERVER_BINDINGS) $(EXECS),$(LIBS_$(B)))
+LIBS = $(foreach B,$(EXECS),$(LIBS_$(B)))
 FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) \
-        -fPIC $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
+        $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
 
 # Resource files
 DATAFILES = 2deg 10deg redshift redshift_old
 # Python source files
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py  \
           backlight.py blackbody.py aux.py weather.py interpolation.py
-# Library files
-CBINDINGS = $(foreach B,$(SERVER_BINDINGS),blueshift_$(B).so)
 # Configuration script example files
 EXAMPLES = comprehensive sleepmode crtc-detection crtc-searching logarithmic  \
            xmobar xpybar stored-settings current-settings xmonad threaded     \
@@ -127,7 +84,7 @@ default: command info shell
 all: command doc shell
 
 .PHONY: command
-command: $(foreach C,$(CBINDINGS),bin/$(C)) $(foreach E,$(EXECLIBS),bin/$(E)) bin/blueshift
+command: bin/blueshift $(foreach E,$(EXECLIBS),bin/$(E))
 
 
 # Build rules for C source files
@@ -136,49 +93,9 @@ bin/blueshift_%: obj/blueshift_%.o
 	@mkdir -p bin
 	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$*)) $(LD_$*) -o $@ $^
 
-bin/blueshift_%.so: obj/blueshift_%.o obj/blueshift_%_c.o
-	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$*)) $(LD_$*) -shared -o $@ $^
-
 obj/%.o: src/%.c
 	@mkdir -p obj
-	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
-
-obj/%.o: src/%.c src/%.h
-	@mkdir -p obj
-	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
-
-obj/%_c.o: src/%_c.c src/%_c.h
-	@mkdir -p obj
-	$(CC) $(FLAGS) $(CWARN) -c -o $@ $<
-
-obj/%.o: obj/%.c
-	@mkdir -p obj
 	$(CC) $(FLAGS) -c -o $@ $<
-
-ifeq ($(FAKE_W32),y)
-obj/blueshift_w32gdi_c.o: L=w32gdi
-obj/blueshift_w32gdi_c.o: src/blueshift_w32gdi_c.c src/blueshift_w32gdi_c.h \
-                          obj/fake_w32gdi.o src/fake_w32gdi.h
-	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -DFAKE_W32GDI -o $@ $^
-endif
-
-ifeq ($(FAKE_MAC),y)
-obj/blueshift_quartz_c.o: L=quartz
-obj/blueshift_quartz_c.o: src/blueshift_quartz_c.c src/blueshift_quartz_c.h \
-                          obj/fake_quartz.o src/fake_quartz.h
-	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$(L))) $(LD_$(L)) -shared -DFAKE_QUARTZ -o $@ $^
-endif
-
-
-# Build rules for Cython source files
-
-obj/%.c: src/%.pyx
-	@mkdir -p obj
-	if ! cython -3 -v $<; then rm src/$*.c ; false ; fi
-	mv src/$*.c $@
 
 
 # Build rules for Python source files
@@ -193,9 +110,9 @@ obj/blueshift.zip: $(foreach F,$(PYFILES),obj/$(F))
 	cd obj && zip ../$@ $(foreach F,$(PYFILES),$(F))
 
 obj/%.py: src/%.py
+	@mkdir -p obj
 	cp $< $@
 	sed -i '/^DATADIR *= /s#^.*$$#DATADIR = '\''$(DATADIR)/$(PKGNAME)'\''#' $@
-	sed -i '/^LIBDIR *= /s#^.*$$#LIBDIR = '\''$(LIBDIR)'\''#' $@
 	sed -i '/^LIBEXECDIR *= /s#^.*$$#LIBEXECDIR = '\''$(LIBEXECDIR)'\''#' $@
 
 
@@ -272,17 +189,12 @@ install-all: install-base install-doc install-shell
 install-base: install-command install-license
 
 .PHONY: install-command
-install-command: install-command-bin install-command-lib install-command-libexec install-command-share
+install-command: install-command-bin install-command-libexec install-command-share
 
 .PHONY: install-command-bin
 install-command-bin: bin/blueshift
 	install -dm755 -- "$(DESTDIR)$(BINDIR)"
 	install -m755 $< -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
-
-.PHONY: install-command-lib
-install-command-lib: $(foreach C,$(CBINDINGS),bin/$(C))
-	install -dm755 -- "$(DESTDIR)$(LIBDIR)"
-	install -m755 $^ -- "$(DESTDIR)$(LIBDIR)"
 
 .PHONY: install-command-libexec
 install-command-libexec: $(foreach E,$(EXECLIBS),bin/$(E))
@@ -355,7 +267,6 @@ install-fish: bin/blueshift.fish
 .PHONY: uninstall
 uninstall:
 	-rm -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
-	-rm -- $(foreach C,$(CBINDINGS),"$(DESTDIR)$(LIBDIR)/$(C)")
 	-rm -- $(foreach E,$(EXECLIBS),"$(DESTDIR)$(LIBEXECDIR)/$(E)")
 	-rmdir -- "$(DESTDIR)$(LIBEXECDIR)"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
@@ -387,6 +298,5 @@ uninstall:
 
 .PHONY: all
 clean:
-	-rm -r bin obj src/blueshift_{randr,vidmode,drm,w32gid,quartz}.c \
-	       blueshift.{info,pdf,ps,dvi} *.su src/*.su
+	-rm -r bin obj blueshift.{info,pdf,ps,dvi} *.su src/*.su
 

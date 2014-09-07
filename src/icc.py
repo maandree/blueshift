@@ -203,7 +203,7 @@ def parse_icc(content):
                 return f
             break
         # XXX should I not jump to (tag_offset + tag_size - ptr) here
-        #     and not break the loops when unkown?
+        #     and not break the loops when unknown?
     
     raise Exception('Unsupported ICC profile file')
 

@@ -23,19 +23,10 @@ from aux import *
 from curve import *
 
 
-LIBDIR = 'bin'
-'''
-:str  Path to libraries, '/usr/lib' is standard
-'''
-
 LIBEXECDIR = 'bin'
 '''
 :str  Path to executable libraries, '/usr/libexec' is standard
 '''
-
-
-## Add the path to libraries to the list of paths to Python modules
-sys.path.append(LIBDIR)
 
 
 ## Load DRM module
