@@ -67,7 +67,8 @@ FLAGS = $$($(PKGCONFIG) --cflags $(LIBS)) -std=$(STD) $(WARN) $(OPTIMISE) \
 DATAFILES = 2deg 10deg redshift redshift_old
 # Python source files
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py  \
-          backlight.py blackbody.py aux.py weather.py interpolation.py
+          backlight.py blackbody.py aux.py weather.py interpolation.py        \
+          libgammaman.py
 # Configuration script example files
 EXAMPLES = comprehensive sleepmode crtc-detection crtc-searching logarithmic  \
            xmobar xpybar stored-settings current-settings xmonad threaded     \
