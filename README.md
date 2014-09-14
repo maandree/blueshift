@@ -63,7 +63,7 @@ if it is done manually.
 
 - Blueshift can modify the colour curves for monitors
 without a display server like X or Wayland. This is done
-by using Direct Rendering Manager. (This has of cause
+by using Direct Rendering Manager. (This has of course
 been ported to Redshift.)
 
 
