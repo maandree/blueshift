@@ -297,7 +297,7 @@ uninstall:
 
 # Clean rules
 
-.PHONY: all
+.PHONY: clean
 clean:
 	-rm -r bin obj blueshift.{info,pdf,ps,dvi} *.su src/*.su
 
