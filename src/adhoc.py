@@ -96,7 +96,7 @@ if continuous:
 ## Set monitor control
 output_ = []
 for o in output:
-    output_ += o.split(',')
+    output_ += [int(x) for x in o.split(',')]
 # Use selected CRTC:s (all if none are selected)
 # in the first screen or graphics card.
 monitor_controller = lambda : (drm if ttymode else randr)(*output_)
