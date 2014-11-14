@@ -92,7 +92,7 @@ command: bin/blueshift $(foreach E,$(EXECLIBS),bin/$(E))
 
 bin/blueshift_%: obj/blueshift_%.o
 	@mkdir -p bin
-	$(CC) $(FLAGS) $$($(PKGCONFIG) --libs $(LIBS_$*)) $(LD_$*) -o $@ $^
+	$(CC) $$($(PKGCONFIG) --libs $(LIBS_$*)) $(LD_$*) $(FLAGS) -o $@ $^
 
 obj/%.o: src/%.c
 	@mkdir -p obj
