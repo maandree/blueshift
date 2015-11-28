@@ -1278,247 +1278,27 @@ one argument, the POSIX time, that is, the number of
 seconds that have elapsed since 1970-(01)Jan-01 00:00:00
 UTC, not counting leap seconds.
 
-A set of functions that are used to calculate the Sun's
-are provided:
+Blueshift provides a set of functions, used to calculate
+solar data, and solar data constants, by importing the
+library @command{solar-python}. Refer to its documentation
+for more details.
 
+Blueshift also defines the function
 @table @code
-@item julian_day_to_epoch(t)
-Converts a Julian Day timestamp to a POSIX time timestamp.
-
-@item epoch_to_julian_day(t)
-Converts a POSIX time timestamp to a Julian Day timestamp.
-
-@item julian_day_to_julian_centuries(t)
-Converts a Julian Day timestamp to a Julian Centuries timestamp.
-
-@item julian_centuries_to_julian_day(t)
-Converts a Julian Centuries timestamp to a Julian Day timestamp.
-
-@item epoch_to_julian_centuries(t)
-Converts a POSIX time timestamp to a Julian Centuries timestamp.
-
-@item julian_centuries_to_epoch(t)
-Converts a Julian Centuries timestamp to a POSIX time timestamp.
-
-@item epoch()
-Returns the current time in POSIX time.
-
-@item julian_day()
-Returns the current time in Julian Day time.
-
-@item julian_centuries()
-Returns the current time in Julian Centuries time (100 Julian days since J2000.)
-
-@item radians(deg)
-Converts from degrees to radians.
-
-@item degrees(rad)
-Converts from radians to degrees.
-
-@item sun_geometric_mean_longitude(t)
-Calculates the Sun's geometric mean longitude, in radians.
-
-@item sun_geometric_mean_anomaly(t)
-Calculates the Sun's geometric mean anomaly, in radians.
-
-@item earth_orbit_eccentricity(t)
-Calculates the Earth's orbit eccentricity.
-
-@item sun_equation_of_centre(t)
-Calculates the Sun's equation of the centre, the difference
-between the true anomaly and the mean anomaly, in radians.
-
-@item sun_real_longitude(t)
-Calculates the Sun's real longitudinal position, in radians.
-
-@item sun_apparent_longitude(t)
-Calculates the Sun's apparent longitudinal position, in radians.
-
-@item mean_ecliptic_obliquity(t)
-Calculates the mean ecliptic obliquity, in radians,
-of the Sun's apparent motion without variation correction.
-
-@item corrected_mean_ecliptic_obliquity(t)
-Calculates the mean ecliptic obliquity, in radians,
-of the Sun's apparent motion with variation correction.
-
-@item solar_declination(t)
-Calculates the Sun's declination, in radians.
-
-@item equation_of_time(t)
-Calculates the equation of time, the discrepancy between
-apparent and mean solar time, in degrees.
-
-@item hour_angle_from_elevation(latitude, declination, elevation)
-Calculates the solar hour angle from the Sun's elevation.
-
-@item elevation_from_hour_angle(latitude, declination, hour_angle)
-Calculates the Sun's elevation from the solar hour angle.
-
-@item time_of_solar_noon(t, longitude)
-Calculates the time of the closest solar noon.
-
-@item time_of_solar_elevation(t, noon, latitude, longitude, elevation)
-Calculates the time the Sun has the apparent elevation
-@code{elevation}, in degrees, at the geographical position
-(@code{latitude}, @code{longitude}). @code{noon} is the
-time the closest the solar noon.
-
-@item solar_elevation_from_time(t, latitude, longitude)
-Calculates the Sun's elevation, in degrees, as apparent from the
-geographical position (@code{latitude}, @code{longitude}).
-
-@item solar_elevation(latitude, longitude, t = None)
-Calculates the same thing as @code{solar_elevation_from_time},
-except the time is optional and defaults to the current time.
-
-@item have_sunrise_and_sunset(latitude, t = None)
-Determine whether you have sunrise and sunsets.
-
-@item is_summer(latitude, t = None)
-Determine whether it is summer.
-
-@item is_winter(latitude, t = None)
-Determine whether it is winter.
-
-@item future_past_elevation(delta, latitude, longitude, elevation, t = None)
-Calculates the next or previous point in time the Sun's
-elevation will be @code{elevation} degrees or was
-@code{elevation} degrees at the geographical position
-(@code{latitude}, @code{longitude}). The calculated
-timepoint may actually be the current time, @code{t}.
-If not time point can be found within a Julian year
-@code{None} will be returned. This function uses binary
-search to determine time point, because inverting
-@code{solar_elevation} is unfeasible to do algebraically;
-@code{delta} specified the size of the steps between the
-timepoints that are tested to determine the timespan in
-which to do the binary search.
-
-@item future_elevation(latitude, longitude, elevation, t = None)
-Calculates the next point in time the Sun's elevation will
-be @code{elevation} degrees at the geographical position
-(@code{latitude}, @code{longitude}). The calculated
-timepoint may actually be the current time, @code{t}.
-If not time point can be found within a Julian year
-@code{None} will be returned. This function uses
-
-@item past_elevation(latitude, longitude, elevation, t = None)
-Calculates the previous point in time the Sun's elevation was
-@code{elevation} degrees at the geographical position
-(@code{latitude}, @code{longitude}). The calculated
-timepoint may actually be the current time, @code{t}.
-If not time point can be found within a Julian year
-@code{None} will be returned. This function uses
-
-@item future_past_elevation_derivative(delta, latitude, longitude, derivative, t = None)
-Similar to @code{future_past_elevation}, but calculates the
-time point for a first derivative of the solar elevation.
-
-@item future_elevation_derivative(latitude, longitude, derivative, t = None)
-Similar to @code{future_elevation}, but calculates the
-time point for a first derivative of the solar elevation.
-
-@item past_elevation_derivative(latitude, longitude, derivative, t = None)
-Similar to @code{past_elevation}, but calculates the
-time point for a first derivative of the solar elevation.
-
-@item future_past_equinox(delta, t = None)
-Similar to @code{future_past_elevation}, but calculates the
-time point for an equinox. The result cannot be @code{None}.
-
-@item future_equinox(t = None)
-Similar to @code{future_elevation}, but calculates the
-time point for an equinox. The result cannot be @code{None}.
-
-@item past_equinox(t = None)
-Similar to @code{past_elevation}, but calculates the
-time point for an equinox. The result cannot be @code{None}.
-
-@item future_past_solstice(delta, t = None)
-Similar to @code{future_past_elevation}, but calculates the
-time point for a solstice. The result cannot be @code{None}.
-
-@item future_solstice(t = None)
-Similar to @code{future_elevation}, but calculates the
-time point for a solstice. The result cannot be @code{None}.
-
-@item past_solstice(t = None)
-Similar to @code{past_elevation}, but calculates the
-time point for a solstice. The result cannot be @code{None}.
-
-@item solar_prediction(delta, requested, fun, epsilon = 0.000001, span = 0.01, t = None)
-Predict the time point of the next or previous
-time an arbitrary condition is meet by way of
-binary searching. This conditions is satisfied if
-@code{fun} of a timepoint equals @code{requested}
-with a tolerance of @code{epsilon}.
-@code{delta} specified the size of the steps between the
-timepoints that are tested to determine the timespan in
-which to do the binary search. This timespan is limited
-to @code{span} with is a timespan in Julian Centuries;
-0,01 is approximately one Gregorian year.
-If no satisfactory timepoint can be found
-within the specified span @code{None} is returned.
-
-@item ptime(t)
+@item ptime(t : float)
 Prints a time, input in the Julian Centuries format,
 as a human-readable local time.
-
 @end table
 
-For all functions beneath @code{degrees}, @code{t} is the
-time in Julian Centuries. All parameters are floating point
-and may not be @code{None}, except for in @code{solar_elevation},
-as specified.
-
-Blueshift provides constants with important elevations of
-the Sun during twilight.
-
-@table @code
-@item SOLAR_ELEVATION_SUNSET_SUNRISE
-The Sun's elevation at sunset and sunrise,
-measured in degrees.
-
-@item SOLAR_ELEVATION_CIVIL_DUSK_DAWN
-The Sun's elevation at civil dusk and civil dawn,
-measured in degrees.
-
-@item SOLAR_ELEVATION_NAUTICAL_DUSK_DAWN
-The Sun's elevation at nautical dusk and nautical
-dawn, measured in degrees.
-
-@item SOLAR_ELEVATION_ASTRONOMICAL_DUSK_DAWN
-The Sun's elevation at astronomical dusk and
-astronomical dawn, measured in degrees.
-
-@item SOLAR_ELEVATION_RANGE_TWILIGHT
-The Sun's lowest and highest elevation during all
-periods of twilight, measured in degrees.
-
-@item SOLAR_ELEVATION_RANGE_CIVIL_TWILIGHT
-The Sun's lowest and highest elevation during
-civil twilight, measured in degrees.
-
-@item SOLAR_ELEVATION_RANGE_NAUTICAL_TWILIGHT
-The Sun's lowest and highest elevation during
-nautical twilight, measured in degrees.
-
-@item SOLAR_ELEVATION_RANGE_ASTRONOMICAL_TWILIGHT
-The Sun's lowest and highest elevation during
-astronomical twilight, measured in degrees.
-@end table
-
-Blueshift provides a constant for the apparent
-size of the Sun: @code{SOLAR_APPARENT_RADIUS}.
-This constant can for example be used to get a
-more accurate time when the night begins: rather
-than simply saying that the night begins when
-the Sun's apparent elevation is zero, you can say
-that it begins when the Sun is no longer visible
-at all, which is when the Sun's apparent elevation
-is minus @code{SOLAR_APPARENT_RADIUS}. This value
-is approximate.
+Blueshift provides a constant, via @command{solar-python},
+for the apparent size of the Sun: @code{SOLAR_APPARENT_RADIUS}.
+This constant can for example be used to get a more
+accurate time when the night begins: rather than simply
+saying that the night begins when the Sun's apparent
+elevation is zero, you can say that it begins when the
+Sun is no longer visible at all, which is when the Sun's
+apparent elevation is minus @code{SOLAR_APPARENT_RADIUS}.
+This value is approximate.
 
 
 @node Weather
