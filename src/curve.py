@@ -268,7 +268,7 @@ def gamma(r, g = ..., b = ...):
     
 def negative(r = True, g = ..., b = ...):
     '''
-    Revese the colour curves (negative image with gamma preservation)
+    Reverse the colour curves (negative image with gamma preservation)
     
     @param  r:bool      Whether to invert the red curve
     @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
