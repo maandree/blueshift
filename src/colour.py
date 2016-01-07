@@ -181,6 +181,6 @@ def delta_e(a, b):
     @param   b:(float, float, float)  The second colour
     @return  :float                   The difference
     '''
-    standard_to_cielab = lambda x : ciexyz_to_cielab(*linear_to_ciexyz(*standard_to_linear(*a)))
+    standard_to_cielab = lambda x : ciexyz_to_cielab(*linear_to_ciexyz(*standard_to_linear(*x)))
     return sum([(c1 - c2) ** 2 for c1, c2 in zip(standard_to_cielab(a), standard_to_cielab(b))]) ** 0.5
 
