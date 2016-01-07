@@ -399,7 +399,7 @@ def cie_limits(r_min, r_max, g_min = ..., g_max = ..., b_min = ..., b_max = ...)
     # Check if we can reduce the overhead, we can if the adjustments are identical
     same = (r_min == g_min == b_min) and (r_max == g_max == b_max)
     # Check we need to do any adjustment
-    if (not same) or (not r_min == 0) or (not r_max == 0):
+    if (not same) or (not r_min == 0) or (not r_max == 1):
         if same:
             # Manipulate all curves in one step if their adjustments are identical
             for i in range(i_size):
