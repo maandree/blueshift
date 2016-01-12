@@ -526,6 +526,9 @@ def simple_whitepoint(temperature):
         g = 0.390081579 * math.log(temp) - 0.631841444
         if temp < 66:
             b = 0 if temp <= 19 else 0.543206789 * math.log(temp - 10) - 1.196254089
+    r = min(max(0, r), 1)
+    g = min(max(0, g), 1)
+    b = min(max(0, b), 1)
     return (r, g, b)
 
 
