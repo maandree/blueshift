@@ -520,7 +520,7 @@ def simple_whitepoint(temperature):
     '''
     r, g, b, temp = 1, 1, 1, temperature / 100
     if temp > 66:
-        r = 1.292936186 * (temp - 60) ** 0.1332047592
+        r = 1.292936186 * (temp - 60) ** -0.1332047592
         g = 1.129890861 * (temp - 60) ** -0.0755148492
     else:
         g = 0.390081579 * math.log(temp) - 0.631841444
