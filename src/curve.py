@@ -333,7 +333,7 @@ def sigmoid(r, g = ..., b = ...):
     4.5 is good value start start testing at.
     You would probably like to use rgb_limits before
     this to adjust the black point as that is the
-    only why to adjust the black point on many LCD
+    only way to adjust the black point on many LCD
     monitors.
     
     @param  r:float?      The sigmoid parameter for the red curve
