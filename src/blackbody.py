@@ -494,7 +494,7 @@ def series_d(temperature):
     
     Using `lambda t : divide_by_maximum(series_d(t))` as the algorithm is better than just `series_d`
     
-    @param   temperature:float       The blackbody temperature in kelvins, must be inside [4000, 7000]
+    @param   temperature:float       The blackbody temperature in kelvins, must be inside [4000, 25000]
     @return  :(float, float, float)  The red, green and blue components of the white point
     '''
     # Get coefficients for calculating the x component

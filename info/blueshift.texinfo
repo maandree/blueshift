@@ -651,7 +651,7 @@ white point included:
 @table @code
 @item series_d(temperature)
 Can only calculate the white point correctly for
-temperatures inside [4000, 7000]. The CIE illuminant
+temperatures inside [4000, 25000]. The CIE illuminant
 series D is used to calculate the white point.
 
 @item simple_whitepoint(temperature)
