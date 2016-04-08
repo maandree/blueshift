@@ -34,7 +34,7 @@ BUILD DEPENDENCIES:
 	auto-auto-complete (opt-out)
 
 
-BUILD DEPENDENCIES:
+INSTALL DEPENDENCIES:
 
 	make
 	coreutils
