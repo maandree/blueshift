@@ -39,7 +39,7 @@ exception for fallbacks.) This is not necessarily true
 for configuration script examples and optional features.
 
 If Blueshift does not work for you for any of these
-reasons, you should take a look at Redshift. The mean
+reasons, you should take a look at Redshift. The main
 reason for using Blueshift over Redshift is to add
 adjustments that they implemented in Redshift or
 using very customised behaviour, such as the example
