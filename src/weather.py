@@ -44,7 +44,8 @@ def weather(station, downloader = None):
                             is return if observation data cannot be downloaded.
     '''
     ## URI of METAR
-    url = 'http://weather.noaa.gov/pub/data/observations/metar/decoded/%s.TXT'
+    #url = 'http://weather.noaa.gov/pub/data/observations/metar/decoded/%s.TXT'
+    url = 'http://tgftp.nws.noaa.gov/data/observations/metar/decoded/%s.TXT'
     url %= station.upper()
     ## Download METAR
     # Use wget if not specified
