@@ -134,7 +134,7 @@ def parse_icc(content):
     read(128)
     # Get the number of bytes
     n_tags, ptr = int_(read(4)), 128 + 4
-    # Create array for the lookup tables to creat
+    # Create array for the lookup tables to create
     R_curve, G_curve, B_curve = [], [], []
     
     for i_tag in range(n_tags):
