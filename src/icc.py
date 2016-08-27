@@ -123,28 +123,32 @@ def parse_icc(content):
         @param   n:int       The number of bytes to read
         @return  :list<int>  The next `n` bytes of the profile
         '''
-        if len(content) < n:
+        nonlocal ptr
+        if len(content) - ptr < n:
             raise Exception('Premature end of file: %s' % pathname)
-        rc, content[:] = content[:n], content[n:]
+        rc = = content[ptr : ptr + n]
+        ptr += n
         return rc
     
     # Convert profile encoding format for bytes to integer list
-    content = list(content)
+    content, ptr = list(content), 0
     # Skip the first 128 bytes
     read(128)
-    # Get the number of bytes
-    n_tags, ptr = int_(read(4)), 128 + 4
+    # Get the number of tags
+    n_tags = int_(read(4))
     # Create array for the lookup tables to create
     R_curve, G_curve, B_curve = [], [], []
     
+    xptr = ptr
     for i_tag in range(n_tags):
         # Get profile encoding type, offset to the profile and the encoding size of its data
-        (tag_name, tag_offset, tag_size), ptr = [int_(read(4)) for _ in range(3)], ptr + 3 * 4
-        # XXX should I not jump to the data now instead of inside the if statements' bodies?
+        ptr = xptr
+        (tag_name, tag_offset, tag_size) = [int_(read(4)) for _ in range(3)]
+        xptr = ptr
+        # Jump to the profile data
+        ptr = tag_offset
         if tag_name == MLUT_TAG:
             ## The profile is encododed as an dual-byte precision lookup table
-            # Jump to the profile data
-            read(tag_offset - ptr)
             # Get the lookup table for the red channel,
             for _ in range(256):  R_curve.append(int_(read(2)) / 65535)
             # for the green channel
@@ -155,12 +159,10 @@ def parse_icc(content):
         elif tag_name == VCGT_TAG:
             ## The profile is encoded as with gamma, brightness and contrast values
             # or as a variable precision lookup table profile
-            # Jump to the profile data
-            read(tag_offset - ptr)
             # VCGT profiles starts where their magic number
             tag_name = int_(read(4))
             if not tag_name == VCGT_TAG:
-                break
+                continue
             # Skip four bytes
             read(4)
             # and get the actual encoding type
@@ -172,7 +174,7 @@ def parse_icc(content):
                     (n_channels, n_entries, entry_size) = 3, 256, 2
                 if not n_channels == 3:
                     # Assuming sRGB, can only be an correct assumption if there are exactly three channels
-                    break
+                    continue
                 # Calculate the divisor for mapping to [0, 1]
                 divisor = (256 ** entry_size) - 1
                 # Values are encoded in integer form with `entry_size` bytes
@@ -201,9 +203,6 @@ def parse_icc(content):
                     # before brightness and contrast
                     rgb_limits(r_min, r_max, g_min, g_max, b_min, b_max)
                 return f
-            break
-        # XXX should I not jump to (tag_offset + tag_size - ptr) here
-        #     and not break the loops when unknown?
     
     raise Exception('Unsupported ICC profile file')
 
