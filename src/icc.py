@@ -187,11 +187,11 @@ def parse_icc(content):
             elif gamma_type == 1:
                 ## The profile is encoded with gamma, brightness and contrast values
                 # Get the gamma, brightness and contrast for the red channel,
-                (r_gamma, r_min, r_max) = [int_(read(4)) / 65535 for _ in range(3)]
+                (r_gamma, r_min, r_max) = [int_(read(4)) / 65536 for _ in range(3)]
                 # green channel
-                (g_gamma, g_min, g_max) = [int_(read(4)) / 65535 for _ in range(3)]
+                (g_gamma, g_min, g_max) = [int_(read(4)) / 65536 for _ in range(3)]
                 # and blue channel.
-                (b_gamma, b_min, b_max) = [int_(read(4)) / 65535 for _ in range(3)]
+                (b_gamma, b_min, b_max) = [int_(read(4)) / 65536 for _ in range(3)]
                 def f():
                     '''
                     Apply the gamma, brightness and contrast
