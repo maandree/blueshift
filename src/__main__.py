@@ -305,7 +305,7 @@ def signal_SIGUSR1(signum, frame):
     # Decode it, assume it is in UTF-8, and append
     # an line ending in case the the last line is
     # not empty, which would give us an exception.
-    code = code.decode('utf8', 'error') + '\n'
+    code = code.decode('utf8', 'strict') + '\n'
     # Compile the script,
     code = compile(code, config_file, 'exec')
     # and run it, with it have the same
@@ -719,7 +719,7 @@ else:
         # Decode configurion script file and add a line break
         # at the end to ensure that the last line is empty.
         # If it is not, we will get errors.
-        code = code.decode('utf-8', 'error') + '\n'
+        code = code.decode('utf-8', 'strict') + '\n'
         # Compile the configuration script,
         code = compile(code, config_file, 'exec')
         # and run it, with it have the same
