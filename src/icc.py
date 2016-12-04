@@ -126,7 +126,7 @@ def parse_icc(content):
         nonlocal ptr
         if len(content) - ptr < n:
             raise Exception('Premature end of file: %s' % pathname)
-        rc = = content[ptr : ptr + n]
+        rc = content[ptr : ptr + n]
         ptr += n
         return rc
     
