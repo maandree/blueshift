@@ -55,6 +55,7 @@ latitude, longitude = 59.3326, 18.0652
 # the weather.
 # (Stockholm Bromma Airport in this example.)
 airport = 'ESSB'
+# You can also use None if you have ~/.config/metar set.
 
 # Custom dayness by time settings.
 time_alpha = [['02:00', 0], ['08:00', 1], ['22:00', 1]]

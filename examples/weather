@@ -25,6 +25,7 @@ latitude, longitude = 59.3326, 18.0652
 # code of the nearest airport.
 # (Stockholm Bromma Airport in this example.)
 airport = 'ESSB'
+# You can also use None if you have ~/.config/metar set.
 
 # Command used to download a file at an HTTP URL
 download_command = None
