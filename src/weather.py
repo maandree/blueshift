@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
+# Copyright © 2014, 2017  Mattias Andrée (maandree@member.fsf.org)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 from subprocess import Popen, PIPE
 
 
-def weather(station, downloader = None):
+def weather(station = None, downloader = None):
     '''
     Get a brief weather report
     
@@ -29,8 +29,10 @@ def weather(station, downloader = None):
     received it. Additionally some airports do not update while closed, and updates while closed
     are less accurate.
     
-    @param   station:str                      The station's International Civil Aviation
-                                              Organization airport code
+    @param   station:str?                     The station's International Civil Aviation
+                                              Organization airport code. If `None`,
+                                              $HOME/.config/metar is read, with fallback to
+                                              ~/.config/metar and /etc/metar.
     @param   downloader:(url:str)?→list<str>  A function that, with an URL as input, returns
                                               a command to download the file at the URL to stdout
     @return  :(sky:str, visiblity:(:int, :float)?, weather:list<str>)?
@@ -43,6 +45,23 @@ def weather(station, downloader = None):
                             be `None`. The weather is a list that can, and often is, empty. `None`
                             is return if observation data cannot be downloaded.
     '''
+    ## Get station
+    if station is None:
+        import os
+        try:
+            home = os.environ['HOME']
+            with open('%s/.config/metar' % home, 'rb') as file:
+                station = file.read()
+        except:
+            try:
+                import pwd
+                home = pwd.getpwuid(os.getuid()).pw_dir
+                with open('%s/.config/metar' % home, 'rb') as file:
+                    station = file.read()
+            except:
+                with open('/etc/metar' % home, 'rb') as file:
+                    station = file.read()
+        station = station.decode('utf-8', 'replace').split('\n')[0]
     ## URI of METAR
     #url = 'http://weather.noaa.gov/pub/data/observations/metar/decoded/%s.TXT'
     url = 'http://tgftp.nws.noaa.gov/data/observations/metar/decoded/%s.TXT'
