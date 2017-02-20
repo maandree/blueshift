@@ -1,10 +1,11 @@
 # -*- python -*-
 
 # This is a small example that inverts the colours when the
-# battery's capacity is low.
+# battery's capacity is low and discharging or is high and
+# charging.
 
 
-# Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
+# Copyright © 2014, 2017  Mattias Andrée (maandree@member.fsf.org)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +22,10 @@
 
 
 
-# Invert the colours when the battery capacity is below this threshold.
-threshold = 5 # percent
+# Invert the colours when the battery capacity is below this threshold and the the battery is discharging.
+low_threshold = 5 # percent
+# Invert the colours when the battery capacity is above this threshold and the the battery is charging.
+high_threshold = 90 # percent
 
 
 # Current status.
@@ -98,7 +101,7 @@ def periodically(year, month, day, hour, minute, second, weekday, fade):
     global inverted
     
     (discharging, capacity) = get_capacity()
-    should_invert = discharging and (capacity <= threshold)
+    should_invert = capacity <= low_threshold if discharging else capacity >= high_threshold
     
     if should_invert ^ inverted:
         inverted = should_invert
