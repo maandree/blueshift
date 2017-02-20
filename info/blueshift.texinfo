@@ -23,7 +23,7 @@
 
 
 @copying
-Copyright @copyright{} 2014 Mattias Andrée
+Copyright @copyright{} 2014, 2015, 2016, 2017 Mattias Andrée
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
