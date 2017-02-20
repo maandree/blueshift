@@ -1306,14 +1306,19 @@ This value is approximate.
 
 Blueshift includes the function @code{whether}
 which gives a brief weather report. @code{whether}
-takes one manditory argument: the International
-Civil Aviation Organization (ICAO) code of your
-closest airport. It also takes one optional argument,
-@code{downloader}: an function that takes an URL
-to download as its only parameter and returns a
-command, as a list of arguments, that downloads
-the file at the given URL to standard output.
-The default @code{downloader} is
+takes two optional argument, @code{station}: the
+International Civil Aviation Organization (ICAO)
+code of your closest airport or other METAR
+station , and @code{downloader}: an function that
+takes an URL to download as its only parameter and
+returns a command, as a list of arguments, that
+downloads the file at the given URL to standard
+output. If @code{station} is not specified (is
+@code{None}), @file{$HOME/.config/metar}
+is read, with fallback to @file{~/.config/metar} and
+@file{/etc/metar}; the first line is used, as-is sans
+LF-termination, as the weather station. The default
+@code{downloader} is
 @code{lambda url : ['wget', url, '-O', '-']}. If
 Blueshift is unable to download the latest METAR
 (Meteorological Aerodrome Report) @code{whether}
