@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 copyright = '''
-Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (maandree@kth.se)
+Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (m@maandree.se)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ PROGRAM_NAME = 'blueshift'
 :str  The name of the program
 '''
 
-PROGRAM_VERSION = '1.90.1'
+PROGRAM_VERSION = '1.91'
 '''
 :str  The version of the program
 '''
@@ -439,7 +439,7 @@ def continuous_run():
     with_fadein  = lambda : (fadein_steps  > 0) and (fadein_time  is not None) and not panicgate
     with_fadeout = lambda : (fadeout_steps > 0) and (fadeout_time is not None)
     
-    try: # TODO why does it look like there is a small jump at the beginning?
+    try:
         ## Run until we get a signal to exit
         # When the program start we are fading in,
         # than we run in normal periodical state.
@@ -740,7 +740,4 @@ else:
 ## Run periodically if configured to
 if periodically is not None:
     continuous_run()
-
-## Close C bindings to free resource and close connections
-close_c_bindings()
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (maandree@kth.se)
+# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (m@maandree.se)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,34 +20,67 @@
 from aux import *
 from curve import *
 
+# TODO doc: size parameter has been added
 
-def linearly_interpolate_ramp(r, g, b):
+
+def __interpolate(r, g, b, size, interpolate, decimate = None): ## TODO document
+    if decimate is None:
+        decimate = lambda orig, out : __decimate(orig, out, interpolate)
+    if size is None:
+        size = (max(o_size, len(r)), max(o_size, len(g)), max(o_size, len(b)))
+    elif isinstance(size, int):
+        size = (size, size, size)
+    if len(r) == size[0]:
+        r = r[:]
+    elif len(r) > size[0]:
+        r = interpolate(r, [None] * size[0])
+    else:
+        r = decimate(r, [None] * size[0])
+    if len(g) == size[1]:
+        g = g[:]
+    elif len(g) > size[1]:
+        g = interpolate(g, [None] * size[1])
+    else:
+        g = decimate(g, [None] * size[1])
+    if len(b) == size[0]:
+        b = b[:]
+    elif len(b) > size[0]:
+        b = interpolate(b, [None] * size[2])
+    else:
+        b = decimate(b, [None] * size[2])
+    return (r, g, b)
+
+
+def __decimate(orig, out, interpolate): ## TODO document
+    pass # TODO
+
+
+def linearly_interpolate_ramp(r, g, b, size = None):
     '''
     Linearly interpolate ramps to the size of the output axes
     
     @param   r:list<float>                                   The red colour curves
     @param   g:list<float>                                   The green colour curves
     @param   b:list<float>                                   The blue colour curves
-    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
-                                                             or their original size, whatever is larger.
+    @param   size:int|(r:int, g:int, b:int)?                 Either the size of all output ramps, the size
+                                                             if the output ramps individually, or `None` for
+                                                             whichever is larger of`o_size` and the size of
+                                                             the input ramps
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input ramps extended to the choosen size
     '''
-    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
-    R, G, B = C(r), C(g), C(b)
-    for small, large in ((r, R), (g, G), (b, B)):
-        small_, large_ = len(small) - 1, len(large) - 1
-        # Only interpolate if scaling up
-        if large_ > small_:
-            for i in range(len(large)):
-                # Scaling
-                j = i * small_ / large_
-                # Floor, weight, ceiling
-                j, w, k = int(j), j % 1, min(int(j) + 1, small_)
-                # Interpolation
-                large[i] = small[j] * (1 - w) + small[k] * w
-    return (R, G, B)
+    def interpolate(orig, out):
+        orig_, out_ = len(orig) - 1, len(out) - 1
+        for i in range(len(out)):
+            # Scaling
+            j = i * orig_ / out_
+            # Floor, weight, ceiling
+            j, w, k = int(j), j % 1, min(int(j) + 1, orig_)
+            # Interpolation
+            out[i] = orig[j] * (1 - w) + orig[k] * w
+    return __interpolate(r, g, b, size, interpolate)
 
 
-def cubicly_interpolate_ramp(r, g, b, tension = 0):
+def cubicly_interpolate_ramp(r, g, b, tension = 0, size = None):
     '''
     Interpolate ramps to the size of the output axes using cubic Hermite spline
     
@@ -55,11 +88,18 @@ def cubicly_interpolate_ramp(r, g, b, tension = 0):
     @param   g:list<float>                                   The green colour curves
     @param   b:list<float>                                   The blue colour curves
     @param   tension:float                                   A [0, 1] value of the tension
-    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
-                                                             or their original size, whatever is larger.
+    @param   size:int|(r:int, g:int, b:int)?                 Either the size of all output ramps, the size
+                                                             if the output ramps individually, or `None` for
+                                                             whichever is larger of`o_size` and the size of
+                                                             the input ramps
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input ramps extended to the choosen size
     '''
-    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
-    R, G, B = C(r), C(g), C(b)
+    if size is None:
+        size = (max(o_size, len(r)), max(o_size, len(g)), max(o_size, len(b)))
+    elif isinstance(size, int):
+        size = (size, size, size)
+    C = lambda c, i : c[:] if len(c) >= size[i] else ([None] * size[i])
+    R, G, B = C(r, 0), C(g, 1), C(b, 2)
     # Basis functions
     #h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
     h10 = lambda t : t * (1 - t) ** 2
@@ -101,7 +141,7 @@ def cubicly_interpolate_ramp(r, g, b, tension = 0):
     return (R, G, B)
 
 
-def monotonicly_cubicly_interpolate_ramp(r, g, b, tension = 0):
+def monotonicly_cubicly_interpolate_ramp(r, g, b, tension = 0, size = None):
     '''
     Interpolate ramps to the size of the output axes using
     monotone cubic Hermite spline and the Fritsch–Carlson method
@@ -113,11 +153,18 @@ def monotonicly_cubicly_interpolate_ramp(r, g, b, tension = 0):
     @param   g:list<float>                                   The green colour curves
     @param   b:list<float>                                   The blue colour curves
     @param   tension:float                                   A [0, 1] value of the tension
-    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
-                                                             or their original size, whatever is larger.
+    @param   size:int|(r:int, g:int, b:int)?                 Either the size of all output ramps, the size
+                                                             if the output ramps individually, or `None` for
+                                                             whichever is larger of`o_size` and the size of
+                                                             the input ramps
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input ramps extended to the choosen size
     '''
-    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
-    R, G, B = C(r), C(g), C(b)
+    if size is None:
+        size = (max(o_size, len(r)), max(o_size, len(g)), max(o_size, len(b)))
+    elif isinstance(size, int):
+        size = (size, size, size)
+    C = lambda c, i : c[:] if len(c) >= size[i] else ([None] * size[i])
+    R, G, B = C(r, 0), C(g, 1), C(b, 2)
     # Basis functions
     #h00 = lambda t : (1 + 2 * t) * (1 - t) ** 2
     h10 = lambda t : t * (1 - t) ** 2
@@ -185,7 +232,7 @@ def monotonicly_cubicly_interpolate_ramp(r, g, b, tension = 0):
     return (R, G, B)
 
 
-def polynomially_interpolate_ramp(r, g, b): # TODO Speedup, demo and document this
+def polynomially_interpolate_ramp(r, g, b, size = None): # TODO Speedup, demo and document this
     '''
     Polynomially interpolate ramps to the size of the output axes.
     
@@ -197,11 +244,18 @@ def polynomially_interpolate_ramp(r, g, b): # TODO Speedup, demo and document th
     @param   r:list<float>                                   The red colour curves
     @param   g:list<float>                                   The green colour curves
     @param   b:list<float>                                   The blue colour curves
-    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input parameters extended to sizes of `o_size`,
-                                                             or their original size, whatever is larger.
+    @param   size:int|(r:int, g:int, b:int)?                 Either the size of all output ramps, the size
+                                                             if the output ramps individually, or `None` for
+                                                             whichever is larger of`o_size` and the size of
+                                                             the input ramps
+    @return  :(r:list<float>, g:list<float>, b:list<float>)  The input ramps extended to the choosen size
     '''
-    C = lambda c : c[:] if len(c) >= o_size else ([None] * o_size)
-    R, G, B, linear = C(r), C(g), C(b), [None]
+    if size is None:
+        size = (max(o_size, len(r)), max(o_size, len(g)), max(o_size, len(b)))
+    elif isinstance(size, int):
+        size = (size, size, size)
+    C = lambda c, i : c[:] if len(c) >= size[i] else ([None] * size[i])
+    R, G, B, linear = C(r, 0), C(g, 1), C(b, 2), [None]
     for ci, (small, large) in enumerate(((r, R), (g, G), (b, B))):
         small_, large_ = len(small) - 1, len(large) - 1
         # Only interpolate if scaling up
@@ -277,7 +331,7 @@ def eliminate_halos(r, g, b, R, G, B):
                 large[X1 : X2 + 1] = linear[ci][X1 : X2 + 1]
 
 
-def interpolate_function(function, interpolator):
+def interpolate_function(function, interpolator): ## TODO size=
     '''
     Interpolate a function that applies adjustments from a lookup table
     

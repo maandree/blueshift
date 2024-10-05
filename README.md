@@ -1,15 +1,3 @@
-Important!
-----------
-
-Blueshift is a bit broken in newer versions of X.
-If Blueshift is not working in X for you, you may
-need to change `i_size = 2 ** 8` in sr/curves.py
-to `i_size = 2 ** 10`. However, this will break
-Blueshift in the TTY, so may want to change it to
-2 ** 10 conditionally. A proper fix is on its way.
-
----
-
 **Request for contribution:**
 
 If anyone have a multi-graphics card setup,

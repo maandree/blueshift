@@ -15,17 +15,17 @@ The colour curves are strictly independent, it is for
 example not possible to swap red and blue, or adjust
 a subpixel depend on another. It is to my knowledge
 not possible to do so in X11.
-  Issue listen in the issue tracker:
-    https://github.com/maandree/blueshift/issues/5
 
 Blueshift requires adjustable gamma ramps. It is
 very rare that video drivers do not support this.
-  Issue listen in the issue tracker:
-    https://github.com/maandree/blueshift/issues/5
 
 VidMode can only modify the primary monitor.
 It can potentially do adjustments on some video
 drivers not supported by RandR.
 
-X11 cannot be started when DRM is used.
+Display servers cannot be started when DRM is used.
 
+DRM disables Linux VT's colour palette on some machines,
+which means that whilst DRM is in use, you will have
+the default palette. Your custom palette is reinstated
+automatically once DRM is not in use.

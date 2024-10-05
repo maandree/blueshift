@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (maandree@kth.se)
+# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (m@maandree.se)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,25 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This module is responsible for access to the monitors.
+# This module is deprecated!
 
-import os
 import sys
-from subprocess import Popen, PIPE
 
 from aux import *
 from curve import *
-
-import libgammaman
-import libgamma
+from output import EDID
 
 
 
-def close_c_bindings():
-    '''
-    Close all C bindings and let them free resources and close connections
-    '''
-    libgammaman.close()
+cached_displays = {}
 
 
 def get_gamma(crtc = 0, screen = 0, display = None, *, method = None):
@@ -46,14 +38,16 @@ def get_gamma(crtc = 0, screen = 0, display = None, *, method = None):
     @param   method:str?   The adjustment method
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
-    # Get CRTC objet
-    method = libgammaman.get_method(method)
-    crtc = libgammaman.get_crtc(crtc, screen, display, method)
-    # Create gamma ramps
-    ramps = libgamma.GammaRamps(i_size, i_size, i_size)
-    # Get gamma
-    crtc.get_gamma(ramps)
+    import output
+    if not get_gamma.warned:
+        get_gamma.warned = True
+        print('get_gamma() is deprecated', file = sys.stderr)
+    if (method, display) not in cached_displays:
+        cached_displays[(method, display)] = output.get_outputs(method = method, display = display)
+    crtc = cached_displays[(method, display)].screens[screen].crtcs[crtc]
+    ramps = crtc.get_gamma()
     return ramps_to_function(ramps.red, ramps.green, ramps.blue)
+get_gamma.warned = False
 
 
 def set_gamma(*crtcs, screen = 0, display = None, method = None):
@@ -65,19 +59,22 @@ def set_gamma(*crtcs, screen = 0, display = None, method = None):
     @param  display:str?  The display to which to connect, `None` for current display
     @param  method:str?   The adjustment method
     '''
-    for crtc in (0,) if len(crtcs) == 0 else crtcs:
-        # Convert curves to [0, 0xFFFF] integer lists
-        (R_curve, G_curve, B_curve) = translate_to_integers()
-        # Get CRTC objet
-        method = libgammaman.get_method(method)
-        crtc = libgammaman.get_crtc(crtc, screen, display, method)
-        # Create gamma ramps
-        ramps = libgamma.GammaRamps(i_size, i_size, i_size)
-        # Set gamma
-        ramps.red[:] = R_curve
-        ramps.green[:] = G_curve
-        ramps.blue[:] = B_curve
-        crtc.set_gamma(ramps)
+    import output
+    if not set_gamma.warned:
+        set_gamma.warned = True
+        print('set_gamma() is deprecated', file = sys.stderr)
+    if (method, display) not in cached_displays:
+        cached_displays[(method, display)] = output.get_outputs(method = method, display = display)
+    screen = cached_displays[(method, display)].screens[screen]
+    ramps = output.Ramps(None, depth = -1, size = i_size)
+    ramps.red[:]   = r_curve
+    ramps.green[:] = g_curve
+    ramps.blue[:]  = b_curve
+    for crtc in range(len(screen.crtcs)) if len(crtcs) == 0 else crtcs:
+        crtc = screen.crtcs[crtc]
+        size = (crtc.red_gamma_size, crtc.green_gamma_size, crtc.blue_gamma_size)
+        crtc.set_gamma(ramps.copy(depth = crtc.gamma_depth, size = size))
+set_gamma.warned = False
 
 
 def randr_get(crtc = 0, screen = 0, display = None):
@@ -89,7 +86,11 @@ def randr_get(crtc = 0, screen = 0, display = None):
     @param   display:str?  The display to which to connect, `None` for current display
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
+    if not randr_get.warned:
+        randr_get.warned = True
+        print('randr_get() is deprecated', file = sys.stderr)
     return get_gamma(crtc, screen, display, method = 'randr')
+randr_get.warned = False
 
 def vidmode_get(crtc = 0, screen = 0, display = None):
     '''
@@ -100,7 +101,11 @@ def vidmode_get(crtc = 0, screen = 0, display = None):
     @param   display:str?  The display to which to connect, `None` for current display
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
+    if not vidmode_get.warned:
+        vidmode_get.warned = True
+        print('vidmode_get() is deprecated', file = sys.stderr)
     return get_gamma(crtc, screen, display, method = 'vidmode')
+vidmode_get.warned = False
 
 def drm_get(crtc = 0, screen = 0, display = None):
     '''
@@ -111,7 +116,11 @@ def drm_get(crtc = 0, screen = 0, display = None):
     @param   display:str?  Dummy parameter for compatibility with `randr_get` and `vidmode_get`
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
+    if not drm_get.warned:
+        drm_get.warned = True
+        print('drm_get() is deprecated', file = sys.stderr)
     return get_gamma(crtc, screen, display, method = 'drm')
+drm_get.warned = False
 
 def w32gdi_get(crtc = 0, screen = 0, display = None):
     '''
@@ -122,7 +131,11 @@ def w32gdi_get(crtc = 0, screen = 0, display = None):
     @param   display:str?  Dummy parameter for compatibility with `randr_get` and `vidmode_get`
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
+    if not w32gdi_get.warned:
+        w32gdi_get.warned = True
+        print('w32gdi_get() is deprecated', file = sys.stderr)
     return get_gamma(crtc, screen, display, method = 'w32gdi')
+w32gdi_get.warned = False
 
 def quartz_get(crtc = 0, screen = 0, display = None):
     '''
@@ -133,7 +146,11 @@ def quartz_get(crtc = 0, screen = 0, display = None):
     @param   display:str?  Dummy parameter for compatibility with `randr_get` and `vidmode_get`
     @return  :()→void      Function to invoke to apply the curves that was used when this function was invoked
     '''
+    if not quartz_get.warned:
+        quartz_get.warned = True
+        print('quartz_get() is deprecated', file = sys.stderr)
     return get_gamma(crtc, screen, display, method = 'quartz')
+quartz_get.warned = False
 
 
 def randr(*crtcs, screen = 0, display = None):
@@ -144,7 +161,11 @@ def randr(*crtcs, screen = 0, display = None):
     @param  screen:int    The screen to which the monitors belong
     @param  display:str?  The display to which to connect, `None` for current display
     '''
+    if not randr.warned:
+        randr.warned = True
+        print('randr() is deprecated', file = sys.stderr)
     set_gamma(*crtcs, screen = screen, display = display, method = 'randr')
+randr.warned = False
 
 def vidmode(*crtcs, screen = 0, display = None):
     '''
@@ -154,7 +175,11 @@ def vidmode(*crtcs, screen = 0, display = None):
     @param  screen:int    The screen to which the monitors belong
     @param  display:str?  The display to which to connect, `None` for current display
     '''
+    if not vidmode.warned:
+        vidmode.warned = True
+        print('vidmode() is deprecated', file = sys.stderr)
     set_gamma(*crtcs, screen = screen, display = display, method = 'vidmode')
+vidmode.warned = False
 
 def drm(*crtcs, screen = 0, display = None):
     '''
@@ -165,7 +190,11 @@ def drm(*crtcs, screen = 0, display = None):
                           named `screen` for compatibility with `randr` and `vidmode`
     @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
     '''
+    if not drm.warned:
+        drm.warned = True
+        print('drm() is deprecated', file = sys.stderr)
     set_gamma(*crtcs, screen = screen, display = display, method = 'drm')
+drm.warned = False
 
 def w32gdi(*crtcs, screen = 0, display = None):
     '''
@@ -175,7 +204,11 @@ def w32gdi(*crtcs, screen = 0, display = None):
     @param  screen:int    Dummy parameter for compatibility with `randr`, `vidmode` and `drm`
     @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
     '''
+    if not w32gdi.warned:
+        w32gdi.warned = True
+        print('w32gdi() is deprecated', file = sys.stderr)
     set_gamma(*crtcs, screen = screen, display = display, method = 'w32gdi')
+w32gdi.warned = False
 
 def quartz(*crtcs, screen = 0, display = None):
     '''
@@ -185,7 +218,11 @@ def quartz(*crtcs, screen = 0, display = None):
     @param  screen:int    Dummy parameter for compatibility with `randr`, `vidmode` and `drm`
     @param  display:str?  Dummy parameter for compatibility with `randr` and `vidmode`
     '''
+    if not quartz.warned:
+        quartz.warned = True
+        print('quartz() is deprecated', file = sys.stderr)
     set_gamma(*crtcs, screen = screen, display = display, method = 'quartz')
+quartz.warned = False
 
 
 def print_curves(*crtcs, screen = 0, display = None, compact = False):
@@ -197,6 +234,9 @@ def print_curves(*crtcs, screen = 0, display = None, compact = False):
     @param  display:str?  Dummy parameter
     @param  compact:bool  Whether to print in compact form
     '''
+    if not print_curves.warned:
+        print_curves.warned = True
+        print('print_curves() is deprecated', file = sys.stderr)
     # Convert curves to [0, 0xFFFF] integer lists
     (R_curve, G_curve, B_curve) = translate_to_integers()
     if compact:
@@ -226,6 +266,7 @@ def print_curves(*crtcs, screen = 0, display = None, compact = False):
         print(G_curve)
         # Print the blue colour curve
         print(B_curve)
+print_curves.warned = False
 
 
 
@@ -459,55 +500,6 @@ class Output:
         return '[Name: %s, Connected: %s, Width: %s, Height: %s, CRTC: %s, Screen: %s, EDID: %s]' % rc
 
 
-class EDID:
-    '''
-    Data structure for parsed EDID:s
-    
-    @var  widthmm:int?             The physical width of the monitor, measured in millimetres, `None` if not defined
-    @var  heightmm:int?            The physical height of the monitor, measured in millimetres, `None` if not defined or not connected
-    @var  gamma:float?             The monitor's estimated gamma characteristics, `None` if not specified
-    @var  gamma_correction:float?  Gamma correction to use unless you know more exact values, calculated from `gamma`
-    '''
-    def __init__(self, edid):
-        '''
-        Constructor, parses an EDID
-        
-        @param      edid:str    The edid to parse, in hexadecimal representation
-        @exception  :Exception  Raised when the EDID is not of a support format
-        '''
-        # Check the length of the EDID
-        if not len(edid) == 256:
-            raise Exception('EDID version not support, length mismatch')
-        # Check the EDID:s magic number
-        if not edid[:16].upper() == '00FFFFFFFFFFFF00':
-            raise Exception('EDID version not support, magic number mismatch')
-        # Convert to raw byte representation
-        edid = [int(edid[i * 2 : i * 2 + 2], 16) for i in range(128)]
-        # Check EDID structure version and revision
-        if not edid[18] == 1:
-            raise Exception('EDID version not support, version mismatch, only 1.3 supported')
-        if not edid[19] == 3:
-            raise Exception('EDID version not support, revision mismatch, only 1.3 supported')
-        # Get the maximum displayable image dimension
-        self.widthmm = edid[21] * 10
-        self.heightmm = edid[22] * 10
-        if (self.widthmm == 0) or (self.heightmm == 0):
-            # If either is zero, it is undefined, e.g. a projector
-            self.widthmm = None
-            self.heightmm = None
-        # Get the gamma characteristics
-        if (edid[23] == 255):
-            # Not specified if FFh
-            self.gamma = None
-            self.gamma_correction = None
-        else:
-            self.gamma = (edid[23] + 100) / 100
-            self.gamma_correction = self.gamma / 2.2
-        # Check the EDID checksum
-        if not sum(edid) % 256 == 0:
-            raise Exception('Incorrect EDID checksum')
-
-
 def list_screens(method = None, display = None):
     '''
     Retrieve informantion about all screens, outputs and CRTC:s
@@ -518,43 +510,29 @@ def list_screens(method = None, display = None):
     @param   display:str?  The display to use, `None` for the current one
     @return  :Screens      An instance of a datastructure with the relevant information
     '''
-    method = libgammaman.get_method(method)
-    display_ = libgammaman.get_display(display, method)
-    screen_n = display_.partitions_available
+    import output
+    if not list_screens.warned:
+        list_screens.warned = True
+        print('list_screens() is deprecated', file = sys.stderr)
+    if (method, display) not in cached_displays:
+        cached_displays[(method, display)] = output.get_outputs(method = method, display = display)
     rc = Screens()
-    rc.screens = [None] * screen_n
-    
-    for screen_i in range(screen_n):
-        screen = libgammaman.get_screen(screen_i, display, method)
-        # And add it to the table
-        rc.screens[screen_i] = s = Screen()
-        # Store the number of CRTC:s
-        s.crtc_count = crtc_n = screen.crtcs_available
-        # Prepare the current screens output table when we know how many outputs it has
-        s.outputs = [None] * crtc_n
-        for crtc_i in range(crtc_n):
-            crtc = libgamma.CRTC(screen, crtc_i)
-            (info, _) = crtc.information(~0)
-            s.outputs[crtc_i] = o = Output()
-            # Store the screen index for the output so that it is easy
-            # to look it up when iterating over outputs
-            o.screen = screen_i
-            # Store the name of the output
-            o.name = info.connector_name if info.connector_name_error == 0 else None
-            # Store the connection status of the output's connector
-            o.connected = info.active if info.active_error == 0 else None
-            # Store the physical dimensions of the monitor
-            o.widthmm, o.heightmm = info.width_mm, info.height_mm
-            # But if it is zero or less it is unknown
-            if (o.widthmm <= 0) or (o.heightmm <= 0):
-                o.widthmm, o.heightmm = None, None
-            # Store the CRTC index of the output
-            o.crtc = crtc_i
-            # Store the output's extended dislay identification data
-            o.edid = None if info.edid is None or not info.edid_error == 0 else libgamma.behex_edid(info.edid)
-    
+    rc.screens = cached_displays[(method, display)].screens
+    for screen_i, screen in enumerate(rc.screens):
+        screen.crtc_count = len(screen.crtcs)
+        screen.outputs = [None] * screen.crtc_count
+        for crtc_i in range(screen.crtc_count):
+            screen.outputs[crtc_i] = output = Output()
+            output.screen = screen_i
+            output.crtc = crtc_i
+            crtc = screen.crtcs[crtc_i]
+            output.name = crtc.connector_name
+            output.connected = crtc.active
+            output.widthmm = crtc.width_mm
+            output.heightmm = crtc.height_mm
+            output.edid = crtc.edid
     return rc
-    
+list_screens.warned = False
 
 
 def list_screens_randr(display = None):
@@ -564,7 +542,11 @@ def list_screens_randr(display = None):
     @param   display:str?  The display to use, `None` for the current one
     @return  :Screens      An instance of a datastructure with the relevant information
     '''
+    if not list_screens_randr.warned:
+        list_screens_randr.warned = True
+        print('list_screens_randr() is deprecated', file = sys.stderr)
     return list_screens('randr', display)
+list_screens_randr.warned = False
 
 def list_screens_drm():
     '''
@@ -572,7 +554,11 @@ def list_screens_drm():
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
+    if not list_screens_drm.warned:
+        list_screens_drm.warned = True
+        print('list_screens_drm() is deprecated', file = sys.stderr)
     return list_screens('drm', None)
+list_screens_drm.warned = False
 
 def list_screens_quartz():
     '''
@@ -580,7 +566,11 @@ def list_screens_quartz():
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
+    if not list_screens_quartz.warned:
+        list_screens_quartz.warned = True
+        print('list_screens_quartz() is deprecated', file = sys.stderr)
     return list_screens('quartz', None)
+list_screens_quartz.warned = False
 
 def list_screens_w32gdi():
     '''
@@ -588,13 +578,23 @@ def list_screens_w32gdi():
     
     @return  :Screens  An instance of a datastructure with the relevant information
     '''
+    if not list_screens_w32gdi.warned:
+        list_screens_w32gdi.warned = True
+        print('list_screens_w32gdi() is deprecated', file = sys.stderr)
     return list_screens('w32gdi', None)
+list_screens_w32gdi.warned = False
 
 
 def quartz_restore():
     '''
     Restore all CRTC:s' gamma ramps the settings in ColorSync
     '''
-    method = libgammaman.get_method('quartz')
-    libgammaman.get_display(None, method).restore()
+    import output
+    if not quartz_restore.warned:
+        quartz_restore.warned = True
+        print('quartz_restore() is deprecated', file = sys.stderr)
+    if ('quartz', None) not in cached_displays:
+        cached_displays[('quartz', None)] = output.get_outputs(method = 'quartz')
+    cached_displays[('quartz', None)].restore()
+quartz_restore.warned = False
 

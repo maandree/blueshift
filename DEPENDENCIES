@@ -42,9 +42,9 @@ INSTALL DEPENDENCIES:
 
 DEPENDENCY SOURCES:
 
-	pylibgamma            https://github.com/maandree/pylibgamma
-	solar-python          https://github.com/maandree/solar-python
-	argparser-python      https://github.com/maandree/argparser
-	adjbacklight          https://github.com/maandree/adjbacklight
-	auto-auto-complete    https://github.com/maandree/auto-auto-complete
+	pylibgamma            https://codeberg.org/maandree/pylibgamma
+	solar-python          https://codeberg.org/maandree/solar-python
+	argparser-python      https://codeberg.org/maandree/argparser
+	adjbacklight          https://codeberg.org/maandree/adjbacklight
+	auto-auto-complete    https://codeberg.org/maandree/auto-auto-complete
 
