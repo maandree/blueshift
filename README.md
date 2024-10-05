@@ -1,3 +1,7 @@
+This repo has been moved to Codeberg and may be out of date on GitHub.
+Canonical repo: https://codeberg.org/maandree/blueshift
+
+
 Important!
 ----------
 
