@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (maandree@kth.se)
+# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (m@maandree.se)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This module contains the colour curve definitions and functions for
-# manipulating the colour curves
+# This module is deprecated!
 
 import math
 
@@ -252,9 +251,9 @@ def gamma(r, g = ..., b = ...):
     '''
     Apply gamma correction on the colour curves
     
-    @param  r:float      The gamma parameter for the red curve
-    @param  g:float|...  The gamma parameter for the green curve, defaults to `r` if `...`
-    @param  b:float|...  The gamma parameter for the blue curve, defaults to `g` if `...`
+    @param  r:float      The gamma parameter for the red colour curve
+    @param  g:float|...  The gamma parameter for the green colour curve, defaults to `r` if `...`
+    @param  b:float|...  The gamma parameter for the blue colour curve, defaults to `g` if `...`
     '''
     # Handle overloading
     if g is ...:  g = r
@@ -270,9 +269,9 @@ def negative(r = True, g = ..., b = ...):
     '''
     Reverse the colour curves (negative image with gamma preservation)
     
-    @param  r:bool      Whether to invert the red curve
-    @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
-    @param  b:bool|...  Whether to invert the blue curve, defaults to `g` if `...`
+    @param  r:bool      Whether to invert the red colour curve
+    @param  g:bool|...  Whether to invert the green colour curve, defaults to `r` if `...`
+    @param  b:bool|...  Whether to invert the blue colour curve, defaults to `g` if `...`
     '''
     # Handle overloading
     if g is ...:  g = r
@@ -288,9 +287,9 @@ def rgb_invert(r = True, g = ..., b = ...):
     '''
     Invert the colour curves (negative image with gamma invertion), using sRGB
     
-    @param  r:bool      Whether to invert the red curve
-    @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
-    @param  b:bool|...  Whether to invert the blue curve, defaults to `g` if `...`
+    @param  r:bool      Whether to invert the red colour curve
+    @param  g:bool|...  Whether to invert the green colour curve, defaults to `r` if `...`
+    @param  b:bool|...  Whether to invert the blue colour curve, defaults to `g` if `...`
     '''
     # Handle overloading
     if g is ...:  g = r
@@ -306,9 +305,9 @@ def cie_invert(r = True, g = ..., b = ...):
     '''
     Invert the colour curves (negative image with gamma invertion), using CIE xyY
     
-    @param  r:bool      Whether to invert the red curve
-    @param  g:bool|...  Whether to invert the green curve, defaults to `r` if `...`
-    @param  b:bool|...  Whether to invert the blue curve, defaults to `g` if `...`
+    @param  r:bool      Whether to invert the red colour curve
+    @param  g:bool|...  Whether to invert the green colour curve, defaults to `r` if `...`
+    @param  b:bool|...  Whether to invert the blue colour curve, defaults to `g` if `...`
     '''
     # Handle overloading
     if g is ...:  g = r
@@ -336,9 +335,9 @@ def sigmoid(r, g = ..., b = ...):
     only way to adjust the black point on many LCD
     monitors.
     
-    @param  r:float?      The sigmoid parameter for the red curve
-    @param  g:float|...?  The sigmoid parameter for the green curve, defaults to `r` if `...`
-    @param  b:float|...?  The sigmoid parameter for the blue curve, defaults to `g` if `...`
+    @param  r:float?      The sigmoid parameter for the red colour curve
+    @param  g:float|...?  The sigmoid parameter for the green colour curve, defaults to `r` if `...`
+    @param  b:float|...?  The sigmoid parameter for the blue colour curve, defaults to `g` if `...`
     '''
     # Handle overloading
     if g is ...:  g = r
@@ -546,7 +545,7 @@ def start_over():
 
 def clip(r = True, g = ..., b = ...):
     '''
-    Clip all values below the actual minimum and above actual maximums
+    Clip all values below the actual minimum and above the actual maximum
     
     @param  r:bool      Whether to clip the red colour curve
     @param  g:bool|...  Whether to clip the green colour curve, defaults to `r` if `...`

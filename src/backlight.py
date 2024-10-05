@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (maandree@kth.se)
+# Copyright © 2014, 2015, 2016, 2017  Mattias Andrée (m@maandree.se)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -94,6 +94,6 @@ class Backlight:
                 file.write(('%i\n' % (value + self.__minimum)).encode('utf-8'))
                 file.flush()
         else:
-            cmd = ['adjbacklight', self.__controller, '--set', str(value + self.__minimum)]
+            cmd = ['adjbacklight', '-s', str(value + self.__minimum), self.__controller]
             Popen(cmd, stdout = sys.stdout, stderr = sys.stderr).wait()
 

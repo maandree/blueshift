@@ -5,42 +5,42 @@
 
 
 # The package path prefix, if you want to install to another root, set DESTDIR to that root
-PREFIX ?= /usr
+PREFIX = /usr
 # The command path excluding prefix
-BIN ?= /bin
+BIN = /bin
 # The executable library path excluding prefix
-LIBEXEC ?= /libexec
+LIBEXEC = /libexec
 # The resource path excluding prefix
-DATA ?= /share
+DATA = /share
 # The command path including prefix
-BINDIR ?= $(PREFIX)$(BIN)
+BINDIR = $(PREFIX)$(BIN)
 # The executable library path including prefix
-LIBEXECDIR ?= $(PREFIX)$(LIBEXEC)
+LIBEXECDIR = $(PREFIX)$(LIBEXEC)
 # The resource path including prefix
-DATADIR ?= $(PREFIX)$(DATA)
+DATADIR = $(PREFIX)$(DATA)
 # The generic documentation path including prefix
-DOCDIR ?= $(DATADIR)/doc
+DOCDIR = $(DATADIR)/doc
 # The info manual documentation path including prefix
-INFODIR ?= $(DATADIR)/info
+INFODIR = $(DATADIR)/info
 # The license base path including prefix
-LICENSEDIR ?= $(DATADIR)/licenses
+LICENSEDIR = $(DATADIR)/licenses
 
 # Python 3 command to use in shebangs
-SHEBANG ?= /usr/bin/env python3
+SHEBANG = /usr/bin/env python3
 # The name of the command as it should be installed
-COMMAND ?= blueshift
+COMMAND = blueshift
 # The name of the package as it should be installed
-PKGNAME ?= blueshift
+PKGNAME = blueshift
 
 # Executable bindings for display server access
-EXECS ?= iccprofile
+EXECS = iccprofile
 
 # Executable library files
 EXECLIBS = $(foreach E,$(EXECS),blueshift_$(E))
 # The installed pkg-config command
-PKGCONFIG ?= pkg-config
+PKGCONFIG = pkg-config
 # Optimisation settings for C code compilation
-OPTIMISE ?= -O3 -g
+OPTIMISE = -O3 -g
 # Warnings settings for C code compilation
 WARN = -Wall -Wextra -pedantic -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include-dirs      \
        -Wtrampolines -Wmissing-prototypes -Wmissing-declarations -Wnested-externs                    \
@@ -68,7 +68,7 @@ DATAFILES = 2deg 10deg redshift redshift_old
 # Python source files
 PYFILES = __main__.py colour.py curve.py monitor.py solar.py icc.py adhoc.py  \
           backlight.py blackbody.py aux.py weather.py interpolation.py        \
-          libgammaman.py
+          output.py
 # Configuration script example files
 EXAMPLES = comprehensive sleepmode crtc-detection crtc-searching logarithmic  \
            xmobar xpybar stored-settings current-settings xmonad threaded     \
