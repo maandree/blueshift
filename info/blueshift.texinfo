@@ -1075,7 +1075,7 @@ more exact values to use.
 
 @command{blueshift} offers support for adjusting
 the backlight on monitors through Linux's sysfs.
-When available this preferable to adjusting the
+When available this is preferable to adjusting the
 brightness. It does however have two drawbacks:
 it interferes with manual adjustments and depending
 on the backlight controller you may have very
@@ -1893,7 +1893,7 @@ and 100 % but include any manual adjustments.
 This is a small example that inverts the colours when
 the battery's capacity is low. It includes very little
 from the configuration API but uses Linux's sysfs to
-determine the battery's capacity an charging status.
+determine the battery's capacity and charging status.
 
 @item bedtime
 This example adjusts the the colours to make it easier
